@@ -1,3 +1,11 @@
+//
+//  AtomOpenSearchResponse.cs
+//
+//  Author:
+//       Emmanuel Mathot <emmanuel.mathot@terradue.com>
+//
+//  Copyright (c) 2014 Terradue
+
 using System;
 using System.Collections.Specialized;
 using System.Threading;
@@ -7,15 +15,16 @@ using System.IO;
 using System.Xml;
 using System.Diagnostics;
 
-namespace Terradue.OpenSearch
+namespace Terradue.OpenSearch.Response
 {
     public class AtomOpenSearchResponse : MemoryOpenSearchResponse
 	{
 
 		SyndicationFeed result;
 
-        public AtomOpenSearchResponse(SyndicationFeed result) : base(new MemoryStream(),"application/atom+xml") {
+        public AtomOpenSearchResponse(SyndicationFeed result, TimeSpan timeSpan) : base(new MemoryStream(),"application/atom+xml") {
 
+            this.timeSpan = timeSpan;
             this.result = result;
 
             Stopwatch sw = new Stopwatch();
@@ -28,7 +37,7 @@ namespace Terradue.OpenSearch
             writer.Close();
             response.Seek(0, SeekOrigin.Begin);
             sw.Start();
-            timeSpan = sw.Elapsed;
+            this.timeSpan += sw.Elapsed;
 
 		}
 
@@ -41,7 +50,7 @@ namespace Terradue.OpenSearch
 
 		public override TimeSpan RequestTime {
 			get {
-				return new TimeSpan(0);
+                return this.timeSpan;
 			}
 		}
 

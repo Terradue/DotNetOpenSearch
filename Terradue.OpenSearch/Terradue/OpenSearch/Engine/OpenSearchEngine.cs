@@ -1,3 +1,11 @@
+//
+//  OpenSearchEngine.cs
+//
+//  Author:
+//       Emmanuel Mathot <emmanuel.mathot@terradue.com>
+//
+//  Copyright (c) 2014 Terradue
+
 using System;
 using System.Linq;
 using System.Collections.Generic;
@@ -10,9 +18,12 @@ using Mono.Addins;
 using System.ServiceModel.Syndication;
 using System.Xml.Serialization;
 using System.Xml;
-using Terradue.Util;
+using Terradue.OpenSearch.Request;
+using Terradue.OpenSearch.Response;
+using Terradue.OpenSearch.Result;
+using Terradue.OpenSearch.Schema;
 
-namespace Terradue.OpenSearch {
+namespace Terradue.OpenSearch.Engine {
     /// <summary>
     /// The engine for making OpenSearch request
     /// </summary>
@@ -113,7 +124,7 @@ namespace Terradue.OpenSearch {
         /// <param name="resultName">Result name.</param>
         public Type GetTypeByExtensionName(string resultName) {
             foreach (IOpenSearchEngineExtension extension in extensions.Values) {
-                if (extension.GetTransformName() == resultName) return  extension.GetTransformType();
+                if (extension.Identifier == resultName) return  extension.GetTransformType();
             }
             throw new KeyNotFoundException(string.Format("Engine extension to transform to {0} not found", resultName));
         }
@@ -225,7 +236,7 @@ namespace Terradue.OpenSearch {
 
             if (osee == null) throw new InvalidOperationException("No registered extensions able to get media enclosures for " + type.ToString());
 
-            return osee.GetEnclosures(result.Result);
+            return osee.GetEnclosures(result);
 
         }
 

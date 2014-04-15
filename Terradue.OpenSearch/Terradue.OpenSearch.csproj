@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>10.0.0</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{997A44FD-EE4A-490A-855B-88305E0CD269}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Terradue.OpenSearch</RootNamespace>
+    <AssemblyName>Terradue.OpenSearch</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>full</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="Mono.Addins, Version=0.6.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Net" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Runtime.Caching" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Web" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Terradue\OpenSearch\Engine\Extensions\GeoSpatialTemporalOpenSearchExtension.cs" />
+    <Compile Include="Terradue\OpenSearch\Engine\Extensions\RdfOpenSearchEngineExtension.cs" />
+    <Compile Include="Terradue\OpenSearch\Engine\IOpenSearchEngineExtension.cs" />
+    <Compile Include="Terradue\OpenSearch\Engine\OpenSearchEngine.cs" />
+    <Compile Include="Terradue\OpenSearch\Engine\OpenSearchEngineExtension.cs" />
+    <Compile Include="Terradue\OpenSearch\Exception\ImpossibleSearchException.cs" />
+    <Compile Include="Terradue\OpenSearch\Filters\OpenSearchCorrelationFilter.cs" />
+    <Compile Include="Terradue\OpenSearch\Filters\OpenSearchMemoryCache.cs" />
+    <Compile Include="Terradue\OpenSearch\OpenSearchable\GenericOpenSearchable.cs" />
+    <Compile Include="Terradue\OpenSearch\OpenSearchable\IOpenSearchable.cs" />
+    <Compile Include="Terradue\OpenSearch\OpenSearchable\IOpenSearchableFactory.cs" />
+    <Compile Include="Terradue\OpenSearch\OpenSearchable\IProxiedOpenSearchable.cs" />
+    <Compile Include="Terradue\OpenSearch\OpenSearchable\MultiGenericOpenSearchable.cs" />
+    <Compile Include="Terradue\OpenSearch\Request\FileOpenSearchRequest.cs" />
+    <Compile Include="Terradue\OpenSearch\Request\HttpOpenSearchRequest.cs" />
+    <Compile Include="Terradue\OpenSearch\Request\MemoryOpenSearchRequest.cs" />
+    <Compile Include="Terradue\OpenSearch\Request\MultiAtomOpenSearchRequest.cs" />
+    <Compile Include="Terradue\OpenSearch\Request\OpenSearchRequest.cs" />
+    <Compile Include="Terradue\OpenSearch\Response\AtomOpenSearchResponse.cs" />
+    <Compile Include="Terradue\OpenSearch\Response\HttpOpenSearchResponse.cs" />
+    <Compile Include="Terradue\OpenSearch\Response\MemoryOpenSearchResponse.cs" />
+    <Compile Include="Terradue\OpenSearch\Response\OpenSearchResponse.cs" />
+    <Compile Include="Terradue\OpenSearch\Result\IOpenSearchResult.cs" />
+    <Compile Include="Terradue\OpenSearch\Result\IOpenSearchResultCollection.cs" />
+    <Compile Include="Terradue\OpenSearch\Result\OpenSearchResult.cs" />
+    <Compile Include="Terradue\OpenSearch\Result\RdfXmlDocument.cs" />
+    <Compile Include="Terradue\OpenSearch\Schema\OpenSearchDescription.cs" />
+    <Compile Include="Terradue\OpenSearch\OpenSearchFactory.cs" />
+    <Compile Include="Terradue\OpenSearch\OpenSearchUrl.cs" />
+    <Compile Include="Terradue\OpenSearch\Schema\UniqueValueDictionary.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+</Project>

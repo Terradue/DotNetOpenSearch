@@ -1,0 +1,6 @@
+Name: Terradue.OpenSearch
+Description: Terradue.OpenSearch
+Version: 0.1
+
+Requires: 
+Libs: -r:@expanded_libdir@/@PACKAGE@/Terradue.OpenSearch.dll

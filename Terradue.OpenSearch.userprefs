@@ -1,0 +1,32 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" ActiveRuntime="Mono 2.10.9" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Terradue.OpenSearch/Terradue/OpenSearch/Engine/Extensions/RdfOpenSearchEngineExtension.cs">
+    <Files>
+      <File FileName="Terradue.OpenSearch/Terradue/OpenSearch/Engine/Extensions/RdfOpenSearchEngineExtension.cs" Line="142" Column="53" />
+      <File FileName="Terradue.OpenSearch/Terradue/OpenSearch/Filters/OpenSearchMemoryCache.cs" Line="1" Column="1" />
+      <File FileName="Terradue.OpenSearch/Terradue/OpenSearch/Engine/Extensions/GeoSpatialTemporalOpenSearchExtension.cs" Line="1" Column="1" />
+      <File FileName="Terradue.OpenSearch/Terradue/OpenSearch/Schema/OpenSearchDescription.cs" Line="1" Column="1" />
+      <File FileName="Terradue.OpenSearch/Terradue/OpenSearch/Engine/OpenSearchEngine.cs" Line="1" Column="1" />
+      <File FileName="Terradue.OpenSearch/Terradue/OpenSearch/Filters/OpenSearchCorrelationFilter.cs" Line="98" Column="13" />
+      <File FileName="Terradue.OpenSearch/Terradue/OpenSearch/Response/HttpOpenSearchResponse.cs" Line="14" Column="26" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State expanded="True">
+          <Option id="ShowAllFiles" value="True" />
+          <Node name="Terradue.OpenSearch" expanded="True">
+            <Node name="References" expanded="True">
+              <Node name="Mono.Addins, Version=0.6.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756" selected="True" />
+            </Node>
+          </Node>
+        </State>
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches>
+    <Watch file="../../Terradue.NgEO.Connector/Terradue/NgEO/Connector/DataSet/DataSet.cs" line="711" offsetX="536" offsetY="11360" expression="dpm" liveUpdate="False" />
+  </MonoDevelop.Ide.DebuggingService.PinnedWatches>
+</Properties>

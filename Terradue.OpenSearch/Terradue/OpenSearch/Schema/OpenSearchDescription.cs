@@ -1,4 +1,12 @@
-namespace Terradue.OpenSearch {
+//
+//  OpenSearchDescription.cs
+//
+//  Author:
+//       Emmanuel Mathot <emmanuel.mathot@terradue.com>
+//
+//  Copyright (c) 2014 Terradue
+
+namespace Terradue.OpenSearch.Schema {
 
 	using System.Runtime.Serialization;
 
@@ -11,7 +19,6 @@ namespace Terradue.OpenSearch {
 	using System;
 
 	/// <remarks/>
-    /// \ingroup modules_openSearchEngine
 	[DataContract(Name="OpenSearchDescription",Namespace="http://a9.com/-/spec/opensearch/1.1/")]
 	[SerializableAttribute()]
 	[XmlTypeAttribute(Namespace="http://a9.com/-/spec/opensearch/1.1/")]
