@@ -65,7 +65,7 @@ cd Terradue.OpenSearch
 ## TODO
 
 * Specialize The OpenSearchResult with an interface
-* Wrap SyndicationFeed with a class implemneting the OpenSearchResult Interface
+* Wrap SyndicationFeed with a class implementing the OpenSearchResult Interface
 * Testing!
 
 ## Copyright and License
