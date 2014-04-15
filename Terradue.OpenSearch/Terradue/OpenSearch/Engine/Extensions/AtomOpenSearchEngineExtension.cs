@@ -71,7 +71,7 @@ namespace Terradue.OpenSearch.Engine.Extensions {
 
             List<SyndicationLink> links = new List<SyndicationLink>();
 
-            foreach (SyndicationItem item in ((SyndicationFeed)results).Items) {
+            foreach (SyndicationItem item in ((SyndicationFeed)results.Result).Items) {
                 foreach (SyndicationLink link in item.Links) {
                     if (link.RelationshipType == "enclosure") {
                         links.Add(link);
