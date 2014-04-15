@@ -11,13 +11,13 @@ include $(top_srcdir)/config.make
 ifeq ($(CONFIG),DEBUG)
 ASSEMBLY_COMPILER_COMMAND = dmcs
 ASSEMBLY_COMPILER_FLAGS =  -noconfig -codepage:utf8 -warn:4 -optimize- -debug "-define:DEBUG;"
-ASSEMBLY = bin/Debug/Terradue.OpenSearch.dll
+ASSEMBLY = bin/Terradue.OpenSearch.dll
 ASSEMBLY_MDB = $(ASSEMBLY).mdb
 COMPILE_TARGET = library
 PROJECT_REFERENCES = 
-BUILD_DIR = bin/Debug
+BUILD_DIR = bin
 
-TERRADUE_OPENSEARCH_DLL_MDB_SOURCE=bin/Debug/Terradue.OpenSearch.dll.mdb
+TERRADUE_OPENSEARCH_DLL_MDB_SOURCE=bin/Terradue.OpenSearch.dll.mdb
 TERRADUE_OPENSEARCH_DLL_MDB=$(BUILD_DIR)/Terradue.OpenSearch.dll.mdb
 
 endif
@@ -25,11 +25,11 @@ endif
 ifeq ($(CONFIG),RELEASE)
 ASSEMBLY_COMPILER_COMMAND = dmcs
 ASSEMBLY_COMPILER_FLAGS =  -noconfig -codepage:utf8 -warn:4 -optimize+
-ASSEMBLY = bin/Release/Terradue.OpenSearch.dll
+ASSEMBLY = bin/Terradue.OpenSearch.dll
 ASSEMBLY_MDB = 
 COMPILE_TARGET = library
 PROJECT_REFERENCES = 
-BUILD_DIR = bin/Release
+BUILD_DIR = bin
 
 TERRADUE_OPENSEARCH_DLL_MDB=
 
