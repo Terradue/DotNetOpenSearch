@@ -422,7 +422,24 @@ namespace Terradue.OpenSearch {
             return nvc;
 
         }
+        public void Test () {
+            var engine = new OpenSearchEngine();
+            engine.LoadPlugins();
+            var entity = new GenericOpenSearchable(new OpenSearchUrl("http://eo-virtual-archive4.esa.int/search/ASA_IM__0P/atom"), engine);
+            var parameters = new NameValueCollection();
+            parameters.Add("count", "20");
+            parameters.Add("start", "1992-01-01");
+            parameters.Add("stop", "2014-04-15");
+            parameters.Add("bbox", "24,30,42,53");
+            var result = engine.Query(entity, parameters, "Atom");
+            XmlWriter atomWriter = XmlWriter.Create("result.xml");
+            Atom10FeedFormatter atomFormatter = new Atom10FeedFormatter((SyndicationFeed)result.Result);
+            atomFormatter.WriteTo(atomWriter);
+            atomWriter.Close();
+        }
     }
+
+
 
     /// <summary>
     /// URL based open searchable factory.
