@@ -64,25 +64,27 @@ namespace Terradue.OpenSearch {
                 if (remoteParametersDef[parameter] == null)
                     continue;
                 // first find the defintion of the parameter in the url template
-                Match matchParamDef = Regex.Match(remoteParametersDef[parameter], @"^{([^?]+)\??}$");
-                // If parameter does not exist, continue
-                if (!matchParamDef.Success)
-                    continue;
-                // We have the parameter defintion
-                string paramDef = matchParamDef.Groups[1].Value;
-                string paramValue = searchParameters[parameter];
+                foreach (var key in remoteParametersDef.GetValues(parameter)) {
+                    Match matchParamDef = Regex.Match(key, @"^{([^?]+)\??}$");
+                    // If parameter does not exist, continue
+                    if (!matchParamDef.Success)
+                        continue;
+                    // We have the parameter defintion
+                    string paramDef = matchParamDef.Groups[1].Value;
+                    string paramValue = searchParameters[parameter];
 
-                // Special case for startPage and startIndex
-                if (paramDef == "startPage" && !string.IsNullOrEmpty(paramValue)) {
-                    paramValue = (int.Parse(paramValue) + remoteUrlTemplate.PageOffset).ToString();
+                    // Special case for startPage and startIndex
+                    if (paramDef == "startPage" && !string.IsNullOrEmpty(paramValue)) {
+                        paramValue = (int.Parse(paramValue) + remoteUrlTemplate.PageOffset).ToString();
+                    }
+
+                    // Special case for startPage and startIndex
+                    if (paramDef == "startIndex" && !string.IsNullOrEmpty(paramValue)) {
+                        paramValue = (int.Parse(searchParameters[parameter]) + remoteUrlTemplate.IndexOffset).ToString();
+                    }
+
+                    finalQueryParameters.Set(parameter, paramValue);
                 }
-
-                // Special case for startPage and startIndex
-                if (paramDef == "startIndex" && !string.IsNullOrEmpty(paramValue)) {
-                    paramValue = (int.Parse(searchParameters[parameter]) + remoteUrlTemplate.IndexOffset).ToString();
-                }
-
-                finalQueryParameters.Add(parameter, paramValue);
 
             }
 
@@ -113,31 +115,35 @@ namespace Terradue.OpenSearch {
                 if (urlTemplateDef[parameter] == null)
                     continue;
                 // first find the defintion of the parameter in the url template
-                Match matchParamDef = Regex.Match(urlTemplateDef[parameter], @"^{([^?]+)\??}$");
-                // If parameter does not exist, continue
-                if (!matchParamDef.Success)
-                    continue;
-                // We have the parameter defintion
-                string paramDef = matchParamDef.Groups[1].Value;
-                string paramValue = searchParameters[parameter];
+                foreach (var key in urlTemplateDef.GetValues(parameter)) {
+                    Match matchParamDef = Regex.Match(key, @"^{([^?]+)\??}$");
+                    // If parameter does not exist, continue
+                    if (!matchParamDef.Success)
+                        continue;
+                    // We have the parameter defintion
+                    string paramDef = matchParamDef.Groups[1].Value;
+                    string paramValue = searchParameters[parameter];
 
-                // Special case for startPage and startIndex
-                if (paramDef == "startPage" && !string.IsNullOrEmpty(paramValue)) {
-                    paramValue = (int.Parse(paramValue) + (remoteUrlTemplate.PageOffset - 1)).ToString();
-                }
+                    // Special case for startPage and startIndex
+                    if (paramDef == "startPage" && !string.IsNullOrEmpty(paramValue)) {
+                        paramValue = (int.Parse(paramValue) + (remoteUrlTemplate.PageOffset - 1)).ToString();
+                    }
 
-                // Special case for startPage and startIndex
-                if (paramDef == "startIndex" && !string.IsNullOrEmpty(paramValue)) {
-                    paramValue = (int.Parse(searchParameters[parameter]) + (remoteUrlTemplate.IndexOffset - 1)).ToString();
-                }
+                    // Special case for startPage and startIndex
+                    if (paramDef == "startIndex" && !string.IsNullOrEmpty(paramValue)) {
+                        paramValue = (int.Parse(searchParameters[parameter]) + (remoteUrlTemplate.IndexOffset - 1)).ToString();
+                    }
 
-                // Find the paramdef in the remote URl template
-                foreach (string keyDef in remoteParametersDef.AllKeys) {
-                    Match remoteMatchParamDef = Regex.Match(remoteParametersDef[keyDef], @"^{(" + paramDef + @")\??}$");
-                    // if martch is successful
-                    if (remoteMatchParamDef.Success) {
-                        // then add the parameter with the right key
-                        finalQueryParameters.Add(keyDef, paramValue);
+                    // Find the paramdef in the remote URl template
+                    foreach (string keyDef in remoteParametersDef.AllKeys) {
+                        foreach (var key2 in remoteParametersDef.GetValues(keyDef)) {
+                            Match remoteMatchParamDef = Regex.Match(key2, @"^{(" + paramDef + @")\??}$");
+                            // if martch is successful
+                            if (remoteMatchParamDef.Success) {
+                                // then add the parameter with the right key
+                                finalQueryParameters.Set(keyDef, paramValue);
+                            }
+                        }
                     }
                 }
 
@@ -181,11 +187,13 @@ namespace Terradue.OpenSearch {
 
                 // Find the paramdef in the remote URl template
                 foreach (string keyDef in remoteParametersDef.AllKeys) {
-                    Match remoteMatchParamDef = Regex.Match(remoteParametersDef[keyDef], @"^{(" + parameter + @")\??}$");
-                    // if martch is successful
-                    if (remoteMatchParamDef.Success) {
-                        // then add the parameter with the right key
-                        finalQueryParameters.Add(keyDef, value);
+                    foreach (string key2 in remoteParametersDef.GetValues(keyDef)) {
+                        Match remoteMatchParamDef = Regex.Match(key2, @"^{(" + parameter + @")\??}$");
+                        // if martch is successful
+                        if (remoteMatchParamDef.Success) {
+                            // then add the parameter with the right key
+                            finalQueryParameters.Add(keyDef, value);
+                        }
                     }
                 }
 
@@ -409,13 +417,15 @@ namespace Terradue.OpenSearch {
             foreach (string key in osdParam.AllKeys) {
 
                 // first find the defintion of the parameter in the url template
-                Match matchParamDef = Regex.Match(osdParam[key], @"^{([^?]+)\??}$");
-                // If parameter does not exist, continue
-                if (!matchParamDef.Success)
-                    continue;
-                // We have the parameter defintion
-                string paramDef = matchParamDef.Groups[1].Value;
-                nvc.Add(paramDef, key);
+                foreach (var value in osdParam.GetValues(key)) {
+                    Match matchParamDef = Regex.Match(value, @"^{([^?]+)\??}$");
+                    // If parameter does not exist, continue
+                    if (!matchParamDef.Success)
+                        continue;
+                    // We have the parameter defintion
+                    string paramDef = matchParamDef.Groups[1].Value;
+                    nvc.Add(paramDef, key);
+                }
 
             }
 
