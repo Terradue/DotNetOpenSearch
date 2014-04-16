@@ -1,18 +1,18 @@
-# Terradue.OpenSearch - OpenSearch library for .Net
+# DotNetOpenSearch - OpenSearch library for .Net
 
-Terradue.OpenSearch is a library targeting .NET 4.0 and above that provides an easy way to perform OpenSearch query from a class or an URL to multiple and custom types of results (Atom, Rdf...)
+Terradue.OpenSearch is a library targeting .NET 4.0 and above providing an easy way to perform OpenSearch query from a class or an URL to multiple and custom types of results (Atom, Rdf, etc.)
 
 ## Usage examples
 
 Query 
 
 ```c#
-// Create First the engine
+// First create the engine
 var engine = new OpenSearchEngine();
 // Load the extensions automatically
 engine.LoadPlugins();
 
-// Lets create a generic OpenSearchable from a Url
+// Create a generic OpenSearchable from an URL
 var entity = new GenericOpenSearchable(new OpenSearchUrl("http://eo-virtual-archive4.esa.int/search/ASA_IM__0P/atom"), engine);
 // Specify the requested parameters
 var parameters = new NameValueCollection();
@@ -47,8 +47,9 @@ Install-Package Terradue.OpenSearch
 
 ## Build
 
-Terradue.OpenSearch is a single assembly designed to be easy to deploy anywhere. If you 
-prefer to compile it yourself, you’ll need:
+Terradue.OpenSearch is a single assembly designed to be easily deployed anywhere. 
+
+To compile it yourself, you’ll need:
 
 * Visual Studio 2012 or later, or Xamarin Studio
 
