@@ -13,7 +13,7 @@ using System.ServiceModel.Syndication;
 using Terradue.OpenSearch.Response;
 using Terradue.OpenSearch.Result;
 
-namespace Terradue.OpenSearch {
+namespace Terradue.OpenSearch.Engine {
     /// <summary>
     /// Base class for implementing a typed OpenSearchEngine extension.
     /// </summary>
