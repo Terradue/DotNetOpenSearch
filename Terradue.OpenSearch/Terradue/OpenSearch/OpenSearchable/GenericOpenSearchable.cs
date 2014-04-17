@@ -73,7 +73,9 @@ namespace Terradue.OpenSearch {
 
         public NameValueCollection GetOpenSearchParameters(string mimeType) {
             foreach (OpenSearchDescriptionUrl url in GetOpenSearchDescription().Url) {
-                if (url.Type == mimeType) return HttpUtility.ParseQueryString(new Uri(url.Template).Query);
+                if (url.Type == mimeType) {
+                    return HttpUtility.ParseQueryString(new Uri(url.Template).Query);
+                }
             }
 
             return null;
