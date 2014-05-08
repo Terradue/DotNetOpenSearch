@@ -20,7 +20,7 @@ namespace Terradue.OpenSearch.Filters {
     /// <summary>
     /// OpenSearch correlation filter.
     /// </summary>
-    public abstract class OpenSearchCorrelationFilter {
+    public abstract partial class OpenSearchCorrelationFilter {
 
         protected OpenSearchEngine ose;
         protected IOpenSearchableFactory factory;
