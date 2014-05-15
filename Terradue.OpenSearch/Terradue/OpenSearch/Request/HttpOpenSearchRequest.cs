@@ -16,7 +16,6 @@ using System.Threading;
 using Terradue.OpenSearch.Response;
 
 namespace Terradue.OpenSearch.Request {
-
     /// <summary>
     /// Implements an OpenSearch request over HTTP
     /// </summary>
@@ -56,7 +55,7 @@ namespace Terradue.OpenSearch.Request {
 
             int retry = 2;
 
-            while (retry > 0) {
+            while (retry >= 1) {
                 try {
                     Stopwatch sw = Stopwatch.StartNew();
                     httpWebRequest = (HttpWebRequest)WebRequest.Create(this.OpenSearchUrl);
@@ -69,11 +68,11 @@ namespace Terradue.OpenSearch.Request {
                 } catch (WebException e) {
                     if (e.Status == WebExceptionStatus.Timeout) throw new TimeoutException(String.Format("Search Request {0} has timed out", httpWebRequest.RequestUri.AbsoluteUri), e);
                     retry--;
-                    if (retry >= 0) {
+                    if (retry > 0) {
                         Thread.Sleep(1000);
                         continue;
                     }
-                    throw e;
+                    throw new WebException(string.Format("Error during query at {0} : {1}", this.OpenSearchUrl, e.Message), e);
                 } catch (Exception e) {
                     throw new Exception("Unknown error during query at " + httpWebRequest.RequestUri.AbsoluteUri, e);
                 }
