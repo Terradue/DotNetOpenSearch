@@ -15,7 +15,7 @@ using System.Net;
 using System.Web;
 using System.Diagnostics;
 using Mono.Addins;
-using System.ServiceModel.Syndication;
+using Terradue.ServiceModel.Syndication;
 using System.Xml.Serialization;
 using System.Xml;
 using Terradue.OpenSearch.Request;

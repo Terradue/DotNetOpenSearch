@@ -10,9 +10,10 @@ using System;
 using System.Linq;
 using System.Xml;
 using System.Collections.Generic;
-using System.ServiceModel.Syndication;
+using Terradue.ServiceModel.Syndication;
 using System.Xml.Serialization;
 using System.Xml.Linq;
+using System.Collections.ObjectModel;
 
 namespace Terradue.OpenSearch.Result {
     /// <summary>
@@ -58,7 +59,7 @@ namespace Terradue.OpenSearch.Result {
 
         #region IResultCollection implementation
 
-        public List<IOpenSearchResultItem> Items {
+        public IEnumerable<IOpenSearchResultItem> Items {
             get {
                 List<IOpenSearchResultItem> datasets = new List<IOpenSearchResultItem>();
 
@@ -118,15 +119,15 @@ namespace Terradue.OpenSearch.Result {
             }
         }
 
-        public List<System.ServiceModel.Syndication.SyndicationLink> Links {
+        public Collection<Terradue.ServiceModel.Syndication.SyndicationLink> Links {
             get {
-                return description.Elements("http://www.w3.org/2005/Atom" + "link")
+
+                return new Collection<SyndicationLink>(description.Elements("http://www.w3.org/2005/Atom" + "link")
                     .Select(l => new SyndicationLink(new Uri(l.Attribute("href").Value), 
                                                      l.Attribute("rel").Value, 
                                                      l.Attribute("title").Value, 
                                                      l.Attribute("type").Value, 
-                                                     long.Parse(l.Attribute("length").Value)))
-                    .ToList();
+                                                     long.Parse(l.Attribute("length").Value))).ToList());
             }
         }
 
@@ -198,9 +199,9 @@ namespace Terradue.OpenSearch.Result {
             }
         }
 
-        List<System.ServiceModel.Syndication.SyndicationLink> links;
+        Collection<Terradue.ServiceModel.Syndication.SyndicationLink> links;
 
-        public List<System.ServiceModel.Syndication.SyndicationLink> Links {
+        public Collection<Terradue.ServiceModel.Syndication.SyndicationLink> Links {
             get {
                 return links;
             }
@@ -208,7 +209,7 @@ namespace Terradue.OpenSearch.Result {
 
         #endregion
 
-        private List<SyndicationLink> InitLinks() {
+        private Collection<SyndicationLink> InitLinks() {
             List<SyndicationLink> links = new List<SyndicationLink>();
             try {
                 links.Add(SyndicationLink.CreateSelfLink(new Uri(root.Attribute("about").Value)));
@@ -221,7 +222,7 @@ namespace Terradue.OpenSearch.Result {
                     continue;
                 }
             }
-            return links;
+            return new Collection<SyndicationLink>(links);
         }
     }
 }

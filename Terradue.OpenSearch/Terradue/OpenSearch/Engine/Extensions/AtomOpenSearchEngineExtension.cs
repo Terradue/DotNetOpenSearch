@@ -9,7 +9,7 @@
 using System;
 using System.Linq;
 using Mono.Addins;
-using System.ServiceModel.Syndication;
+using Terradue.ServiceModel.Syndication;
 using System.Collections.Generic;
 using System.Xml;
 using System.Net;
@@ -61,7 +61,7 @@ namespace Terradue.OpenSearch.Engine.Extensions {
         }
 
         public override OpenSearchUrl FindOpenSearchDescriptionUrlFromResponse(OpenSearchResponse response) {
-            SyndicationFeed feed = TransformAtomResponseToAtomFeed(response);
+            AtomFeed feed = TransformAtomResponseToAtomFeed(response);
             SyndicationLink link = feed.Links.FirstOrDefault(l => l.RelationshipType == "search" && l.MediaType.Contains("opensearch"));
             if (link == null) return null;
             return new OpenSearchUrl(link.Uri);

@@ -8,7 +8,7 @@
 
 using System;
 using System.Collections.Specialized;
-using System.ServiceModel.Syndication;
+using Terradue.ServiceModel.Syndication;
 
 namespace Terradue.OpenSearch.Result
 {

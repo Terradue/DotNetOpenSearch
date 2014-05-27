@@ -18,7 +18,7 @@ using Terradue.OpenSearch.Result;
 using System.Text.RegularExpressions;
 using System.Collections.Specialized;
 using Terradue.OpenSearch.Response;
-using System.ServiceModel.Syndication;
+using Terradue.ServiceModel.Syndication;
 using System.Xml.Linq;
 
 namespace Terradue.OpenSearch.Engine.Extensions {
@@ -77,7 +77,7 @@ namespace Terradue.OpenSearch.Engine.Extensions {
             return new OpenSearchUrl(link.Uri);
         }
 
-        public override System.ServiceModel.Syndication.SyndicationLink[] GetEnclosures(IOpenSearchResult result) {
+        public override Terradue.ServiceModel.Syndication.SyndicationLink[] GetEnclosures(IOpenSearchResult result) {
             throw new NotImplementedException();
         }
 

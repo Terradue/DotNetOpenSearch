@@ -18,7 +18,7 @@ using System.Text;
 using System.IO;
 using System.Security;
 using Terradue.OpenSearch.Result;
-using System.ServiceModel.Syndication;
+using Terradue.ServiceModel.Syndication;
 using Terradue.OpenSearch.Engine;
 using Terradue.OpenSearch.Response;
 using Terradue.OpenSearch.Schema;

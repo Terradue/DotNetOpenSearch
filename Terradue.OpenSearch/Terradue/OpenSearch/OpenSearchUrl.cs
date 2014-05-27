@@ -74,7 +74,7 @@ namespace Terradue.OpenSearch
         /// Returns a <see cref="System.String"/> that represents the current <see cref="Terradue.OpenSearch.OpenSearchUrl"/>.
         /// </summary>
         /// <returns>A <see cref="System.String"/> that represents the current <see cref="Terradue.OpenSearch.OpenSearchUrl"/>.</returns>
-		public string  ToString() {
+        public new string ToString() {
 			return base.AbsoluteUri;
 		}
 

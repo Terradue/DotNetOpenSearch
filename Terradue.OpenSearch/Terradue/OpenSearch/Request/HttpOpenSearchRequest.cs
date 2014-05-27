@@ -8,7 +8,7 @@
 
 using System;
 using System.Collections.Specialized;
-using System.ServiceModel.Syndication;
+using Terradue.ServiceModel.Syndication;
 using System.Net;
 using System.Web;
 using System.Diagnostics;

@@ -11,8 +11,9 @@ using System.Linq;
 using System.Xml;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.ServiceModel.Syndication;
+using Terradue.ServiceModel.Syndication;
 using System.IO;
+using System.Collections.ObjectModel;
 
 namespace Terradue.OpenSearch.Result
 {
@@ -23,9 +24,9 @@ namespace Terradue.OpenSearch.Result
     public interface IOpenSearchResultCollection
 	{
 
-        List<IOpenSearchResultItem> Items { get; }
+        IEnumerable<IOpenSearchResultItem> Items { get; }
 
-        List<SyndicationLink> Links { get; }
+        Collection<SyndicationLink> Links { get; }
 
         SyndicationElementExtensionCollection ElementExtensions { get; }
 
@@ -55,7 +56,7 @@ namespace Terradue.OpenSearch.Result
 
         string Identifier { get; }
 
-        List<SyndicationLink> Links { get; }
+        Collection<SyndicationLink> Links { get; }
 
         SyndicationElementExtensionCollection ElementExtensions { get; }
 
