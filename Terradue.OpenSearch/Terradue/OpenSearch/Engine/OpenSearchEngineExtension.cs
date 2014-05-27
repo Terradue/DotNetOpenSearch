@@ -26,7 +26,7 @@ namespace Terradue.OpenSearch.Engine {
             return typeof(T);
         }
 
-        public abstract object TransformResponse(OpenSearchResponse response);
+        public abstract IOpenSearchResultCollection TransformResponse(OpenSearchResponse response);
 
         public abstract OpenSearchUrl FindOpenSearchDescriptionUrlFromResponse(OpenSearchResponse response);
 

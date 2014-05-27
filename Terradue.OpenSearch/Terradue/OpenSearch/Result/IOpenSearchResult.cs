@@ -21,7 +21,7 @@ namespace Terradue.OpenSearch.Result
         /// Gets the result.
         /// </summary>
         /// <value>The result.</value>
-        object Result { get; }
+        IOpenSearchResultCollection Result { get; }
 
         /// <summary>
         /// Gets or sets the IOpenSearchable entity of the result.

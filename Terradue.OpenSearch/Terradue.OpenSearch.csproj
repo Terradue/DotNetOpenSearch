@@ -75,6 +75,8 @@
     <Compile Include="Terradue\OpenSearch\OpenSearchFactory.cs" />
     <Compile Include="Terradue\OpenSearch\OpenSearchUrl.cs" />
     <Compile Include="Terradue\OpenSearch\Schema\UniqueValueDictionary.cs" />
+    <Compile Include="Terradue\OpenSearch\Engine\Extensions\AtomOpenSearchEngineExtension.cs" />
+    <Compile Include="Terradue\OpenSearch\Result\AtomFeed.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

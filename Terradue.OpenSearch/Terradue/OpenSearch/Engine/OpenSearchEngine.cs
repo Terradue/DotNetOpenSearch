@@ -138,7 +138,7 @@ namespace Terradue.OpenSearch.Engine {
         public IOpenSearchResult Query(IOpenSearchable entity, NameValueCollection parameters, Type resultType) {
 
             // Transform action to invoke
-            Tuple<string,Func<OpenSearchResponse, object>> transformFunction;
+            Tuple<string,Func<OpenSearchResponse, IOpenSearchResultCollection>> transformFunction;
             // Results
             IOpenSearchResult osr = null;
 

@@ -27,7 +27,7 @@ namespace Terradue.OpenSearch.Result
 
         List<SyndicationLink> Links { get; }
 
-        XmlNodeList ElementExtensions { get; }
+        SyndicationElementExtensionCollection ElementExtensions { get; }
 
         string Title { get; }
 
@@ -57,7 +57,7 @@ namespace Terradue.OpenSearch.Result
 
         List<SyndicationLink> Links { get; }
 
-        XmlNodeList ElementExtensions { get; }
+        SyndicationElementExtensionCollection ElementExtensions { get; }
 
     }
 }

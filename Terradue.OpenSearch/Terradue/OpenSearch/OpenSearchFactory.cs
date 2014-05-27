@@ -268,7 +268,7 @@ namespace Terradue.OpenSearch {
         /// <returns>The transform function by number of parameter.</returns>
         /// <param name="entity">Entity.</param>
         /// <param name="osee">Osee.</param>
-        public static Tuple<string, Func<OpenSearchResponse, object>> BestTransformFunctionByNumberOfParam(IOpenSearchable entity, IOpenSearchEngineExtension osee) {
+        public static Tuple<string, Func<OpenSearchResponse, IOpenSearchResultCollection>> BestTransformFunctionByNumberOfParam(IOpenSearchable entity, IOpenSearchEngineExtension osee) {
             string contentType = null;
             int paramnumber = -1;
             foreach (string mimeType in osee.GetInputFormatTransformPath()) {
@@ -280,7 +280,7 @@ namespace Terradue.OpenSearch {
                     paramnumber = nvc.Count;
                 }
             }
-            return new Tuple<string, Func<OpenSearchResponse, object>>(contentType, osee.TransformResponse);
+            return new Tuple<string, Func<OpenSearchResponse, IOpenSearchResultCollection>>(contentType, osee.TransformResponse);
         }
 
         /// <summary>
