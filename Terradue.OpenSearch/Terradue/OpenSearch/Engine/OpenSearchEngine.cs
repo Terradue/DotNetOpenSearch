@@ -54,6 +54,8 @@ namespace Terradue.OpenSearch.Engine {
         /// <param name="type">Type registered.</param>
         /// <exception cref="InvalidOperationException">The type does not exists in the registered extensions</exception>
         public IOpenSearchEngineExtension GetExtension(Type type) {
+            if (type == null)
+                throw new ArgumentNullException("type");
             try {
                 return extensions[type];
             } catch (Exception) {

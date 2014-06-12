@@ -25,7 +25,7 @@ namespace Terradue.OpenSearch.Engine.Extensions {
     /// </summary>
     [Extension(typeof(IOpenSearchEngineExtension))]
     [ExtensionNode("Atom", "Atom native query")]
-    public class AtomOpenSearchEngineExtension : OpenSearchEngineExtension<SyndicationFeed> {
+    public class AtomOpenSearchEngineExtension : OpenSearchEngineExtension<AtomFeed> {
         public AtomOpenSearchEngineExtension() {
         }
 

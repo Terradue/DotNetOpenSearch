@@ -7,7 +7,7 @@ using System.Collections.ObjectModel;
 
 namespace Terradue.OpenSearch.Result {
     public class AtomFeed : SyndicationFeed, IOpenSearchResultCollection {
-        public AtomFeed(SyndicationFeed feed) :base(feed, false) {
+        public AtomFeed(SyndicationFeed feed) :base(feed, true) {
         }
 
         List<AtomItem> AtomItems {
@@ -42,28 +42,48 @@ namespace Terradue.OpenSearch.Result {
 
         string IOpenSearchResultCollection.Title {
             get {
-                throw new NotImplementedException();
+                return base.Title.Text;
             }
         }
 
         public DateTime Date {
             get {
-                throw new NotImplementedException();
+                return base.LastUpdatedTime.DateTime;
             }
         }
 
         public string Identifier {
             get {
-                throw new NotImplementedException();
+                List<XmlElement> elements = new List<XmlElement>();
+                foreach (var ext in ElementExtensions) {
+                    XmlElement element = ext.GetObject<XmlElement>();
+                    if (element.LocalName == "identifier")
+                        return element.InnerText;
+                }
+                return Id;
             }
         }
 
         public long Count {
             get {
-                throw new NotImplementedException();
+                Collection<XmlElement> elements = ElementExtensions.ReadElementExtensions<XmlElement>("totalResults", "http://a9.com/-/spec/opensearch/1.1/");
+                long value = 0;
+                if (elements.Count > 0)
+                    long.TryParse(elements[0].InnerText, out value);;
+                return value;
             }
         }
 
+
+        bool showNamespaces;
+        public bool ShowNamespaces {
+            get {
+                return showNamespaces;
+            }
+            set {
+                showNamespaces = value;
+            }
+        }
         #endregion
     }
 
@@ -95,10 +115,25 @@ namespace Terradue.OpenSearch.Result {
 
         public string Identifier {
             get {
+                List<XmlElement> elements = new List<XmlElement>();
+                foreach (var ext in this.ElementExtensions) {
+                    XmlElement element = ext.GetObject<XmlElement>();
+                    if (element.LocalName == "identifier")
+                        return element.InnerText;
+                }
                 return base.Id;
             }
         }
 
+
+        public bool ShowNamespaces {
+            get {
+                return true;
+            }
+            set {
+                ;;
+            }
+        }
         #endregion
     }
 }

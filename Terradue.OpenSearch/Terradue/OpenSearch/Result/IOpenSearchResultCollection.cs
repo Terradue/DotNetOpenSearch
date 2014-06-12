@@ -40,6 +40,8 @@ namespace Terradue.OpenSearch.Result
 
         void Serialize (Stream stream);
 
+        bool ShowNamespaces { get; set; }
+
 	}
 
 
@@ -59,6 +61,8 @@ namespace Terradue.OpenSearch.Result
         Collection<SyndicationLink> Links { get; }
 
         SyndicationElementExtensionCollection ElementExtensions { get; }
+
+        bool ShowNamespaces { get; set; }
 
     }
 }
