@@ -9,7 +9,7 @@
 using System;
 using System.Linq;
 using System.Collections.Specialized;
-using System.ServiceModel.Syndication;
+using Terradue.ServiceModel.Syndication;
 using System.Collections.Generic;
 using System.Threading;
 using System.Web;

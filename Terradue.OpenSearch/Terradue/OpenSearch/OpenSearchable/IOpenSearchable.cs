@@ -32,7 +32,7 @@ namespace Terradue.OpenSearch {
         /// <returns>A tuple with the transform function and the mime-type that will be read as input</returns>
         /// <param name="ose">OpenSearchEngine instance</param>
         /// <param name="resultType">Result type</param>
-        Tuple<string, Func<OpenSearchResponse, object>> GetTransformFunction(OpenSearchEngine ose, Type resultType);
+        Tuple<string, Func<OpenSearchResponse, IOpenSearchResultCollection>> GetTransformFunction(OpenSearchEngine ose, Type resultType);
 
         /// <summary>
         /// Create the OpenSearch Request for the requested mime-type the specified type and parameters.

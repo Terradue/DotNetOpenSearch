@@ -10,68 +10,57 @@ using System;
 using System.Linq;
 using System.Xml;
 using System.Collections.Generic;
-using System.ServiceModel.Syndication;
+using Terradue.ServiceModel.Syndication;
+using System.Xml.Serialization;
+using System.Xml.Linq;
+using System.Collections.ObjectModel;
+using System.Runtime.Serialization;
 
 namespace Terradue.OpenSearch.Result {
-
     /// <summary>
     /// Rdf xml document.
     /// </summary>
-    public class RdfXmlDocument : XmlDocument, IOpenSearchResultCollection {
-        XmlNamespaceManager xnsm;
-        XmlElement description;
+    public class RdfXmlDocument : XDocument, IOpenSearchResultCollection {
+        XElement rdf, series, description;
+        XNamespace rdfns, dclite4g, dc, os, atom;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Terradue.OpenSearch.Result.RdfXmlDocument"/> class.
         /// </summary>
-        public RdfXmlDocument() : base() {
+        internal RdfXmlDocument(XDocument doc) : base(doc) {
+
+            rdfns = ((XElement)this.FirstNode).Name.Namespace;
+            rdf = this.Element(rdfns + "RDF");
+            if (rdf == null)
+                throw new FormatException("Not a RDF document");
+            description = rdf.Element(rdfns + "Description");
+            if (description == null)
+                throw new FormatException("RDF document does not contain a description node");
+            dclite4g = XNamespace.Get("http://xmlns.com/2008/dclite4g#");
+            dc = XNamespace.Get("http://purl.org/dc/elements/1.1/");
+            os = XNamespace.Get("http://a9.com/-/spec/opensearch/1.1/");
+            atom = XNamespace.Get("http://www.w3.org/2005/Atom");
+            series = rdf.Element(dclite4g + "Series");
+
         }
 
         /// <summary>
         /// Load the specified reader.
         /// </summary>
         /// <param name="reader">Reader.</param>
-        public override void Load(XmlReader reader) {
-            base.Load(reader);
-            xnsm = new XmlNamespaceManager(this.NameTable);
-            xnsm.AddNamespace("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
-            xnsm.AddNamespace("dclite4g", "http://xmlns.com/2008/dclite4g#");
-            xnsm.AddNamespace("dct", "http://purl.org/dc/terms/");
-            xnsm.AddNamespace("dc", "http://purl.org/dc/elements/1.1/");
-
-            description = (XmlElement)this.SelectSingleNode("rdf:RDF/rdf:Description", xnsm);
-            if (description == null)
-                throw new FormatException("RDF document does not contain a description node");
-
+        public new static RdfXmlDocument Load(XmlReader reader) {
+            return new RdfXmlDocument(XDocument.Load(reader));
         }
 
         #region IResultCollection implementation
 
-        public List<string> GetSelfShortList() {
-
-            List<string> about = new List<string>();
-
-            XmlNodeList xmlnl = this.SelectNodes("//rdf:RDF/dclite4g:DataSet", xnsm);
-
-            foreach (XmlNode dataSet in xmlnl) {
-
-                about.Add(dataSet.Attributes["rdf:about"].Value);
-
-            }
-
-            return about;
-
-        }
-
-        public List<IOpenSearchResultItem> Items {
+        public IEnumerable<IOpenSearchResultItem> Items {
             get {
                 List<IOpenSearchResultItem> datasets = new List<IOpenSearchResultItem>();
 
-                XmlNodeList xmlnl = this.SelectNodes("//rdf:RDF/dclite4g:DataSet", xnsm);
+                foreach (XElement dataSet in rdf.Elements(dclite4g + "DataSet")) {
 
-                foreach (XmlNode dataSet in xmlnl) {
-
-                    datasets.Add(new RdfXmlResult((XmlElement)dataSet));
+                    datasets.Add(new RdfXmlResult(dataSet));
 
                 }
 
@@ -81,14 +70,14 @@ namespace Terradue.OpenSearch.Result {
 
         public string Title {
             get {
-                return this.SelectSingleNode("rdf:RDF/dclite4g:Series/dc:title", xnsm).InnerText;
+                return rdf.Element(dclite4g + "Series").Element(dc + "title").Value;
             }
         }
 
         public DateTime Date {
             get {
                 try {
-                    return DateTime.Parse(this.SelectSingleNode("rdf:RDF/rdf:Description/dc:date", xnsm).InnerText);
+                    return DateTime.Parse(description.Element(dc + "date").Value);
                 } catch {
                     return DateTime.UtcNow;
                 }
@@ -98,7 +87,7 @@ namespace Terradue.OpenSearch.Result {
         public string Identifier {
             get {
                 try {
-                    return description.Attributes.GetNamedItem("about", "http://www.w3.org/1999/02/22-rdf-syntax-ns#").Value;
+                    return description.Attribute(rdfns + "about").Value;
                 } catch {
                     return null;
                 }
@@ -108,24 +97,30 @@ namespace Terradue.OpenSearch.Result {
         public long Count {
             get {
                 try {
-                    return long.Parse(this.SelectSingleNode("rdf:RDF/rdf:Description/os:totalResults", xnsm).InnerText);
+                    return long.Parse(description.Element(os + "totalResults").Value);
                 } catch (Exception) {
                     return -1;
                 }
             }
         }
 
-        public XmlNodeList ElementExtensions {
+        public SyndicationElementExtensionCollection ElementExtensions {
             get {
-                return this.SelectNodes("//rdf:RDF/*");
+
+                var feed = new SyndicationFeed();
+                foreach (XElement elem in series.Elements()) {
+                    feed.ElementExtensions.Add(elem.CreateReader());
+                }
+                return feed.ElementExtensions;
             }
         }
 
-        public List<System.ServiceModel.Syndication.SyndicationLink> Links {
+        public Collection<Terradue.ServiceModel.Syndication.SyndicationLink> Links {
             get {
-                List<SyndicationLink> links = new List<SyndicationLink>();
-                links.Add(SyndicationLink.CreateSelfLink(new Uri(Identifier)));
-                return links;
+
+                return new Collection<SyndicationLink>(description.Elements(atom + "link")
+                                                       .Select(l => SyndicationLinkFromXElement(l)).ToList());
+                                                     
             }
         }
 
@@ -133,24 +128,40 @@ namespace Terradue.OpenSearch.Result {
             throw new NotImplementedException();
         }
 
+        bool showNamespaces;
+        public bool ShowNamespaces {
+            get {
+                return showNamespaces;
+            }
+            set {
+                showNamespaces = value;
+            }
+        }
+
         #endregion
+
+        internal SyndicationLink SyndicationLinkFromXElement(XElement elem) {
+
+            SyndicationLink link = new SyndicationLink(new Uri(elem.Attribute(atom + "href").Value));
+            if (elem.Attribute(atom + "rel") != null)
+                link.RelationshipType = elem.Attribute(atom + "rel").Value;
+            if (elem.Attribute(atom + "title") != null)
+                link.Title = elem.Attribute(atom + "title").Value;
+            if (elem.Attribute(atom + "type") != null)
+                link.MediaType = elem.Attribute(atom + "type").Value;
+            if (elem.Attribute(atom + "length") != null)
+                link.Length = long.Parse(elem.Attribute(atom + "length").Value);
+            return link;
+
+        }
     }
 
     public class RdfXmlResult : IOpenSearchResultItem {
+        XElement root;
 
-        XmlNamespaceManager xnsm;
-        XmlDocument doc;
-        XmlNode node;
+        public RdfXmlResult(XElement root) : base() {
 
-        public RdfXmlResult(XmlNode element) : base() {
-            doc = new XmlDocument();
-            node = doc.ImportNode(element, true);
-            doc.AppendChild(node);
-            xnsm = new XmlNamespaceManager(doc.NameTable);
-            xnsm.AddNamespace("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
-            xnsm.AddNamespace("dclite4g", "http://xmlns.com/2008/dclite4g#");
-            xnsm.AddNamespace("dct", "http://purl.org/dc/terms/");
-            xnsm.AddNamespace("dc", "http://purl.org/dc/elements/1.1/");
+            this.root = root;
             links = InitLinks();
         }
 
@@ -158,14 +169,14 @@ namespace Terradue.OpenSearch.Result {
 
         public string Id {
             get {
-                return node.SelectSingleNode("@rdf:about", xnsm).Value;
+                return root.Attribute(XName.Get("about", "http://www.w3.org/1999/02/22-rdf-syntax-ns#")).Value;
             }
         }
 
         public string Title {
             get {
                 try {
-                    return node.SelectSingleNode("dc:title", xnsm).InnerText;
+                    return root.Element(XName.Get("title", "http://purl.org/dc/elements/1.1/")).Value;
                 } catch {
                     return null;
                 }
@@ -175,7 +186,7 @@ namespace Terradue.OpenSearch.Result {
         public DateTime Date {
             get {
                 try {
-                    return DateTime.Parse(node.SelectSingleNode("dc:date", xnsm).InnerText);
+                    return DateTime.Parse(root.Element(XName.Get("date", "http://purl.org/dc/elements/1.1/")).Value);
                 } catch {
                     return DateTime.UtcNow;
                 }
@@ -184,41 +195,53 @@ namespace Terradue.OpenSearch.Result {
 
         public string Identifier {
             get {
-                return node.SelectSingleNode("dc:identifier", xnsm).InnerText;
+                return root.Element(XName.Get("identifier", "http://purl.org/dc/elements/1.1/")).Value;
             }
         }
 
-        public XmlNodeList ElementExtensions {
+        public SyndicationElementExtensionCollection ElementExtensions {
             get {
-                return doc.ChildNodes;
+                var feed = new SyndicationFeed();
+                foreach (XElement elem in root.Elements()) {
+                    feed.ElementExtensions.Add(elem.CreateReader());
+                }
+                return feed.ElementExtensions;
             }
         }
 
-        List<System.ServiceModel.Syndication.SyndicationLink> links;
+        Collection<Terradue.ServiceModel.Syndication.SyndicationLink> links;
 
-        public List<System.ServiceModel.Syndication.SyndicationLink> Links {
+        public Collection<Terradue.ServiceModel.Syndication.SyndicationLink> Links {
             get {
                 return links;
             }
         }
 
+        public bool ShowNamespaces {
+            get {
+                return true;
+            }
+            set {
+                ;;
+            }
+        }
+
         #endregion
 
-        private List<SyndicationLink> InitLinks (){
+        private Collection<SyndicationLink> InitLinks() {
             List<SyndicationLink> links = new List<SyndicationLink>();
             try {
-                links.Add(SyndicationLink.CreateSelfLink(new Uri(node.SelectSingleNode("@rdf:about", xnsm).Value)));
+                links.Add(SyndicationLink.CreateSelfLink(new Uri(Id)));
             } catch {
             }
-            XmlNodeList onlineRes = node.SelectNodes("dclite4g:onlineResource", xnsm);
-            foreach (XmlNode xnode in onlineRes) {
+            foreach (XElement elem in root.Elements(XName.Get("onlineResource", "http://xmlns.com/2008/dclite4g#"))) {
                 try {
-                    links.Add(new SyndicationLink(new Uri(xnode.FirstChild.Attributes["rdf:about"].Value), "enclosure", xnode.FirstChild.LocalName, "application/x-binary", 0));
+                    links.Add(new SyndicationLink(new Uri(elem.Elements().First().Attribute("about").Value), "enclosure", elem.Elements().First().Name.LocalName, "application/x-binary", 0));
                 } catch {
                     continue;
                 }
             }
-            return links;
+            return new Collection<SyndicationLink>(links);
         }
     }
 }

@@ -7,7 +7,7 @@
 //  Copyright (c) 2014 Terradue
 
 using System;
-using System.ServiceModel.Syndication;
+using Terradue.ServiceModel.Syndication;
 using System.Collections.Generic;
 using System.Xml;
 using Terradue.OpenSearch.Result;

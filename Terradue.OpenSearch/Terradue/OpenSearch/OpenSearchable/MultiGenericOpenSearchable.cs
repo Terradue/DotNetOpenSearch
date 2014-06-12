@@ -116,7 +116,7 @@ namespace Terradue.OpenSearch {
 
         }
 
-        public Tuple<string, Func<OpenSearchResponse, object>> GetTransformFunction(OpenSearchEngine ose, Type resultType) {
+        public Tuple<string, Func<OpenSearchResponse, IOpenSearchResultCollection>> GetTransformFunction(OpenSearchEngine ose, Type resultType) {
             return OpenSearchFactory.BestTransformFunctionByNumberOfParam(this, ose.GetExtension(resultType));
         }
 

@@ -18,7 +18,7 @@ using System.Text;
 using System.IO;
 using System.Security;
 using Terradue.OpenSearch.Result;
-using System.ServiceModel.Syndication;
+using Terradue.ServiceModel.Syndication;
 using Terradue.OpenSearch.Engine;
 using Terradue.OpenSearch.Response;
 using Terradue.OpenSearch.Schema;
@@ -268,7 +268,7 @@ namespace Terradue.OpenSearch {
         /// <returns>The transform function by number of parameter.</returns>
         /// <param name="entity">Entity.</param>
         /// <param name="osee">Osee.</param>
-        public static Tuple<string, Func<OpenSearchResponse, object>> BestTransformFunctionByNumberOfParam(IOpenSearchable entity, IOpenSearchEngineExtension osee) {
+        public static Tuple<string, Func<OpenSearchResponse, IOpenSearchResultCollection>> BestTransformFunctionByNumberOfParam(IOpenSearchable entity, IOpenSearchEngineExtension osee) {
             string contentType = null;
             int paramnumber = -1;
             foreach (string mimeType in osee.GetInputFormatTransformPath()) {
@@ -280,7 +280,7 @@ namespace Terradue.OpenSearch {
                     paramnumber = nvc.Count;
                 }
             }
-            return new Tuple<string, Func<OpenSearchResponse, object>>(contentType, osee.TransformResponse);
+            return new Tuple<string, Func<OpenSearchResponse, IOpenSearchResultCollection>>(contentType, osee.TransformResponse);
         }
 
         /// <summary>
@@ -432,20 +432,21 @@ namespace Terradue.OpenSearch {
             return nvc;
 
         }
-        public void Test () {
-            var engine = new OpenSearchEngine();
-            engine.LoadPlugins();
-            var entity = new GenericOpenSearchable(new OpenSearchUrl("http://eo-virtual-archive4.esa.int/search/ASA_IM__0P/atom"), engine);
-            var parameters = new NameValueCollection();
-            parameters.Add("count", "20");
-            parameters.Add("start", "1992-01-01");
-            parameters.Add("stop", "2014-04-15");
-            parameters.Add("bbox", "24,30,42,53");
-            var result = engine.Query(entity, parameters, "Atom");
-            XmlWriter atomWriter = XmlWriter.Create("result.xml");
-            Atom10FeedFormatter atomFormatter = new Atom10FeedFormatter((SyndicationFeed)result.Result);
-            atomFormatter.WriteTo(atomWriter);
-            atomWriter.Close();
+
+        public static void RemoveLinksByRel(IOpenSearchResult osr, string relType) {
+            IOpenSearchResultCollection results = (IOpenSearchResultCollection)osr.Result;
+
+            var matchLinks = results.Links.Where(l => l.RelationshipType == relType).ToArray();
+            foreach (var link in matchLinks) {
+                results.Links.Remove(link);
+            }
+
+            foreach (IOpenSearchResultItem item in results.Items) {
+                matchLinks = item.Links.Where(l => l.RelationshipType == relType).ToArray();
+                foreach (var link in matchLinks) {
+                    item.Links.Remove(link);
+                }
+            }
         }
     }
 

@@ -8,7 +8,7 @@
 
 using System;
 using System.Collections.Specialized;
-using System.ServiceModel.Syndication;
+using Terradue.ServiceModel.Syndication;
 
 namespace Terradue.OpenSearch.Result {
 
@@ -19,7 +19,7 @@ namespace Terradue.OpenSearch.Result {
     {
 
         // the Results
-        private object result;
+        private IOpenSearchResultCollection result;
 
         // The source Searchable entity
         private IOpenSearchable ose;
@@ -27,20 +27,20 @@ namespace Terradue.OpenSearch.Result {
         // The source request
         private NameValueCollection searchParameters;
 
-        public OpenSearchResult(object result, NameValueCollection searchParameters) {
+        public OpenSearchResult(IOpenSearchResultCollection result, NameValueCollection searchParameters) {
             Result = result;
             this.searchParameters = searchParameters;
         }
 
         #region IOpenSearchResult implementation
 
-        public virtual object Result {
+        public virtual IOpenSearchResultCollection Result {
             get {
                 return result;
             }
             protected set {
                 result = value;
-                if (result is SyndicationFeed)  
+                if (result is AtomFeed)  
                     MimeType = "application/atom+xml";
 
             }

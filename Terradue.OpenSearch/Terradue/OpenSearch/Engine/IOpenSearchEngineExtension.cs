@@ -9,7 +9,7 @@
 using System;
 using Mono.Addins;
 using System.Collections.Generic;
-using System.ServiceModel.Syndication;
+using Terradue.ServiceModel.Syndication;
 using Terradue.OpenSearch.Response;
 using Terradue.OpenSearch.Result;
 
@@ -48,7 +48,7 @@ namespace Terradue.OpenSearch {
         /// </summary>
         /// <returns>The response transformed into the declared Type.</returns>
         /// <param name="response">OpenSearchResponse.</param>
-        object TransformResponse(OpenSearchResponse response);
+        IOpenSearchResultCollection TransformResponse(OpenSearchResponse response);
 
         /// <summary>
         /// Discover the OpenSearchDescription Url from an OpenSearchResponse

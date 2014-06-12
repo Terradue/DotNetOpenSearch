@@ -9,7 +9,7 @@
 using System;
 using System.Linq;
 using Mono.Addins;
-using System.ServiceModel.Syndication;
+using Terradue.ServiceModel.Syndication;
 using System.Collections.Generic;
 using System.Xml;
 using System.Net;
@@ -25,7 +25,7 @@ namespace Terradue.OpenSearch.Engine.Extensions {
     /// </summary>
     [Extension(typeof(IOpenSearchEngineExtension))]
     [ExtensionNode("Atom", "Atom native query")]
-    public class AtomOpenSearchEngineExtension : OpenSearchEngineExtension<SyndicationFeed> {
+    public class AtomOpenSearchEngineExtension : OpenSearchEngineExtension<AtomFeed> {
         public AtomOpenSearchEngineExtension() {
         }
 
@@ -47,9 +47,9 @@ namespace Terradue.OpenSearch.Engine.Extensions {
             return new string[] { "application/atom+xml", "application/xml" };
         }
 
-        public override object TransformResponse(OpenSearchResponse response) {
-            if (response.ContentType == "application/atom+xml") return TransformAtomResponseToSyndicationFeed(response);
-            if (response.ContentType == "application/xml") return TransformAtomResponseToSyndicationFeed(response);
+        public override IOpenSearchResultCollection TransformResponse(OpenSearchResponse response) {
+            if (response.ContentType == "application/atom+xml") return TransformAtomResponseToAtomFeed(response);
+            if (response.ContentType == "application/xml") return TransformAtomResponseToAtomFeed(response);
 
             throw new InvalidOperationException("Atom extension does not transform OpenSearch response from " + response.ContentType);
         }
@@ -61,7 +61,7 @@ namespace Terradue.OpenSearch.Engine.Extensions {
         }
 
         public override OpenSearchUrl FindOpenSearchDescriptionUrlFromResponse(OpenSearchResponse response) {
-            SyndicationFeed feed = TransformAtomResponseToSyndicationFeed(response);
+            AtomFeed feed = TransformAtomResponseToAtomFeed(response);
             SyndicationLink link = feed.Links.FirstOrDefault(l => l.RelationshipType == "search" && l.MediaType.Contains("opensearch"));
             if (link == null) return null;
             return new OpenSearchUrl(link.Uri);
@@ -91,16 +91,16 @@ namespace Terradue.OpenSearch.Engine.Extensions {
         /// <param name="searchParameters">a dictionary of key/value pairs for the OpenSearch parameters to be used in the query</param>
         /// <returns>an <c>XmlDocument</c> containing the result</returns>
         /// <remarks>The match between URL template parameters and search parameters is based on the URL query parameter name (i.e. <c>bbox={geo:box}</c> will be replaced with the value of the <c>bbox</c> item in the <c>searchParameters</c> dictionary if it contains such an item.</remarks>
-        public static SyndicationFeed TransformAtomResponseToSyndicationFeed(OpenSearchResponse response) {
+        public static AtomFeed TransformAtomResponseToAtomFeed(OpenSearchResponse response) {
 
             XmlReader reader;
-            SyndicationFeed result;
+            AtomFeed result;
 
             try {
 
                 reader = XmlReader.Create(response.GetResponseStream());
 
-                result = SyndicationFeed.Load(reader);
+                result = new AtomFeed(SyndicationFeed.Load(reader));
                 result.LastUpdatedTime = DateTime.UtcNow;
                 result.ElementExtensions.Add("queryTime", "http://a9.com/-/spec/opensearch/1.1/", response.RequestTime.TotalMilliseconds.ToString());
 
