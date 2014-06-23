@@ -124,7 +124,15 @@ namespace Terradue.OpenSearch.Result {
             }
         }
 
-        public void Serialize(System.IO.Stream stream) {
+        public string SerializeToString() {
+            throw new NotImplementedException();
+        }
+
+        public void SerializeToStream(System.IO.Stream stream) {
+            throw new NotImplementedException();
+        }
+
+        public IOpenSearchResultCollection DeserializeFromStream(System.IO.Stream stream) {
             throw new NotImplementedException();
         }
 
@@ -135,6 +143,16 @@ namespace Terradue.OpenSearch.Result {
             }
             set {
                 showNamespaces = value;
+            }
+        }
+
+        public static IOpenSearchResultCollection CreateFromOpenSearchResultCollection(IOpenSearchResultCollection results) {
+            throw new NotImplementedException();
+        }
+
+        public string ContentType {
+            get {
+                return "application/rdf+xml";
             }
         }
 

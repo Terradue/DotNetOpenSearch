@@ -38,7 +38,11 @@ namespace Terradue.OpenSearch.Result
 
         long Count { get; }
 
-        void Serialize (Stream stream);
+        void SerializeToStream (Stream stream);
+
+        string SerializeToString ();
+
+        string ContentType { get; }
 
         bool ShowNamespaces { get; set; }
 

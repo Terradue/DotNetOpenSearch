@@ -40,8 +40,6 @@ namespace Terradue.OpenSearch.Result {
             }
             protected set {
                 result = value;
-                if (result is AtomFeed)  
-                    MimeType = "application/atom+xml";
 
             }
         }
@@ -55,7 +53,11 @@ namespace Terradue.OpenSearch.Result {
             }
         }
 
-        public string MimeType { get; protected set; }
+        public string MimeType { 
+            get {
+                return result.ContentType;
+            }
+        }
 
         public NameValueCollection SearchParameters {
             get {

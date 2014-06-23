@@ -50,6 +50,8 @@ namespace Terradue.OpenSearch {
         /// <param name="response">OpenSearchResponse.</param>
         IOpenSearchResultCollection TransformResponse(OpenSearchResponse response);
 
+        IOpenSearchResultCollection CreateOpenSearchResultFromOpenSearchResult(IOpenSearchResultCollection results);
+
         /// <summary>
         /// Discover the OpenSearchDescription Url from an OpenSearchResponse
         /// </summary>

@@ -34,6 +34,7 @@ namespace Terradue.OpenSearch {
         public GenericOpenSearchable(OpenSearchUrl url, OpenSearchEngine ose) {
             this.url = url;
             this.ose = ose;
+            this.osd = ose.AutoDiscoverFromQueryUrl(url);
         }
 
         /// <summary>
@@ -52,6 +53,13 @@ namespace Terradue.OpenSearch {
         public Tuple<string, Func<OpenSearchResponse, IOpenSearchResultCollection>> GetTransformFunction(OpenSearchEngine ose, Type resultType) {
             IOpenSearchEngineExtension osee = ose.GetExtension(resultType);
             return OpenSearchFactory.BestTransformFunctionByNumberOfParam(this, osee);
+        }
+
+        public Tuple<string, Func<OpenSearchResponse, IOpenSearchResultCollection>> GetTransformFunction(OpenSearchEngine ose) {
+            IOpenSearchEngineExtension osee = ose.GetExtensionByDiscoveryContentType(this.DefaultMimeType);
+            if (osee == null)
+                return null;
+            return new Tuple<string, Func<OpenSearchResponse, IOpenSearchResultCollection>>(this.DefaultMimeType, osee.TransformResponse);
         }
 
         public OpenSearchRequest Create(string type, NameValueCollection parameters) {
@@ -93,6 +101,13 @@ namespace Terradue.OpenSearch {
             throw new InvalidOperationException("Base Url unknow for Generic OpenSearchable");
         }
 
+        public string DefaultMimeType {
+            get {
+                if (string.IsNullOrEmpty(osd.DefaultUrl.Type))
+                    return "application/atom+xml";
+                return osd.DefaultUrl.Type;
+            }
+        }
         #endregion
     }
 }

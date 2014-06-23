@@ -64,6 +64,19 @@ namespace Terradue.OpenSearch.Engine {
         }
 
         /// <summary>
+        /// Gets the extension by extension's content type discovery capability
+        /// </summary>
+        /// <returns>The extension</returns>
+        /// <param name="contentType">native mime-Type</param>
+        public IOpenSearchEngineExtension GetExtensionByDiscoveryContentType(string contentType) {
+            foreach (IOpenSearchEngineExtension extension in extensions.Values) {
+                if (extension.DiscoveryContentType == contentType)
+                    return  extension;
+            }
+            throw new KeyNotFoundException(string.Format("Engine extension to read natively {0} not found", contentType));
+        }
+
+        /// <summary>
         /// Gets or sets the default time out.
         /// </summary>
         /// <value>The default time out.</value>
@@ -115,7 +128,46 @@ namespace Terradue.OpenSearch.Engine {
         /// <param name="resultName">Result name.</param>
         public IOpenSearchResult Query(IOpenSearchable entity, NameValueCollection parameters, string resultName) {
 
-            return Query(entity, parameters, GetTypeByExtensionName(resultName));
+            // Transform action to invoke
+            Tuple<string,Func<OpenSearchResponse, IOpenSearchResultCollection>> transformFunction;
+            // Results
+            IOpenSearchResult osr = null;
+
+            // 1) Find the plugin to match with urlTemplates
+            transformFunction = entity.GetTransformFunction(this);
+            if (transformFunction == null)
+                throw new ImpossibleSearchException(String.Format("No engine extension to query {0}", entity.Identifier));
+
+            // 2) Create the request
+            OpenSearchRequest request = entity.Create(transformFunction.Item1, parameters);
+
+            // 5) Apply the pre-search functions
+            ApplyPreSearchFilters(ref request);
+
+            // 6) Perform the Search
+            OpenSearchResponse response = request.GetResponse();
+            response.Entity = entity;
+
+            // 5) Apply the pre-search functions
+            ApplyPostSearchFilters(request, ref response);
+
+            // 7) Transform the response
+            IOpenSearchResultCollection results = transformFunction.Item2(response);
+
+            // 8) Change format
+            IOpenSearchEngineExtension osee = GetExtensionByExtensionName(resultName);
+            IOpenSearchResultCollection newResults = osee.CreateOpenSearchResultFromOpenSearchResult(results);
+
+            // 9) Create Result
+            osr = new OpenSearchResult(newResults, request.Parameters);
+
+            // 8) Assign the original entity to the IOpenSearchResult
+            osr.OpenSearchableEntity = entity;
+
+            // 9) Apply post search filters
+            entity.ApplyResultFilters(ref osr);
+
+            return osr;
 
         }
 
@@ -126,7 +178,16 @@ namespace Terradue.OpenSearch.Engine {
         /// <param name="resultName">Result name.</param>
         public Type GetTypeByExtensionName(string resultName) {
             foreach (IOpenSearchEngineExtension extension in extensions.Values) {
-                if (extension.Identifier == resultName) return  extension.GetTransformType();
+                if (extension.Identifier == resultName)
+                    return  extension.GetTransformType();
+            }
+            throw new KeyNotFoundException(string.Format("Engine extension to transform to {0} not found", resultName));
+        }
+
+        public IOpenSearchEngineExtension GetExtensionByExtensionName(string resultName) {
+            foreach (IOpenSearchEngineExtension extension in extensions.Values) {
+                if (extension.Identifier == resultName)
+                    return  extension;
             }
             throw new KeyNotFoundException(string.Format("Engine extension to transform to {0} not found", resultName));
         }
@@ -146,7 +207,50 @@ namespace Terradue.OpenSearch.Engine {
 
             // 1) Find the best match between urlTemplates and result format
             transformFunction = entity.GetTransformFunction(this, resultType);
-            if (transformFunction == null) throw new ImpossibleSearchException(String.Format("No engine extension to query {0} in order to return {1}", entity.Identifier, resultType.FullName));
+            if (transformFunction == null)
+                throw new ImpossibleSearchException(String.Format("No engine extension to query {0} in order to return {1}", entity.Identifier, resultType.FullName));
+
+            // 2) Create the request
+            OpenSearchRequest request = entity.Create(transformFunction.Item1, parameters);
+
+            // 5) Apply the pre-search functions
+            ApplyPreSearchFilters(ref request);
+
+            // 6) Perform the Search
+            OpenSearchResponse response = request.GetResponse();
+            response.Entity = entity;
+
+            // 5) Apply the pre-search functions
+            ApplyPostSearchFilters(request, ref response);
+
+            // 7) Transform the response         
+            osr = new OpenSearchResult(transformFunction.Item2(response), request.Parameters);
+
+            // 8) Assign the original entity to the IOpenSearchResult
+            osr.OpenSearchableEntity = entity;
+
+            // 9) Apply post search filters
+            entity.ApplyResultFilters(ref osr);
+
+            return osr;
+        }
+
+        /// <summary>
+        /// Query the specified IOpenSearchable entity with specific parameters and returns result in native format.
+        /// </summary>
+        /// <param name="entity">Entity.</param>
+        /// <param name="parameters">Parameters.</param>
+        public IOpenSearchResult Query(IOpenSearchable entity, NameValueCollection parameters) {
+
+            // Transform action to invoke
+            Tuple<string,Func<OpenSearchResponse, IOpenSearchResultCollection>> transformFunction;
+            // Results
+            IOpenSearchResult osr = null;
+
+            // 1) Find the plugin to match with urlTemplates
+            transformFunction = entity.GetTransformFunction(this);
+            if (transformFunction == null)
+                throw new ImpossibleSearchException(String.Format("No engine extension to query {0}", entity.Identifier));
 
             // 2) Create the request
             OpenSearchRequest request = entity.Create(transformFunction.Item1, parameters);
@@ -190,13 +294,17 @@ namespace Terradue.OpenSearch.Engine {
 
             IOpenSearchEngineExtension osee = GetFirstExtensionByContentTypeAbility(response.ContentType);
 
-            if (osee == null) throw new ImpossibleSearchException("No registered extension is able to read content of type " + response.ContentType);
+            if (osee == null)
+                throw new ImpossibleSearchException("No registered extension is able to read content of type " + response.ContentType);
 
             OpenSearchUrl descriptionUrl = osee.FindOpenSearchDescriptionUrlFromResponse(response);
 
-            if (descriptionUrl == null) throw new ImpossibleSearchException("No Opensearch Description link found in results of " + url.ToString());
+            if (descriptionUrl == null)
+                throw new ImpossibleSearchException("No Opensearch Description link found in results of " + url.ToString());
 
             OpenSearchDescription osd = LoadOpenSearchDescriptionDocument(descriptionUrl);
+
+            osd.DefaultUrl = osd.Url.Single(u => u.Type == response.ContentType);
 
             return osd;
         }
@@ -236,7 +344,8 @@ namespace Terradue.OpenSearch.Engine {
 
             IOpenSearchEngineExtension osee = extensions[type];
 
-            if (osee == null) throw new InvalidOperationException("No registered extensions able to get media enclosures for " + type.ToString());
+            if (osee == null)
+                throw new InvalidOperationException("No registered extensions able to get media enclosures for " + type.ToString());
 
             return osee.GetEnclosures(result);
 
@@ -293,7 +402,8 @@ namespace Terradue.OpenSearch.Engine {
 
             foreach (Type type in extensions.Keys) {
                 foreach (string contentType in extensions[type].GetInputFormatTransformPath()) {
-                    if (inputType != null && contentType != inputType) continue;
+                    if (inputType != null && contentType != inputType)
+                        continue;
                     transformPaths.Add(new Tuple<string,string>(contentType, type.Name));
                 }
             }
@@ -309,10 +419,27 @@ namespace Terradue.OpenSearch.Engine {
         public IOpenSearchEngineExtension GetFirstExtensionByContentTypeAbility(string contentType) {
             foreach (IOpenSearchEngineExtension osee in extensions.Values) {
 
-                if (osee.GetInputFormatTransformPath().FirstOrDefault(s => s == contentType) != null) return osee;
+                if (osee.GetInputFormatTransformPath().FirstOrDefault(s => s == contentType) != null)
+                    return osee;
             }
 
             return null;
+        }
+
+        public IOpenSearchEngineExtension GetFirstExtensionByTypeAbility(Type type) {
+            foreach (IOpenSearchEngineExtension osee in extensions.Values) {
+
+                if (osee.GetTransformType() == type)
+                    return osee;
+            }
+
+            return null;
+        }
+
+        public Dictionary<Type, IOpenSearchEngineExtension> Extensions {
+            get {
+                return extensions;
+            }
         }
 
         #region IOpenSearchableFactory implementation

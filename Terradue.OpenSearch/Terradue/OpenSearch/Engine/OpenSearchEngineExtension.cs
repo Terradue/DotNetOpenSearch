@@ -28,6 +28,8 @@ namespace Terradue.OpenSearch.Engine {
 
         public abstract IOpenSearchResultCollection TransformResponse(OpenSearchResponse response);
 
+        public abstract IOpenSearchResultCollection CreateOpenSearchResultFromOpenSearchResult(IOpenSearchResultCollection results);
+
         public abstract OpenSearchUrl FindOpenSearchDescriptionUrlFromResponse(OpenSearchResponse response);
 
         public abstract string DiscoveryContentType { get; }

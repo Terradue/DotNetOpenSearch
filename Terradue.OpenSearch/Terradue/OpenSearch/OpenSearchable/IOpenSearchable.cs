@@ -35,6 +35,16 @@ namespace Terradue.OpenSearch {
         Tuple<string, Func<OpenSearchResponse, IOpenSearchResultCollection>> GetTransformFunction(OpenSearchEngine ose, Type resultType);
 
         /// <summary>
+        /// Get the transform function according to the entity. OpenSearch is passed as argument
+        /// to be used with the default functions in OpenSearchEngine and OpenSearchFactory
+        /// </summary>
+        /// <seealso cref="OpenSearchEngine.GetExtension"/>
+        /// <seealso cref="OpenSearchFactory.BestTransformFunctionByNumberOfParam"/> 
+        /// <returns>A tuple with the transform function and the mime-type that will be read as input</returns>
+        /// <param name="ose">OpenSearchEngine instance</param>
+        Tuple<string, Func<OpenSearchResponse, IOpenSearchResultCollection>> GetTransformFunction(OpenSearchEngine ose);
+
+        /// <summary>
         /// Create the OpenSearch Request for the requested mime-type the specified type and parameters.
         /// </summary>
         /// <param name="mimetype">Mime-Type requested to the OpenSearchable entity</param>
@@ -61,13 +71,6 @@ namespace Terradue.OpenSearch {
         NameValueCollection GetOpenSearchParameters(string mimeType);
 
         /// <summary>
-        /// Gets the search base URL.
-        /// </summary>
-        /// <returns>The search base URL.</returns>
-        /// <param name="mimeType">MIME type.</param>
-        OpenSearchUrl GetSearchBaseUrl(string mimeType);
-
-        /// <summary>
         /// Get the total of possible results for the OpenSearchable entity
         /// </summary>
         /// <returns>a unsigned long number representing the number of items searchable</returns>
@@ -78,6 +81,13 @@ namespace Terradue.OpenSearch {
         /// </summary>
         /// <param name="osr">IOpenSearchResult cotnaing the result of the a search</param>
         void ApplyResultFilters(ref IOpenSearchResult osr);
+
+        /// <summary>
+        /// Gets the default MIME-type that the entity can be searched for
+        /// </summary>
+        /// <value>The default MIME-type.</value>
+        string DefaultMimeType { get; }
+
     }
 
     /// <summary>

@@ -120,10 +120,18 @@ namespace Terradue.OpenSearch {
             return OpenSearchFactory.BestTransformFunctionByNumberOfParam(this, ose.GetExtension(resultType));
         }
 
-        public OpenSearchUrl GetSearchBaseUrl(string mimetype) {
-            throw new NotImplementedException();
+        public Tuple<string, Func<OpenSearchResponse, IOpenSearchResultCollection>> GetTransformFunction(OpenSearchEngine ose) {
+            IOpenSearchEngineExtension osee = ose.GetExtensionByDiscoveryContentType(this.DefaultMimeType);
+            if (osee == null)
+                return null;
+            return new Tuple<string, Func<OpenSearchResponse, IOpenSearchResultCollection>>(this.DefaultMimeType, osee.TransformResponse);
         }
 
+        public string DefaultMimeType {
+            get {
+                return "application/atom+xml";
+            }
+        }
         #endregion
 
     }

@@ -62,6 +62,17 @@ namespace Terradue.OpenSearch.Engine.Extensions {
             throw new NotSupportedException("RDF extension does not transform OpenSearch response from " + response.ContentType);
         }
 
+        #region implemented abstract members of OpenSearchEngineExtension
+
+        public override IOpenSearchResultCollection CreateOpenSearchResultFromOpenSearchResult(IOpenSearchResultCollection results) {
+            if (results is RdfXmlDocument)
+                return results;
+
+            return RdfXmlDocument.CreateFromOpenSearchResultCollection(results);
+        }
+
+        #endregion
+
         public override string DiscoveryContentType {
             get {
                 return "application/rdf+xml";

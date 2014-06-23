@@ -82,6 +82,13 @@ namespace Terradue.OpenSearch.Engine.Extensions {
             return links.ToArray();
         }
 
+        public override IOpenSearchResultCollection CreateOpenSearchResultFromOpenSearchResult(IOpenSearchResultCollection results) {
+            if (results is AtomFeed)
+                return results;
+
+            return AtomFeed.CreateFromOpenSearchResultCollection(results);
+        }
+
         #endregion
 
         //---------------------------------------------------------------------------------------------------------------------
