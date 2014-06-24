@@ -23,12 +23,14 @@ namespace Terradue.OpenSearch.Result {
     public class RdfXmlDocument : XDocument, IOpenSearchResultCollection {
         XElement rdf, series, description;
         XNamespace rdfns, dclite4g, dc, os, atom;
+        XDocument doc;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Terradue.OpenSearch.Result.RdfXmlDocument"/> class.
         /// </summary>
         internal RdfXmlDocument(XDocument doc) : base(doc) {
 
+            this.doc = doc;
             rdfns = ((XElement)this.FirstNode).Name.Namespace;
             rdf = this.Element(rdfns + "RDF");
             if (rdf == null)
@@ -50,6 +52,12 @@ namespace Terradue.OpenSearch.Result {
         /// <param name="reader">Reader.</param>
         public new static RdfXmlDocument Load(XmlReader reader) {
             return new RdfXmlDocument(XDocument.Load(reader));
+        }
+
+        public XmlNameTable NameTable {
+            get{
+                return doc.CreateReader().NameTable;
+            }
         }
 
         #region IResultCollection implementation
