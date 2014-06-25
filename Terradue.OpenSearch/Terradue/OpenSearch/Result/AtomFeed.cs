@@ -153,6 +153,9 @@ namespace Terradue.OpenSearch.Result {
         public AtomItem() {
         }
 
+        public AtomItem(string title, string description, Uri feedAlternateLink, string id, DateTimeOffset date) : base (title,description,feedAlternateLink,id,date){}
+
+
         public AtomItem(SyndicationItem si) : base(si) {
 
         }
