@@ -92,10 +92,6 @@ namespace Terradue.OpenSearch {
             // do nothing.
         }
 
-        public OpenSearchUrl GetSearchBaseUrl(string mimetype) {
-            throw new InvalidOperationException("Base Url unknow for Generic OpenSearchable");
-        }
-
         public string DefaultMimeType {
             get {
                 if (string.IsNullOrEmpty(osd.DefaultUrl.Type))

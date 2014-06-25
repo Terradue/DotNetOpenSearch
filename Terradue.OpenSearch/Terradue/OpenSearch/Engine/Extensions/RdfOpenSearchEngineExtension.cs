@@ -42,7 +42,7 @@ namespace Terradue.OpenSearch.Engine.Extensions {
 
         public override string Identifier {
             get {
-                return "Rdf";
+                return "rdf";
             }
         }
 

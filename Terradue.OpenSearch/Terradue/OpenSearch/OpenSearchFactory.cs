@@ -230,16 +230,16 @@ namespace Terradue.OpenSearch {
         public static string GetParamNameFromId(NameValueCollection parameters, string id) {
 
             string param = parameters[id];
-            if (param == null) return null;
+            if (param == null)
+                return null;
 
             // first find the defintion of the parameter in the url template
             Match matchParamDef = Regex.Match(param, @"^{([^?]+)\??}$");
             // If parameter does not exist, continue
-            if (!matchParamDef.Success) return null;
+            if (!matchParamDef.Success)
+                return null;
             // We have the parameter defintion
             return matchParamDef.Groups[1].Value;
-
-            return null;
         }
 
         /// <summary>
@@ -355,8 +355,7 @@ namespace Terradue.OpenSearch {
             if (osd != null) {
                 factory = new UrlBasedOpenSearchableFactory(ose);
                 return factory.Create(osd);
-            }
-            else
+            } else
                 throw new EntryPointNotFoundException(string.Format("No OpenSearch description found around {0}", baseUrl));
         }
 
@@ -367,14 +366,14 @@ namespace Terradue.OpenSearch {
         /// <param name="entity">Entity.</param>
         /// <param name="mimeType">MIME type.</param>
         /// <param name="paramName">Parameter name.</param>
-        public static string GetIdFromParamName (IOpenSearchable entity, string mimeType, string paramName){
+        public static string GetIdFromParamName(IOpenSearchable entity, string mimeType, string paramName) {
 
             NameValueCollection nvc = entity.GetOpenSearchParameters(mimeType);
             NameValueCollection revNvc = ReverseTemplateOpenSearchParameters(nvc);
             return revNvc[paramName];
 
         }
-       
+
         /// <summary>
         /// Gets the open search parameters.
         /// </summary>
@@ -426,6 +425,28 @@ namespace Terradue.OpenSearch {
                     item.Links.Remove(link);
                 }
             }
+        }
+
+        public static Type ResolveTypeFromRequest(HttpRequest request, OpenSearchEngine ose) {
+
+            Type type = typeof(AtomFeed);
+
+            if (request.Params["format"] != null) {
+                var osee = ose.GetExtensionByExtensionName(request.Params["format"]);
+                if (osee != null) {
+                    type = osee.GetTransformType();
+                }
+            } else {
+                foreach (string contentType in request.AcceptTypes) {
+                    var osee = ose.GetExtensionByDiscoveryContentType(contentType);
+                    if (osee != null) {
+                        type = osee.GetTransformType();
+                        break;
+                    }
+                }
+            }
+
+            return type;
         }
     }
 
