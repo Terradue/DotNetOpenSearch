@@ -52,10 +52,6 @@ namespace Terradue.OpenSearch.Engine.Extensions {
             }
         }
 
-        public override string[] GetInputFormatTransformPath() {
-            return new string[] { "application/rdf+xml" };
-        }
-
         public override IOpenSearchResultCollection TransformResponse(OpenSearchResponse response) {
             if (response.ContentType == "application/rdf+xml") return TransformRdfResponseToRdfXmlDocument(response);
 

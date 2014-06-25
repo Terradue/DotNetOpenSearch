@@ -20,8 +20,6 @@ namespace Terradue.OpenSearch.Engine {
     public abstract class OpenSearchEngineExtension<T> : IOpenSearchEngineExtension {
         public abstract string Name { get; }
 
-        public abstract string[] GetInputFormatTransformPath();
-
         public Type GetTransformType() {
             return typeof(T);
         }

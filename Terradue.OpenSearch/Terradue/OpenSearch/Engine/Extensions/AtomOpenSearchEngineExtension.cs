@@ -33,7 +33,7 @@ namespace Terradue.OpenSearch.Engine.Extensions {
 
         public override string Identifier {
             get {
-                return "Atom";
+                return "atom";
             }
         }
 
@@ -41,10 +41,6 @@ namespace Terradue.OpenSearch.Engine.Extensions {
             get {
                 return "ATOM Syndication Feed";
             }
-        }
-
-        public override string[] GetInputFormatTransformPath() {
-            return new string[] { "application/atom+xml", "application/xml" };
         }
 
         public override IOpenSearchResultCollection TransformResponse(OpenSearchResponse response) {

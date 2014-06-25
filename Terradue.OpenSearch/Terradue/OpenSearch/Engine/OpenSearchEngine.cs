@@ -206,7 +206,7 @@ namespace Terradue.OpenSearch.Engine {
             IOpenSearchResult osr = null;
 
             // 1) Find the best match between urlTemplates and result format
-            transformFunction = entity.GetTransformFunction(this, resultType);
+            transformFunction = entity.GetTransformFunction(this);
             if (transformFunction == null)
                 throw new ImpossibleSearchException(String.Format("No engine extension to query {0} in order to return {1}", entity.Identifier, resultType.FullName));
 
@@ -223,13 +223,20 @@ namespace Terradue.OpenSearch.Engine {
             // 5) Apply the pre-search functions
             ApplyPostSearchFilters(request, ref response);
 
-            // 7) Transform the response         
-            osr = new OpenSearchResult(transformFunction.Item2(response), request.Parameters);
+            // 7) Transform the response
+            IOpenSearchResultCollection results = transformFunction.Item2(response);
 
-            // 8) Assign the original entity to the IOpenSearchResult
+            // 8) Change format
+            IOpenSearchEngineExtension osee = GetFirstExtensionByTypeAbility(resultType);
+            IOpenSearchResultCollection newResults = osee.CreateOpenSearchResultFromOpenSearchResult(results);
+
+            // 9) Create Result container
+            osr = new OpenSearchResult(newResults, request.Parameters);
+
+            // 10) Assign the original entity to the IOpenSearchResult
             osr.OpenSearchableEntity = entity;
 
-            // 9) Apply post search filters
+            // 11) Apply post search filters
             entity.ApplyResultFilters(ref osr);
 
             return osr;
@@ -292,7 +299,7 @@ namespace Terradue.OpenSearch.Engine {
 
             ApplyPostSearchFilters(request, ref response);
 
-            IOpenSearchEngineExtension osee = GetFirstExtensionByContentTypeAbility(response.ContentType);
+            IOpenSearchEngineExtension osee = GetExtensionByContentTypeAbility(response.ContentType);
 
             if (osee == null)
                 throw new ImpossibleSearchException("No registered extension is able to read content of type " + response.ContentType);
@@ -392,34 +399,14 @@ namespace Terradue.OpenSearch.Engine {
         }
 
         /// <summary>
-        /// Lists the transformation path.
-        /// </summary>
-        /// <returns>The transformation path.</returns>
-        /// <param name="inputType">Input type.</param>
-        public List<Tuple<string, string>> ListTransformationPath(string inputType = null) {
-
-            List<Tuple<string, string>> transformPaths = new List<Tuple<string, string>>();
-
-            foreach (Type type in extensions.Keys) {
-                foreach (string contentType in extensions[type].GetInputFormatTransformPath()) {
-                    if (inputType != null && contentType != inputType)
-                        continue;
-                    transformPaths.Add(new Tuple<string,string>(contentType, type.Name));
-                }
-            }
-
-            return transformPaths;
-        }
-
-        /// <summary>
         /// Gets the first extension by content type ability.
         /// </summary>
         /// <returns>The first extension by content type ability.</returns>
         /// <param name="contentType">Content type.</param>
-        public IOpenSearchEngineExtension GetFirstExtensionByContentTypeAbility(string contentType) {
+        public IOpenSearchEngineExtension GetExtensionByContentTypeAbility(string contentType) {
             foreach (IOpenSearchEngineExtension osee in extensions.Values) {
 
-                if (osee.GetInputFormatTransformPath().FirstOrDefault(s => s == contentType) != null)
+                if (osee.DiscoveryContentType == contentType)
                     return osee;
             }
 

@@ -116,10 +116,6 @@ namespace Terradue.OpenSearch {
 
         }
 
-        public Tuple<string, Func<OpenSearchResponse, IOpenSearchResultCollection>> GetTransformFunction(OpenSearchEngine ose, Type resultType) {
-            return OpenSearchFactory.BestTransformFunctionByNumberOfParam(this, ose.GetExtension(resultType));
-        }
-
         public Tuple<string, Func<OpenSearchResponse, IOpenSearchResultCollection>> GetTransformFunction(OpenSearchEngine ose) {
             IOpenSearchEngineExtension osee = ose.GetExtensionByDiscoveryContentType(this.DefaultMimeType);
             if (osee == null)

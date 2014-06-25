@@ -24,17 +24,6 @@ namespace Terradue.OpenSearch {
     public partial interface IOpenSearchable {
 
         /// <summary>
-        /// Get the transform function according to the type of the result requested. OpenSearch is passed as argument
-        /// to be used with the default functions in OpenSearchEngine and OpenSearchFactory
-        /// </summary>
-        /// <seealso cref="OpenSearchEngine.GetExtension"/>
-        /// <seealso cref="OpenSearchFactory.BestTransformFunctionByNumberOfParam"/> 
-        /// <returns>A tuple with the transform function and the mime-type that will be read as input</returns>
-        /// <param name="ose">OpenSearchEngine instance</param>
-        /// <param name="resultType">Result type</param>
-        Tuple<string, Func<OpenSearchResponse, IOpenSearchResultCollection>> GetTransformFunction(OpenSearchEngine ose, Type resultType);
-
-        /// <summary>
         /// Get the transform function according to the entity. OpenSearch is passed as argument
         /// to be used with the default functions in OpenSearchEngine and OpenSearchFactory
         /// </summary>

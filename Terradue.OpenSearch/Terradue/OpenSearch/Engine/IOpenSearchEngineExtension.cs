@@ -25,11 +25,6 @@ namespace Terradue.OpenSearch {
     /// </description>
     [TypeExtensionPoint()]
     public interface IOpenSearchEngineExtension {
-        /// <summary>
-        /// Gets an array of contentType string that the extension is able to read.
-        /// </summary>
-        /// <returns>The input format transform path.</returns>
-        string[] GetInputFormatTransformPath();
 
         /// <summary>
         /// Gets the main Type of object that the extension generates
