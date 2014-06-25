@@ -50,11 +50,11 @@ namespace Terradue.OpenSearch {
 
         #region IOpenSearchable implementation
 
-        public Tuple<string, Func<OpenSearchResponse, IOpenSearchResultCollection>> GetTransformFunction(OpenSearchEngine ose) {
+        public QuerySettings GetQuerySettings(OpenSearchEngine ose) {
             IOpenSearchEngineExtension osee = ose.GetExtensionByDiscoveryContentType(this.DefaultMimeType);
-            if (osee == null)
-                return null;
-            return new Tuple<string, Func<OpenSearchResponse, IOpenSearchResultCollection>>(this.DefaultMimeType, osee.TransformResponse);
+            if (osee == null) return null;
+
+            return new QuerySettings(this.DefaultMimeType, osee.TransformResponse);
         }
 
         public OpenSearchRequest Create(string type, NameValueCollection parameters) {

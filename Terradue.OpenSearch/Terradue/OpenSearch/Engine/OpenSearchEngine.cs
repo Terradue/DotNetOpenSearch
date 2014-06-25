@@ -24,6 +24,7 @@ using Terradue.OpenSearch.Result;
 using Terradue.OpenSearch.Schema;
 
 namespace Terradue.OpenSearch.Engine {
+
     /// <summary>
     /// The engine for making OpenSearch request
     /// </summary>
@@ -129,17 +130,17 @@ namespace Terradue.OpenSearch.Engine {
         public IOpenSearchResult Query(IOpenSearchable entity, NameValueCollection parameters, string resultName) {
 
             // Transform action to invoke
-            Tuple<string,Func<OpenSearchResponse, IOpenSearchResultCollection>> transformFunction;
+            QuerySettings querySettings;
             // Results
             IOpenSearchResult osr = null;
 
             // 1) Find the plugin to match with urlTemplates
-            transformFunction = entity.GetTransformFunction(this);
-            if (transformFunction == null)
+            querySettings = entity.GetQuerySettings(this);
+            if (querySettings == null)
                 throw new ImpossibleSearchException(String.Format("No engine extension to query {0}", entity.Identifier));
 
             // 2) Create the request
-            OpenSearchRequest request = entity.Create(transformFunction.Item1, parameters);
+            OpenSearchRequest request = entity.Create(querySettings.PreferredContentType, parameters);
 
             // 5) Apply the pre-search functions
             ApplyPreSearchFilters(ref request);
@@ -152,7 +153,7 @@ namespace Terradue.OpenSearch.Engine {
             ApplyPostSearchFilters(request, ref response);
 
             // 7) Transform the response
-            IOpenSearchResultCollection results = transformFunction.Item2(response);
+            IOpenSearchResultCollection results = querySettings.TransformFunction(response);
 
             // 8) Change format
             IOpenSearchEngineExtension osee = GetExtensionByExtensionName(resultName);
@@ -201,17 +202,17 @@ namespace Terradue.OpenSearch.Engine {
         public IOpenSearchResult Query(IOpenSearchable entity, NameValueCollection parameters, Type resultType) {
 
             // Transform action to invoke
-            Tuple<string,Func<OpenSearchResponse, IOpenSearchResultCollection>> transformFunction;
+            QuerySettings querySettings;
             // Results
             IOpenSearchResult osr = null;
 
             // 1) Find the best match between urlTemplates and result format
-            transformFunction = entity.GetTransformFunction(this);
-            if (transformFunction == null)
+            querySettings = entity.GetQuerySettings(this);
+            if (querySettings == null)
                 throw new ImpossibleSearchException(String.Format("No engine extension to query {0} in order to return {1}", entity.Identifier, resultType.FullName));
 
             // 2) Create the request
-            OpenSearchRequest request = entity.Create(transformFunction.Item1, parameters);
+            OpenSearchRequest request = entity.Create(querySettings.PreferredContentType, parameters);
 
             // 5) Apply the pre-search functions
             ApplyPreSearchFilters(ref request);
@@ -224,7 +225,7 @@ namespace Terradue.OpenSearch.Engine {
             ApplyPostSearchFilters(request, ref response);
 
             // 7) Transform the response
-            IOpenSearchResultCollection results = transformFunction.Item2(response);
+            IOpenSearchResultCollection results = querySettings.TransformFunction(response);
 
             // 8) Change format
             IOpenSearchEngineExtension osee = GetFirstExtensionByTypeAbility(resultType);
@@ -250,17 +251,17 @@ namespace Terradue.OpenSearch.Engine {
         public IOpenSearchResult Query(IOpenSearchable entity, NameValueCollection parameters) {
 
             // Transform action to invoke
-            Tuple<string,Func<OpenSearchResponse, IOpenSearchResultCollection>> transformFunction;
+            QuerySettings querySettings;
             // Results
             IOpenSearchResult osr = null;
 
             // 1) Find the plugin to match with urlTemplates
-            transformFunction = entity.GetTransformFunction(this);
-            if (transformFunction == null)
+            querySettings = entity.GetQuerySettings(this);
+            if (querySettings == null)
                 throw new ImpossibleSearchException(String.Format("No engine extension to query {0}", entity.Identifier));
 
             // 2) Create the request
-            OpenSearchRequest request = entity.Create(transformFunction.Item1, parameters);
+            OpenSearchRequest request = entity.Create(querySettings.PreferredContentType, parameters);
 
             // 5) Apply the pre-search functions
             ApplyPreSearchFilters(ref request);
@@ -273,7 +274,7 @@ namespace Terradue.OpenSearch.Engine {
             ApplyPostSearchFilters(request, ref response);
 
             // 7) Transform the response         
-            osr = new OpenSearchResult(transformFunction.Item2(response), request.Parameters);
+            osr = new OpenSearchResult(querySettings.TransformFunction(response), request.Parameters);
 
             // 8) Assign the original entity to the IOpenSearchResult
             osr.OpenSearchableEntity = entity;

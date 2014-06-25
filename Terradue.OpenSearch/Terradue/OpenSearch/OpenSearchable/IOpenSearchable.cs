@@ -17,21 +17,36 @@ using Terradue.OpenSearch.Result;
 using Terradue.OpenSearch.Schema;
 
 namespace Terradue.OpenSearch {
+
+    /// <summary>Response transform function.</summary>
+    public delegate IOpenSearchResultCollection ResponseTransformFunction(OpenSearchResponse osr);
+
+    public class QuerySettings {
+
+        public string PreferredContentType { get; set; }
+
+        public ResponseTransformFunction TransformFunction { get; set; }
+
+        public QuerySettings(string preferredContentType, ResponseTransformFunction transformFunction) {
+            this.PreferredContentType = preferredContentType;
+            this.TransformFunction = transformFunction;
+        }
+
+    }
+
     /// <summary>
     /// IOpenSearchable.
     /// </summary>
     /// <description>Internal interface that enables OpenSearch mechanism on its class</description>
     public partial interface IOpenSearchable {
 
-        /// <summary>
-        /// Get the transform function according to the entity. OpenSearch is passed as argument
-        /// to be used with the default functions in OpenSearchEngine and OpenSearchFactory
+        /// Get the transform function according to the entity. OpenSearch is pasFunc<OpenSearchResponse, IOpenSearchResultCollection> /// to be used with the default functions in OpenSearchEngine and OpenSearchFactory
         /// </summary>
         /// <seealso cref="OpenSearchEngine.GetExtension"/>
-        /// <seealso cref="OpenSearchFactory.BestTransformFunctionByNumberOfParam"/> 
+        /// <seealso cref="OpenSearchFactory.GetBestQuerySettingsByNumberOfParam"/> 
         /// <returns>A tuple with the transform function and the mime-type that will be read as input</returns>
         /// <param name="ose">OpenSearchEngine instance</param>
-        Tuple<string, Func<OpenSearchResponse, IOpenSearchResultCollection>> GetTransformFunction(OpenSearchEngine ose);
+        QuerySettings GetQuerySettings(OpenSearchEngine ose);
 
         /// <summary>
         /// Create the OpenSearch Request for the requested mime-type the specified type and parameters.
