@@ -11,31 +11,39 @@ using System.Xml.Linq;
 namespace Terradue.OpenSearch.Result {
     public class AtomFeed : SyndicationFeed, IOpenSearchResultCollection {
 
+        List<AtomItem> items;
+
         public AtomFeed() : base()  {
+            items = new List<AtomItem>();
         }
 
-        public AtomFeed(IEnumerable<SyndicationItem> items) : base(items)  {
+        public AtomFeed(IEnumerable<AtomItem> items) : base()  {
+            items = new List<AtomItem>(items);
         }
 
-        public AtomFeed(string title, string description, Uri feedAlternateLink, string id, DateTimeOffset date) : base (title,description,feedAlternateLink,id,date){}
-
-        public AtomFeed(SyndicationFeed feed) : base(feed, true) {
+        public AtomFeed(string title, string description, Uri feedAlternateLink, string id, DateTimeOffset date) : base (title,description,feedAlternateLink,id,date){
+            items = new List<AtomItem>();
         }
 
-        public AtomFeed(SyndicationFeed feed, bool cloneItems) : base(feed, cloneItems) {
+        public AtomFeed(SyndicationFeed feed) : base(feed, false) {
+            items = base.Items.Select(i => new AtomItem(i)).ToList();
         }
 
-        List<AtomItem> AtomItems {
+        public AtomFeed(AtomFeed feed, bool cloneItems) : base(feed, false) {
+            if (cloneItems == true) {
+                items = feed.Items.Select(i => new AtomItem(i)).ToList();
+            } else
+                items = feed.items;
+
+        }
+
+        public new IEnumerable<AtomItem> Items {
             get {
-                return base.Items.Select(si => new AtomItem(si)).ToList();
+                return items.ToArray();
             }
-            set {
-                List<SyndicationItem> list = new List<SyndicationItem>();
-                value.FirstOrDefault(ai => {
-                    list.Add(ai.ToSyndicationItem());
-                    return false;
-                });
-                base.Items = list;
+
+            set{
+                items = value.ToList();
             }
         }
 
@@ -63,7 +71,7 @@ namespace Terradue.OpenSearch.Result {
 
         IEnumerable<IOpenSearchResultItem> IOpenSearchResultCollection.Items {
             get {
-                return AtomItems.ToArray();
+                return Items;
             }
         }
 
@@ -143,7 +151,7 @@ namespace Terradue.OpenSearch.Result {
                 foreach (var item in results.Items) {
                     items.Add(AtomItem.FromOpenSearchResultItem(item));
                 }
-                feed.AtomItems = items;
+                feed.Items = items;
             }
             return feed;
         }
@@ -163,6 +171,8 @@ namespace Terradue.OpenSearch.Result {
         public SyndicationItem ToSyndicationItem() {
             return this;
         }
+
+
 
         #region IOpenSearchResultItem implementation
 
