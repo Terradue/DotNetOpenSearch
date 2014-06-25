@@ -55,7 +55,7 @@ namespace Terradue.OpenSearch {
         /// <returns>The internal open search URL.</returns>
         /// <param name="parameters">Parameters.</param>
         protected OpenSearchUrl GetInternalOpenSearchUrl(NameValueCollection parameters) {
-            UriBuilder url = new UriBuilder(string.Format("http://{0)", System.Environment.MachineName));
+            UriBuilder url = new UriBuilder(string.Format("http://{0}", System.Environment.MachineName));
             url.Path += "/multi/";
             var array = (from key in parameters.AllKeys
                          from value in parameters.GetValues(key)
