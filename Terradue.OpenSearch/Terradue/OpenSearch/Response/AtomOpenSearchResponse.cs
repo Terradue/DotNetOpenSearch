@@ -14,15 +14,16 @@ using System.Collections.Generic;
 using System.IO;
 using System.Xml;
 using System.Diagnostics;
+using Terradue.OpenSearch.Result;
 
 namespace Terradue.OpenSearch.Response
 {
     public class AtomOpenSearchResponse : MemoryOpenSearchResponse
 	{
 
-		SyndicationFeed result;
+        AtomFeed result;
 
-        public AtomOpenSearchResponse(SyndicationFeed result, TimeSpan timeSpan) : base(new MemoryStream(),"application/atom+xml") {
+        public AtomOpenSearchResponse(AtomFeed result, TimeSpan timeSpan) : base(new MemoryStream(),"application/atom+xml") {
 
             this.timeSpan = timeSpan;
             this.result = result;

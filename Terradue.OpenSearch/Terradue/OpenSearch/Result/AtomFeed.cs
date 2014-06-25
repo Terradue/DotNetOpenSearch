@@ -10,7 +10,14 @@ using System.Xml.Linq;
 
 namespace Terradue.OpenSearch.Result {
     public class AtomFeed : SyndicationFeed, IOpenSearchResultCollection {
+
+        public AtomFeed() : base()  {
+        }
+
         public AtomFeed(SyndicationFeed feed) : base(feed, true) {
+        }
+
+        public AtomFeed(SyndicationFeed feed, bool cloneItems) : base(feed, cloneItems) {
         }
 
         List<AtomItem> AtomItems {

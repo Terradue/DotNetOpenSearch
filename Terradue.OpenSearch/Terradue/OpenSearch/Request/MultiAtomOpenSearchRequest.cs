@@ -34,7 +34,7 @@ namespace Terradue.OpenSearch.Request {
         CountdownEvent countdown;
         Dictionary<IOpenSearchable, int> currentEntities;
         Dictionary<IOpenSearchable,IOpenSearchResult> results;
-        SyndicationFeed feed;
+        AtomFeed feed;
         bool usingCache = false;
         ulong totalResults = 0;
 
@@ -102,13 +102,13 @@ namespace Terradue.OpenSearch.Request {
             while (currentStartPage <= originalStartPage) {
 
                 // new page -> new feed
-                feed = new SyndicationFeed();
+                feed = new AtomFeed();
 
                 // count=0 case for totalResults
                 if (count == 0) {
                     ExecuteConcurrentRequest();
                     MergeResults();
-                    feed = new SyndicationFeed();
+                    feed = new AtomFeed();
                 }
 
                 // While we do not have the count needed for our results
@@ -187,7 +187,7 @@ namespace Terradue.OpenSearch.Request {
 
             foreach (IOpenSearchResult result in results.Values) {
 
-                SyndicationFeed f1 = (SyndicationFeed)result.Result;
+                AtomFeed f1 = (AtomFeed)result.Result;
 
                 if (f1.Items.Count() == 0) continue;
                 feed = Merge(feed, f1);
@@ -200,9 +200,9 @@ namespace Terradue.OpenSearch.Request {
         /// </summary>
         /// <param name="f1">F1.</param>
         /// <param name="f2">F2.</param>
-        SyndicationFeed Merge(SyndicationFeed f1, SyndicationFeed f2) {
+        AtomFeed Merge(AtomFeed f1, AtomFeed f2) {
 
-            SyndicationFeed feed = f1.Clone(false);
+            AtomFeed feed = new AtomFeed(f1, false);
 
             int originalCount = ose.DefaultCount;
             try {
@@ -223,7 +223,7 @@ namespace Terradue.OpenSearch.Request {
             feed.Items = feed.Items.Take(originalCount);
 
 
-            return feed.Clone(true);
+            return new AtomFeed(feed);
         }
 
         /// <summary>
