@@ -14,6 +14,11 @@ namespace Terradue.OpenSearch.Result {
         public AtomFeed() : base()  {
         }
 
+        public AtomFeed(IEnumerable<SyndicationItem> items) : base(items)  {
+        }
+
+        public AtomFeed(string title, string description, Uri feedAlternateLink, string id, DateTimeOffset date) : base (title,description,feedAlternateLink,id,date){}
+
         public AtomFeed(SyndicationFeed feed) : base(feed, true) {
         }
 
