@@ -103,7 +103,7 @@ namespace Terradue.OpenSearch.Engine.Extensions {
 
                 reader = XmlReader.Create(response.GetResponseStream());
 
-                result = new AtomFeed(SyndicationFeed.Load(reader));
+                result = new AtomFeed(AtomFeed.Load(reader));
                 result.LastUpdatedTime = DateTime.UtcNow;
                 result.ElementExtensions.Add("queryTime", "http://a9.com/-/spec/opensearch/1.1/", response.RequestTime.TotalMilliseconds.ToString());
 
