@@ -123,7 +123,7 @@ namespace Terradue.OpenSearch.Request {
                     SetCurrentEntitiesOffset();
 
                     var r1 = results.Values.FirstOrDefault(r => {
-                        SyndicationFeed result = (SyndicationFeed)r.Result;
+                        AtomFeed result = (AtomFeed)r.Result;
                         if (result.Items.Count() > 0) return true;
                         return false;
                     });
@@ -174,7 +174,7 @@ namespace Terradue.OpenSearch.Request {
 
             entityParameters["startIndex"] = offset.ToString();
 
-            IOpenSearchResult result = ose.Query((IOpenSearchable)entity, entityParameters, typeof(SyndicationFeed));
+            IOpenSearchResult result = ose.Query((IOpenSearchable)entity, entityParameters, typeof(AtomFeed));
             results.Add((IOpenSearchable)entity, result);
             countdown.Signal();
 
@@ -296,7 +296,7 @@ namespace Terradue.OpenSearch.Request {
             foreach (IOpenSearchable entity in it) {
 
                 // the offset for this entity will be the number of items taken from its current result.
-                int offset = ((SyndicationFeed)results[entity].Result).Items.Intersect(feed.Items).Count();
+                int offset = ((AtomFeed)results[entity].Result).Items.Intersect(feed.Items).Count();
 
                 // Add this offset to the current state for this entity
                 currentEntities[entity] += offset;

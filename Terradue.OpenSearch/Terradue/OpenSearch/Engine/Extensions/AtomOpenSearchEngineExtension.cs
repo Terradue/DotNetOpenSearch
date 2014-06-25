@@ -67,7 +67,7 @@ namespace Terradue.OpenSearch.Engine.Extensions {
 
             List<SyndicationLink> links = new List<SyndicationLink>();
 
-            foreach (SyndicationItem item in ((SyndicationFeed)results.Result).Items) {
+            foreach (IOpenSearchResultItem item in results.Result.Items) {
                 foreach (SyndicationLink link in item.Links) {
                     if (link.RelationshipType == "enclosure") {
                         links.Add(link);
@@ -116,7 +116,7 @@ namespace Terradue.OpenSearch.Engine.Extensions {
         }
         //---------------------------------------------------------------------------------------------------------------------
         public static void ReplaceSelfLinks(IOpenSearchResult osr, Func<SyndicationItem,OpenSearchDescription,string,string> entryTemplate) {
-            SyndicationFeed feed = (SyndicationFeed)osr.Result;
+            AtomFeed feed = (AtomFeed)osr.Result;
 
             var matchLinks = feed.Links.Where(l => l.RelationshipType == "self").ToArray();
             foreach (var link in matchLinks) {
@@ -140,7 +140,7 @@ namespace Terradue.OpenSearch.Engine.Extensions {
         }
 
         public static void ReplaceOpenSearchDescriptionLinks(IOpenSearchResult osr) {
-            SyndicationFeed feed = (SyndicationFeed)osr.Result;
+            AtomFeed feed = (AtomFeed)osr.Result;
 
             var matchLinks = feed.Links.Where(l => l.RelationshipType == "search").ToArray();
             foreach (var link in matchLinks) {
@@ -165,7 +165,7 @@ namespace Terradue.OpenSearch.Engine.Extensions {
 
         public static void ReplaceIdentifier(IOpenSearchResult osr, Func<SyndicationItem,OpenSearchDescription,string,string> entryTemplate) {
 
-            SyndicationFeed feed = (SyndicationFeed)osr.Result;
+            AtomFeed feed = (AtomFeed)osr.Result;
 
             IProxiedOpenSearchable entity = (IProxiedOpenSearchable)osr.OpenSearchableEntity;
             OpenSearchDescription osd = entity.GetProxyOpenSearchDescription();
