@@ -18,18 +18,28 @@ using Terradue.OpenSearch.Schema;
 
 namespace Terradue.OpenSearch {
 
-    /// <summary>Response transform function.</summary>
-    public delegate IOpenSearchResultCollection ResponseTransformFunction(OpenSearchResponse osr);
+    /// <summary>Delegate type for generating a specific OpenSearchResult from an OpenSearch response.</summary>
+    /// <remarks>Instances of this delegate are used to transform an OpenSearchResponse into a an IOpenSearchResultCollection, which correspond to an output format.</remarks>
+    /// <param name="osr">The OpenSearch response object to be transformed.</param>
+    /// <returns>The result collection, i.e, an object that can be serialized to the desired output format.</returns> 
+    public delegate IOpenSearchResultCollection ReadNativeFunction(OpenSearchResponse osr);
 
+    /// <summary>Helper class that encapsulates the settings for an OpenSearch query and its result generation.</summary>
+    /// <remarks>Instances of this object are returned by classes implementing IOpenSearchable. It is used by OpenSearch engines to control the query process from the OpenSearch request to the initial result generation.</remarks>
     public class QuerySettings {
 
+        /// <summary>Gets or sets the preferred content type.</summary>
         public string PreferredContentType { get; set; }
 
-        public ResponseTransformFunction TransformFunction { get; set; }
+        /// <summary>Gets or sets the function that returns the in the OpenSearch result in the format preferred by the IOpenSearchable using these QuerySettings.</summary>
+        public ReadNativeFunction ReadNative { get; set; }
 
-        public QuerySettings(string preferredContentType, ResponseTransformFunction transformFunction) {
+        /// <summary>Creates a new instance of QuerySettings with the specified parameters.</summary>
+        /// <param name="preferredContentType">The preferred content type.</param>
+        /// <param name="readNative">The function to be called to obtain the formatted OpenSearch result.</param>
+        public QuerySettings(string preferredContentType, ReadNativeFunction readNative) {
             this.PreferredContentType = preferredContentType;
-            this.TransformFunction = transformFunction;
+            this.ReadNative = readNative;
         }
 
     }

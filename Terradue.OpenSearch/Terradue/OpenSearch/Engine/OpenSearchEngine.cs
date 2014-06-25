@@ -71,8 +71,7 @@ namespace Terradue.OpenSearch.Engine {
         /// <param name="contentType">native mime-Type</param>
         public IOpenSearchEngineExtension GetExtensionByDiscoveryContentType(string contentType) {
             foreach (IOpenSearchEngineExtension extension in extensions.Values) {
-                if (extension.DiscoveryContentType == contentType)
-                    return  extension;
+                if (extension.DiscoveryContentType == contentType) return extension;
             }
             throw new KeyNotFoundException(string.Format("Engine extension to read natively {0} not found", contentType));
         }
@@ -136,8 +135,7 @@ namespace Terradue.OpenSearch.Engine {
 
             // 1) Find the plugin to match with urlTemplates
             querySettings = entity.GetQuerySettings(this);
-            if (querySettings == null)
-                throw new ImpossibleSearchException(String.Format("No engine extension to query {0}", entity.Identifier));
+            if (querySettings == null) throw new ImpossibleSearchException(String.Format("No engine extension to query {0}", entity.Identifier));
 
             // 2) Create the request
             OpenSearchRequest request = entity.Create(querySettings.PreferredContentType, parameters);
@@ -153,7 +151,7 @@ namespace Terradue.OpenSearch.Engine {
             ApplyPostSearchFilters(request, ref response);
 
             // 7) Transform the response
-            IOpenSearchResultCollection results = querySettings.TransformFunction(response);
+            IOpenSearchResultCollection results = querySettings.ReadNative.Invoke(response);
 
             // 8) Change format
             IOpenSearchEngineExtension osee = GetExtensionByExtensionName(resultName);
@@ -203,13 +201,13 @@ namespace Terradue.OpenSearch.Engine {
 
             // Transform action to invoke
             QuerySettings querySettings;
+
             // Results
             IOpenSearchResult osr = null;
 
             // 1) Find the best match between urlTemplates and result format
             querySettings = entity.GetQuerySettings(this);
-            if (querySettings == null)
-                throw new ImpossibleSearchException(String.Format("No engine extension to query {0} in order to return {1}", entity.Identifier, resultType.FullName));
+            if (querySettings == null) throw new ImpossibleSearchException(String.Format("No engine extension to query {0} in order to return {1}", entity.Identifier, resultType.FullName));
 
             // 2) Create the request
             OpenSearchRequest request = entity.Create(querySettings.PreferredContentType, parameters);
@@ -225,7 +223,7 @@ namespace Terradue.OpenSearch.Engine {
             ApplyPostSearchFilters(request, ref response);
 
             // 7) Transform the response
-            IOpenSearchResultCollection results = querySettings.TransformFunction(response);
+            IOpenSearchResultCollection results = querySettings.ReadNative.Invoke(response);
 
             // 8) Change format
             IOpenSearchEngineExtension osee = GetFirstExtensionByTypeAbility(resultType);
@@ -257,8 +255,7 @@ namespace Terradue.OpenSearch.Engine {
 
             // 1) Find the plugin to match with urlTemplates
             querySettings = entity.GetQuerySettings(this);
-            if (querySettings == null)
-                throw new ImpossibleSearchException(String.Format("No engine extension to query {0}", entity.Identifier));
+            if (querySettings == null) throw new ImpossibleSearchException(String.Format("No engine extension to query {0}", entity.Identifier));
 
             // 2) Create the request
             OpenSearchRequest request = entity.Create(querySettings.PreferredContentType, parameters);
@@ -274,7 +271,7 @@ namespace Terradue.OpenSearch.Engine {
             ApplyPostSearchFilters(request, ref response);
 
             // 7) Transform the response         
-            osr = new OpenSearchResult(querySettings.TransformFunction(response), request.Parameters);
+            osr = new OpenSearchResult(querySettings.ReadNative.Invoke(response), request.Parameters);
 
             // 8) Assign the original entity to the IOpenSearchResult
             osr.OpenSearchableEntity = entity;
