@@ -251,6 +251,13 @@ namespace Terradue.OpenSearch.Result {
                     atomCat.SetAttributeValue(XName.Get("term", "http://www.w3.org/2005/Atom"), cat.Name);
                     elements.Add(atomCat.CreateReader());
                 }
+                foreach (SyndicationPerson author in this.Authors){
+                    var atomAuthor = new XElement(XName.Get("Author", "http://www.w3.org/2005/Atom"));
+                    atomAuthor.Add(new XElement(XName.Get("name", "http://www.w3.org/2005/Atom"), author.Name));
+                    atomAuthor.Add(new XElement(XName.Get("uri", "http://www.w3.org/2005/Atom"), author.Uri));
+                    atomAuthor.Add(new XElement(XName.Get("email", "http://www.w3.org/2005/Atom"), author.Email));
+                    elements.Add(atomAuthor.CreateReader());
+                }
                 return elements;
             }
         }
