@@ -29,12 +29,15 @@ namespace Terradue.OpenSearch {
 
         OpenSearchEngine ose;
 
+        bool concurrent;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Terradue.OpenSearch.MultiGenericOpenSearchable"/> class.
         /// </summary>
         /// <param name="entities">Entities.</param>
         /// <param name="ose">Ose.</param>
-        public MultiGenericOpenSearchable(List<IOpenSearchable> entities, OpenSearchEngine ose) {
+        public MultiGenericOpenSearchable(List<IOpenSearchable> entities, OpenSearchEngine ose, bool concurrent = false) {
+            this.concurrent = concurrent;
             this.ose = ose;
             this.entities = new List<IOpenSearchable>(entities);
         }
@@ -98,7 +101,7 @@ namespace Terradue.OpenSearch {
 
             OpenSearchUrl url = GetInternalOpenSearchUrl(parameters);
 
-            return new MultiAtomOpenSearchRequest(ose, entities.ToArray(), type, url);
+            return new MultiAtomOpenSearchRequest(ose, entities.ToArray(), type, url, concurrent);
 
         }
 

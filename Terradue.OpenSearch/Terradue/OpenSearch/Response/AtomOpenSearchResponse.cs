@@ -32,7 +32,7 @@ namespace Terradue.OpenSearch.Response
             sw.Start();
             response = new MemoryStream();
             var writer = XmlWriter.Create(response);
-            Atom10FeedFormatter atomFormatter = new Atom10FeedFormatter(result);
+            Atom10FeedFormatter atomFormatter = new Atom10FeedFormatter(result.Feed);
             atomFormatter.WriteTo(writer);
             writer.Flush();
             writer.Close();

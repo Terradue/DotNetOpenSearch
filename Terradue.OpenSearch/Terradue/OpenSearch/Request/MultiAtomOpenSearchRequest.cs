@@ -38,6 +38,8 @@ namespace Terradue.OpenSearch.Request {
         bool usingCache = false;
         ulong totalResults = 0;
 
+        bool concurrent = false;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Terradue.OpenSearch.Request.MultiAtomOpenSearchRequest"/> class.
         /// </summary>
@@ -45,7 +47,8 @@ namespace Terradue.OpenSearch.Request {
         /// <param name="entities">IOpenSearchable entities to be searched.</param>
         /// <param name="type">contentType of the .</param>
         /// <param name="url">URL.</param>
-        public MultiAtomOpenSearchRequest(OpenSearchEngine ose, IOpenSearchable[] entities, string type, OpenSearchUrl url) : base(url) {
+        public MultiAtomOpenSearchRequest(OpenSearchEngine ose, IOpenSearchable[] entities, string type, OpenSearchUrl url, bool concurrent) : base(url) {
+            this.concurrent = concurrent;
 
             this.ose = ose;
             this.type = type;
@@ -124,7 +127,8 @@ namespace Terradue.OpenSearch.Request {
 
                     var r1 = results.Values.FirstOrDefault(r => {
                         AtomFeed result = (AtomFeed)r.Result;
-                        if (result.Items.Count() > 0) return true;
+                        if (result.Items.Count() > 0)
+                            return true;
                         return false;
                     });
 
@@ -151,12 +155,16 @@ namespace Terradue.OpenSearch.Request {
             results = new Dictionary<IOpenSearchable, IOpenSearchResult>();
 
             foreach (IOpenSearchable entity in currentEntities.Keys) {
-                //Thread queryThread = new Thread(this.ExecuteOneRequest);
-                //queryThread.Start(entity);
-                ExecuteOneRequest(entity);
+                if (concurrent) {
+                    Thread queryThread = new Thread(this.ExecuteOneRequest);
+                    queryThread.Start(entity);
+                } else {
+
+                    ExecuteOneRequest(entity);
+                }
             }
 
-            //countdown.Wait();
+            countdown.Wait();
 
 
 
@@ -189,7 +197,8 @@ namespace Terradue.OpenSearch.Request {
 
                 AtomFeed f1 = (AtomFeed)result.Result;
 
-                if (f1.Items.Count() == 0) continue;
+                if (f1.Items.Count() == 0)
+                    continue;
                 feed = Merge(feed, f1);
 				
             }
@@ -214,7 +223,8 @@ namespace Terradue.OpenSearch.Request {
             if (feed.Items.Count() >= originalCount) {
 
                 if (f1.Items.Count() != 0 && f2.Items.Count() != 0) {
-                    if (f1.Items.Last().PublishDate >= f2.Items.First().PublishDate) return feed;
+                    if (f1.Items.Last().PublishDate >= f2.Items.First().PublishDate)
+                        return feed;
                 }
 
             }
@@ -257,7 +267,8 @@ namespace Terradue.OpenSearch.Request {
             states = states.FindAll(s => OpenSearchFactory.PaginationFreeEqual(s.Parameters, parameters) == true);
 
             if (states.Count <= 0) {
-                foreach (IOpenSearchable entity in entities) entities2.Add(entity, 1);
+                foreach (IOpenSearchable entity in entities)
+                    entities2.Add(entity, 1);
                 parameters2 = RemovePaginationParameters(parameters);
                 return false;
             }
@@ -275,7 +286,8 @@ namespace Terradue.OpenSearch.Request {
 					.FirstOrDefault();
 
             if (state.Entities == null) {
-                foreach (IOpenSearchable entity in entities) entities2.Add(entity, 1);
+                foreach (IOpenSearchable entity in entities)
+                    entities2.Add(entity, 1);
                 parameters2 = RemovePaginationParameters(parameters);
                 return false;
             }

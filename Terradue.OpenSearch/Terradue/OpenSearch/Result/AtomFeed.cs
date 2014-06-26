@@ -25,6 +25,10 @@ namespace Terradue.OpenSearch.Result {
             items = new List<AtomItem>();
         }
 
+        public AtomFeed(AtomFeed feed) : base(feed, false) {
+            items = feed.Items.Select(i => new AtomItem(i)).ToList();
+        }
+
         public AtomFeed(SyndicationFeed feed) : base(feed, false) {
             items = feed.Items.Select(i => new AtomItem(i)).ToList();
         }
@@ -64,7 +68,7 @@ namespace Terradue.OpenSearch.Result {
 
         public void SerializeToStream(System.IO.Stream stream) {
             var sw = XmlWriter.Create(stream);
-            Atom10FeedFormatter atomFormatter = new Atom10FeedFormatter(this);
+            Atom10FeedFormatter atomFormatter = new Atom10FeedFormatter(this.Feed);
             atomFormatter.WriteTo(sw);
             sw.Flush();
             sw.Close();
@@ -176,6 +180,11 @@ namespace Terradue.OpenSearch.Result {
 
         public AtomItem(string title, string description, Uri feedAlternateLink, string id, DateTimeOffset date) : base (title,description,feedAlternateLink,id,date){}
 
+        public AtomItem(string title, SyndicationContent content, Uri feedAlternateLink, string id, DateTimeOffset date) : base (title,content,feedAlternateLink,id,date){}
+
+        public AtomItem(AtomItem si) : base(si) {
+
+        }
 
         public AtomItem(SyndicationItem si) : base(si) {
 
@@ -227,6 +236,24 @@ namespace Terradue.OpenSearch.Result {
             }
         }
 
+        SyndicationElementExtensionCollection IOpenSearchResultItem.ElementExtensions {
+            get {
+                SyndicationElementExtensionCollection elements = new SyndicationElementExtensionCollection(this.ElementExtensions);
+                MemoryStream ms = new MemoryStream();
+                var xw = XmlWriter.Create(ms);
+                this.Content.WriteTo(xw, "Content", "http://www.w3.org/2005/Atom");
+                xw.Flush();
+                xw.Close();
+                ms.Seek(0, SeekOrigin.Begin);
+                elements.Add(XElement.Load(ms).CreateReader());
+                foreach (SyndicationCategory cat in this.Categories){
+                    var atomCat = new XElement(XName.Get("Category", "http://www.w3.org/2005/Atom"));
+                    atomCat.SetAttributeValue(XName.Get("term", "http://www.w3.org/2005/Atom"), cat.Name);
+                    elements.Add(atomCat.CreateReader());
+                }
+                return elements;
+            }
+        }
 
         public bool ShowNamespaces {
             get {
