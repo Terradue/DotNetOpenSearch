@@ -26,7 +26,7 @@ namespace Terradue.OpenSearch.Result {
         }
 
         public AtomFeed(SyndicationFeed feed) : base(feed, false) {
-            items = base.Items.Select(i => new AtomItem(i)).ToList();
+            items = feed.Items.Select(i => new AtomItem(i)).ToList();
         }
 
         public AtomFeed(AtomFeed feed, bool cloneItems) : base(feed, false) {
@@ -37,13 +37,26 @@ namespace Terradue.OpenSearch.Result {
 
         }
 
-        public new IEnumerable<AtomItem> Items {
+        public new static AtomFeed Load(XmlReader reader) {
+            var feed = Load<SyndicationFeed>(reader);
+            return new AtomFeed(feed);
+        }
+
+        public new  IEnumerable<AtomItem> Items {
             get {
                 return items.ToArray();
             }
 
             set{
                 items = value.ToList();
+            }
+        }
+
+        public SyndicationFeed Feed {
+            get {
+                SyndicationFeed feed = new SyndicationFeed(this, true);
+                feed.Items = this.Items.Select(i => new SyndicationItem(i));
+                return feed;
             }
         }
 

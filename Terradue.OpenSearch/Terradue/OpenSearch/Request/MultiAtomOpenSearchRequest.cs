@@ -204,10 +204,11 @@ namespace Terradue.OpenSearch.Request {
 
             AtomFeed feed = new AtomFeed(f1, false);
 
-            int originalCount = ose.DefaultCount;
+            int originalCount;
             try {
                 originalCount = int.Parse(originalParameters["count"]);
             } catch (Exception e) {
+                originalCount = ose.DefaultCount;
             }
 
             if (feed.Items.Count() >= originalCount) {
