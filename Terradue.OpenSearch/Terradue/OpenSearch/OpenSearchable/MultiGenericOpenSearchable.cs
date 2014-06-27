@@ -123,7 +123,7 @@ namespace Terradue.OpenSearch {
             IOpenSearchEngineExtension osee = ose.GetExtensionByDiscoveryContentType(this.DefaultMimeType);
             if (osee == null)
                 return null;
-            return new QuerySettings(this.DefaultMimeType, osee.TransformResponse);
+            return new QuerySettings(this.DefaultMimeType, osee.ReadNative);
         }
 
         public string DefaultMimeType {

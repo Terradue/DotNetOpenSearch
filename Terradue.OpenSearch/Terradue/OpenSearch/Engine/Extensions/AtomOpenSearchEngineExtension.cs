@@ -43,7 +43,7 @@ namespace Terradue.OpenSearch.Engine.Extensions {
             }
         }
 
-        public override IOpenSearchResultCollection TransformResponse(OpenSearchResponse response) {
+        public override IOpenSearchResultCollection ReadNative(OpenSearchResponse response) {
             if (response.ContentType == "application/atom+xml") return TransformAtomResponseToAtomFeed(response);
             if (response.ContentType == "application/xml") return TransformAtomResponseToAtomFeed(response);
 

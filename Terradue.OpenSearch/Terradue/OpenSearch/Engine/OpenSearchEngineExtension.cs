@@ -24,7 +24,7 @@ namespace Terradue.OpenSearch.Engine {
             return typeof(T);
         }
 
-        public abstract IOpenSearchResultCollection TransformResponse(OpenSearchResponse response);
+        public abstract IOpenSearchResultCollection ReadNative(OpenSearchResponse response);
 
         public abstract IOpenSearchResultCollection CreateOpenSearchResultFromOpenSearchResult(IOpenSearchResultCollection results);
 

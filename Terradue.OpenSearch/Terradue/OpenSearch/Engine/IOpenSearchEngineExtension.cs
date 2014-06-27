@@ -43,7 +43,7 @@ namespace Terradue.OpenSearch {
         /// </summary>
         /// <returns>The response transformed into the declared Type.</returns>
         /// <param name="response">OpenSearchResponse.</param>
-        IOpenSearchResultCollection TransformResponse(OpenSearchResponse response);
+        IOpenSearchResultCollection ReadNative(OpenSearchResponse response);
 
         IOpenSearchResultCollection CreateOpenSearchResultFromOpenSearchResult(IOpenSearchResultCollection results);
 
