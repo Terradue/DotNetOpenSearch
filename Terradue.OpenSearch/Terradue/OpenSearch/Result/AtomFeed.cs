@@ -239,13 +239,15 @@ namespace Terradue.OpenSearch.Result {
         SyndicationElementExtensionCollection IOpenSearchResultItem.ElementExtensions {
             get {
                 SyndicationElementExtensionCollection elements = new SyndicationElementExtensionCollection(this.ElementExtensions);
-                MemoryStream ms = new MemoryStream();
-                var xw = XmlWriter.Create(ms);
-                this.Content.WriteTo(xw, "Content", "http://www.w3.org/2005/Atom");
-                xw.Flush();
-                xw.Close();
-                ms.Seek(0, SeekOrigin.Begin);
-                elements.Add(XElement.Load(ms).CreateReader());
+                if (this.Content != null) {
+                    MemoryStream ms = new MemoryStream();
+                    var xw = XmlWriter.Create(ms);
+                    this.Content.WriteTo(xw, "Content", "http://www.w3.org/2005/Atom");
+                    xw.Flush();
+                    xw.Close();
+                    ms.Seek(0, SeekOrigin.Begin);
+                    elements.Add(XElement.Load(ms).CreateReader());
+                }
                 foreach (SyndicationCategory cat in this.Categories){
                     var atomCat = new XElement(XName.Get("Category", "http://www.w3.org/2005/Atom"));
                     atomCat.SetAttributeValue(XName.Get("term", "http://www.w3.org/2005/Atom"), cat.Name);
