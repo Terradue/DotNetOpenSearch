@@ -16,6 +16,7 @@ using Terradue.OpenSearch.Engine;
 using Terradue.OpenSearch.Response;
 using Terradue.OpenSearch.Result;
 using Terradue.OpenSearch.Schema;
+using System.Linq;
 
 namespace Terradue.OpenSearch {
     /// <summary>
@@ -58,8 +59,13 @@ namespace Terradue.OpenSearch {
         }
 
         public OpenSearchRequest Create(string type, NameValueCollection parameters) {
-            NameValueCollection nvc = new NameValueCollection(parameters);
-            if (url != null) nvc.Add(HttpUtility.ParseQueryString(url.Query));
+            NameValueCollection nvc;
+            if (url != null) nvc = HttpUtility.ParseQueryString(url.Query);
+            else nvc = new NameValueCollection();
+            parameters.AllKeys.SingleOrDefault(k => {
+                nvc.Set(k, parameters[k]);
+                return false;
+            });
             return OpenSearchRequest.Create(this, type, nvc);
         }
 
