@@ -115,75 +115,7 @@ namespace Terradue.OpenSearch.Engine.Extensions {
 
         }
         //---------------------------------------------------------------------------------------------------------------------
-        public static void ReplaceSelfLinks(IOpenSearchResult osr, Func<SyndicationItem,OpenSearchDescription,string,string> entryTemplate) {
-            AtomFeed feed = (AtomFeed)osr.Result;
 
-            var matchLinks = feed.Links.Where(l => l.RelationshipType == "self").ToArray();
-            foreach (var link in matchLinks) {
-                feed.Links.Remove(link);
-            }
-
-            IProxiedOpenSearchable entity = (IProxiedOpenSearchable)osr.OpenSearchableEntity;
-            OpenSearchDescription osd = entity.GetProxyOpenSearchDescription();
-            UriBuilder myUrl = new UriBuilder(OpenSearchFactory.GetOpenSearchUrlByType(osd, "application/atom+xml").Template);
-            string[] queryString = Array.ConvertAll(osr.SearchParameters.AllKeys, key => string.Format("{0}={1}", key, osr.SearchParameters[key]));
-            myUrl.Query = string.Join("&", queryString);
-
-            feed.Links.Add(new SyndicationLink(myUrl.Uri, "self", "Reference link", "application/atom+xml", 0));
-
-            foreach (SyndicationItem item in feed.Items) {
-                string template = entryTemplate(item, osd, "application/atom+xml");
-                if (template != null) {
-                    item.Links.Add(new SyndicationLink(new Uri(template), "self", "Reference link", "application/atom+xml", 0));
-                }
-            }
-        }
-
-        public static void ReplaceOpenSearchDescriptionLinks(IOpenSearchResult osr) {
-            AtomFeed feed = (AtomFeed)osr.Result;
-
-            var matchLinks = feed.Links.Where(l => l.RelationshipType == "search").ToArray();
-            foreach (var link in matchLinks) {
-                feed.Links.Remove(link);
-            }
-
-            OpenSearchDescription osd;
-            if (osr.OpenSearchableEntity is IProxiedOpenSearchable) osd = ((IProxiedOpenSearchable)osr.OpenSearchableEntity).GetProxyOpenSearchDescription();
-            else osd = osr.OpenSearchableEntity.GetOpenSearchDescription();
-            OpenSearchDescriptionUrl url = OpenSearchFactory.GetOpenSearchUrlByRel(osd, "self");
-            if (url != null) feed.Links.Add(new SyndicationLink(new Uri(url.Template), "search", "OpenSearch Description link", "application/opensearchdescription+xml", 0));
-
-            foreach (SyndicationItem item in feed.Items) {
-                matchLinks = item.Links.Where(l => l.RelationshipType == "search").ToArray();
-                foreach (var link in matchLinks) {
-                    item.Links.Remove(link);
-                }
-                if (url != null) item.Links.Add(new SyndicationLink(new Uri(url.Template), "search", "OpenSearch Description link", "application/opensearchdescription+xml", 0));
-            }
-
-        }
-
-        public static void ReplaceIdentifier(IOpenSearchResult osr, Func<SyndicationItem,OpenSearchDescription,string,string> entryTemplate) {
-
-            AtomFeed feed = (AtomFeed)osr.Result;
-
-            IProxiedOpenSearchable entity = (IProxiedOpenSearchable)osr.OpenSearchableEntity;
-            OpenSearchDescription osd = entity.GetProxyOpenSearchDescription();
-            UriBuilder myUrl = new UriBuilder(OpenSearchFactory.GetOpenSearchUrlByType(osd, "application/json").Template);
-            string[] queryString = Array.ConvertAll(osr.SearchParameters.AllKeys, key => string.Format("{0}={1}", key, osr.SearchParameters[key]));
-            myUrl.Query = string.Join("&", queryString);
-
-            feed.Id = myUrl.ToString();
-
-            foreach (SyndicationItem item in feed.Items) {
-                string template = entryTemplate(item, osd, "application/json");
-                if (template != null) {
-                    item.Id = template;
-                }
-
-            }
-
-        }
     }
 }
 

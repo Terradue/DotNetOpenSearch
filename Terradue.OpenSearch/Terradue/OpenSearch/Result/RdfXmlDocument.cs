@@ -108,6 +108,13 @@ namespace Terradue.OpenSearch.Result {
 
         #region IResultCollection implementation
 
+        public string Id {
+            get {
+                var link = Links.Single(l => l.RelationshipType == "self");
+                return link == null ? description.Attribute(rdfns + "about").Value : link.Uri.ToString();
+            }
+        }
+
         public IEnumerable<IOpenSearchResultItem> Items {
             get {
                 return items.ToArray();
