@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Collections.Specialized;
 using System.Xml.Linq;
+using System.Web;
 
 namespace Terradue.OpenSearch.Result {
     public class AtomFeed : SyndicationFeed, IOpenSearchResultCollection {
@@ -115,7 +116,7 @@ namespace Terradue.OpenSearch.Result {
                     if (element.LocalName == "identifier")
                         return element.InnerText;
                 }
-                return Id;
+                return HttpUtility.UrlEncode(Id);
             }
         }
 
@@ -223,7 +224,7 @@ namespace Terradue.OpenSearch.Result {
                     if (element.LocalName == "identifier")
                         return element.InnerText;
                 }
-                return base.Id;
+                return HttpUtility.UrlEncode(base.Id);
             }
             set {
                 foreach (var ext in this.ElementExtensions.ToArray()) {
