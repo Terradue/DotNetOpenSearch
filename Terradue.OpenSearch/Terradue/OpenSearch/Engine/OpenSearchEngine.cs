@@ -364,7 +364,7 @@ namespace Terradue.OpenSearch.Engine {
         private void ApplyPostSearchFilters(OpenSearchRequest request, ref OpenSearchResponse response) {
             foreach (PostFilterAction filter in postFilters) {
 
-                filter(request, ref response);
+                filter.Invoke(request, ref response);
 
             }
         }
@@ -377,7 +377,7 @@ namespace Terradue.OpenSearch.Engine {
            
             foreach (PreFilterAction filter in preFilters) {
 
-                filter(ref request);
+                filter.Invoke(ref request);
 
             }
 
