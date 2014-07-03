@@ -22,6 +22,7 @@ using Terradue.OpenSearch.Request;
 using Terradue.OpenSearch.Response;
 using Terradue.OpenSearch.Result;
 using Terradue.OpenSearch.Schema;
+using System.Xml.Linq;
 
 namespace Terradue.OpenSearch.Engine {
 
@@ -29,6 +30,10 @@ namespace Terradue.OpenSearch.Engine {
     /// The engine for making OpenSearch request
     /// </summary>
     public sealed partial class OpenSearchEngine : IOpenSearchableFactory {
+
+        internal const int DEFAULT_COUNT = 20;
+
+
         Dictionary<Type, IOpenSearchEngineExtension> extensions;
         List<PreFilterAction> preFilters;
         List<PostFilterAction> postFilters;
@@ -40,7 +45,7 @@ namespace Terradue.OpenSearch.Engine {
             extensions = new Dictionary<Type,IOpenSearchEngineExtension>();
             preFilters = new List<PreFilterAction>();
             postFilters = new List<PostFilterAction>();
-            DefaultCount = 20;
+            DefaultCount = DEFAULT_COUNT;
             DefaultTimeOut = 10000;
         }
 
@@ -158,7 +163,7 @@ namespace Terradue.OpenSearch.Engine {
             IOpenSearchResultCollection newResults = osee.CreateOpenSearchResultFromOpenSearchResult(results);
 
             // 9) Create Result
-            osr = new OpenSearchResult(newResults, request.Parameters);
+            osr = CreateOpenSearchResult(newResults, request, response);
 
             // 8) Assign the original entity to the IOpenSearchResult
             osr.OpenSearchableEntity = entity;
@@ -230,7 +235,7 @@ namespace Terradue.OpenSearch.Engine {
             IOpenSearchResultCollection newResults = osee.CreateOpenSearchResultFromOpenSearchResult(results);
 
             // 9) Create Result container
-            osr = new OpenSearchResult(newResults, request.Parameters);
+            osr = CreateOpenSearchResult(newResults, request, response);
 
             // 10) Assign the original entity to the IOpenSearchResult
             osr.OpenSearchableEntity = entity;
@@ -270,8 +275,8 @@ namespace Terradue.OpenSearch.Engine {
             // 5) Apply the pre-search functions
             ApplyPostSearchFilters(request, ref response);
 
-            // 7) Transform the response         
-            osr = new OpenSearchResult(querySettings.ReadNative.Invoke(response), request.Parameters);
+            // 7) Transform the response    
+            osr = CreateOpenSearchResult(querySettings.ReadNative.Invoke(response), request, response);
 
             // 8) Assign the original entity to the IOpenSearchResult
             osr.OpenSearchableEntity = entity;
@@ -425,6 +430,31 @@ namespace Terradue.OpenSearch.Engine {
             get {
                 return extensions;
             }
+        }
+
+        IOpenSearchResult CreateOpenSearchResult(IOpenSearchResultCollection newResults, OpenSearchRequest request, OpenSearchResponse response) {
+
+            foreach (SyndicationElementExtension ext in newResults.ElementExtensions.ToArray()) {
+                if ( ext.OuterName == "totalResults" && ext.OuterNamespace == "http://a9.com/-/spec/opensearch/1.1/")
+                    newResults.ElementExtensions.Remove(ext);
+                if ( ext.OuterName == "startIndex" && ext.OuterNamespace == "http://a9.com/-/spec/opensearch/1.1/")
+                    newResults.ElementExtensions.Remove(ext);
+                if ( ext.OuterName == "itemsPerPage" && ext.OuterNamespace == "http://a9.com/-/spec/opensearch/1.1/")
+                    newResults.ElementExtensions.Remove(ext);
+                if ( ext.OuterName == "Query" && ext.OuterNamespace == "http://a9.com/-/spec/opensearch/1.1/")
+                    newResults.ElementExtensions.Remove(ext);
+            }
+
+            newResults.ElementExtensions.Add("totalResults", "http://a9.com/-/spec/opensearch/1.1/", newResults.Items.Count());
+            newResults.ElementExtensions.Add("startIndex", "http://a9.com/-/spec/opensearch/1.1/", request.OpenSearchUrl.IndexOffset);
+            newResults.ElementExtensions.Add("itemsPerPage", "http://a9.com/-/spec/opensearch/1.1/", request.OpenSearchUrl.Count);
+            var query = newResults.Links.SingleOrDefault(l => l.RelationshipType == "self");
+            newResults.ElementExtensions.Add("Query", "http://a9.com/-/spec/opensearch/1.1/", query == null ? "" : query.Uri.ToString());
+
+            OpenSearchResult osr = new OpenSearchResult(newResults, request.Parameters);
+
+            return osr;
+     
         }
 
         #region IOpenSearchableFactory implementation
