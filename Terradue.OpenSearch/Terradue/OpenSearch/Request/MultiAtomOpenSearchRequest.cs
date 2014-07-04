@@ -9,7 +9,7 @@
 using System;
 using System.Linq;
 using System.Collections.Specialized;
-using System.ServiceModel.Syndication;
+using Terradue.ServiceModel.Syndication;
 using System.Collections.Generic;
 using System.Threading;
 using System.Web;
@@ -34,9 +34,11 @@ namespace Terradue.OpenSearch.Request {
         CountdownEvent countdown;
         Dictionary<IOpenSearchable, int> currentEntities;
         Dictionary<IOpenSearchable,IOpenSearchResult> results;
-        SyndicationFeed feed;
+        AtomFeed feed;
         bool usingCache = false;
         ulong totalResults = 0;
+
+        bool concurrent = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Terradue.OpenSearch.Request.MultiAtomOpenSearchRequest"/> class.
@@ -45,7 +47,8 @@ namespace Terradue.OpenSearch.Request {
         /// <param name="entities">IOpenSearchable entities to be searched.</param>
         /// <param name="type">contentType of the .</param>
         /// <param name="url">URL.</param>
-        public MultiAtomOpenSearchRequest(OpenSearchEngine ose, IOpenSearchable[] entities, string type, OpenSearchUrl url) : base(url) {
+        public MultiAtomOpenSearchRequest(OpenSearchEngine ose, IOpenSearchable[] entities, string type, OpenSearchUrl url, bool concurrent) : base(url) {
+            this.concurrent = concurrent;
 
             this.ose = ose;
             this.type = type;
@@ -102,13 +105,13 @@ namespace Terradue.OpenSearch.Request {
             while (currentStartPage <= originalStartPage) {
 
                 // new page -> new feed
-                feed = new SyndicationFeed();
+                feed = new AtomFeed();
 
                 // count=0 case for totalResults
                 if (count == 0) {
                     ExecuteConcurrentRequest();
                     MergeResults();
-                    feed = new SyndicationFeed();
+                    feed = new AtomFeed();
                 }
 
                 // While we do not have the count needed for our results
@@ -123,8 +126,9 @@ namespace Terradue.OpenSearch.Request {
                     SetCurrentEntitiesOffset();
 
                     var r1 = results.Values.FirstOrDefault(r => {
-                        SyndicationFeed result = (SyndicationFeed)r.Result;
-                        if (result.Items.Count() > 0) return true;
+                        AtomFeed result = (AtomFeed)r.Result;
+                        if (result.Items.Count() > 0)
+                            return true;
                         return false;
                     });
 
@@ -151,12 +155,16 @@ namespace Terradue.OpenSearch.Request {
             results = new Dictionary<IOpenSearchable, IOpenSearchResult>();
 
             foreach (IOpenSearchable entity in currentEntities.Keys) {
-                //Thread queryThread = new Thread(this.ExecuteOneRequest);
-                //queryThread.Start(entity);
-                ExecuteOneRequest(entity);
+                if (concurrent) {
+                    Thread queryThread = new Thread(this.ExecuteOneRequest);
+                    queryThread.Start(entity);
+                } else {
+
+                    ExecuteOneRequest(entity);
+                }
             }
 
-            //countdown.Wait();
+            countdown.Wait();
 
 
 
@@ -174,7 +182,7 @@ namespace Terradue.OpenSearch.Request {
 
             entityParameters["startIndex"] = offset.ToString();
 
-            IOpenSearchResult result = ose.Query((IOpenSearchable)entity, entityParameters, typeof(SyndicationFeed));
+            IOpenSearchResult result = ose.Query((IOpenSearchable)entity, entityParameters, typeof(AtomFeed));
             results.Add((IOpenSearchable)entity, result);
             countdown.Signal();
 
@@ -187,9 +195,10 @@ namespace Terradue.OpenSearch.Request {
 
             foreach (IOpenSearchResult result in results.Values) {
 
-                SyndicationFeed f1 = (SyndicationFeed)result.Result;
+                AtomFeed f1 = (AtomFeed)result.Result;
 
-                if (f1.Items.Count() == 0) continue;
+                if (f1.Items.Count() == 0)
+                    continue;
                 feed = Merge(feed, f1);
 				
             }
@@ -200,20 +209,22 @@ namespace Terradue.OpenSearch.Request {
         /// </summary>
         /// <param name="f1">F1.</param>
         /// <param name="f2">F2.</param>
-        SyndicationFeed Merge(SyndicationFeed f1, SyndicationFeed f2) {
+        AtomFeed Merge(AtomFeed f1, AtomFeed f2) {
 
-            SyndicationFeed feed = f1.Clone(false);
+            AtomFeed feed = new AtomFeed(f1, false);
 
-            int originalCount = ose.DefaultCount;
+            int originalCount;
             try {
                 originalCount = int.Parse(originalParameters["count"]);
             } catch (Exception e) {
+                originalCount = ose.DefaultCount;
             }
 
             if (feed.Items.Count() >= originalCount) {
 
                 if (f1.Items.Count() != 0 && f2.Items.Count() != 0) {
-                    if (f1.Items.Last().PublishDate >= f2.Items.First().PublishDate) return feed;
+                    if (f1.Items.Last().PublishDate >= f2.Items.First().PublishDate)
+                        return feed;
                 }
 
             }
@@ -223,7 +234,7 @@ namespace Terradue.OpenSearch.Request {
             feed.Items = feed.Items.Take(originalCount);
 
 
-            return feed.Clone(true);
+            return new AtomFeed(feed);
         }
 
         /// <summary>
@@ -256,7 +267,8 @@ namespace Terradue.OpenSearch.Request {
             states = states.FindAll(s => OpenSearchFactory.PaginationFreeEqual(s.Parameters, parameters) == true);
 
             if (states.Count <= 0) {
-                foreach (IOpenSearchable entity in entities) entities2.Add(entity, 1);
+                foreach (IOpenSearchable entity in entities)
+                    entities2.Add(entity, 1);
                 parameters2 = RemovePaginationParameters(parameters);
                 return false;
             }
@@ -274,7 +286,8 @@ namespace Terradue.OpenSearch.Request {
 					.FirstOrDefault();
 
             if (state.Entities == null) {
-                foreach (IOpenSearchable entity in entities) entities2.Add(entity, 1);
+                foreach (IOpenSearchable entity in entities)
+                    entities2.Add(entity, 1);
                 parameters2 = RemovePaginationParameters(parameters);
                 return false;
             }
@@ -296,7 +309,7 @@ namespace Terradue.OpenSearch.Request {
             foreach (IOpenSearchable entity in it) {
 
                 // the offset for this entity will be the number of items taken from its current result.
-                int offset = ((SyndicationFeed)results[entity].Result).Items.Intersect(feed.Items).Count();
+                int offset = ((AtomFeed)results[entity].Result).Items.Intersect(feed.Items).Count();
 
                 // Add this offset to the current state for this entity
                 currentEntities[entity] += offset;

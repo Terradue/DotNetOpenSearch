@@ -9,20 +9,21 @@
 using System;
 using System.Collections.Specialized;
 using System.Threading;
-using System.ServiceModel.Syndication;
+using Terradue.ServiceModel.Syndication;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
 using System.Diagnostics;
+using Terradue.OpenSearch.Result;
 
 namespace Terradue.OpenSearch.Response
 {
     public class AtomOpenSearchResponse : MemoryOpenSearchResponse
 	{
 
-		SyndicationFeed result;
+        AtomFeed result;
 
-        public AtomOpenSearchResponse(SyndicationFeed result, TimeSpan timeSpan) : base(new MemoryStream(),"application/atom+xml") {
+        public AtomOpenSearchResponse(AtomFeed result, TimeSpan timeSpan) : base(new MemoryStream(),"application/atom+xml") {
 
             this.timeSpan = timeSpan;
             this.result = result;
@@ -31,7 +32,7 @@ namespace Terradue.OpenSearch.Response
             sw.Start();
             response = new MemoryStream();
             var writer = XmlWriter.Create(response);
-            Atom10FeedFormatter atomFormatter = new Atom10FeedFormatter(result);
+            Atom10FeedFormatter atomFormatter = new Atom10FeedFormatter(result.Feed);
             atomFormatter.WriteTo(writer);
             writer.Flush();
             writer.Close();

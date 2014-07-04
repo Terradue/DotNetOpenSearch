@@ -7,6 +7,7 @@
 //  Copyright (c) 2014 Terradue
 
 using System;
+using System.Linq;
 using Mono.Addins;
 using System.Collections.Generic;
 using System.Net;
@@ -17,6 +18,8 @@ using Terradue.OpenSearch.Result;
 using System.Text.RegularExpressions;
 using System.Collections.Specialized;
 using Terradue.OpenSearch.Response;
+using Terradue.ServiceModel.Syndication;
+using System.Xml.Linq;
 
 namespace Terradue.OpenSearch.Engine.Extensions {
     /// <summary>
@@ -39,7 +42,7 @@ namespace Terradue.OpenSearch.Engine.Extensions {
 
         public override string Identifier {
             get {
-                return "Rdf";
+                return "rdf";
             }
         }
 
@@ -49,15 +52,22 @@ namespace Terradue.OpenSearch.Engine.Extensions {
             }
         }
 
-        public override string[] GetInputFormatTransformPath() {
-            return new string[] { "application/rdf+xml" };
-        }
-
-        public override object TransformResponse(OpenSearchResponse response) {
+        public override IOpenSearchResultCollection ReadNative(OpenSearchResponse response) {
             if (response.ContentType == "application/rdf+xml") return TransformRdfResponseToRdfXmlDocument(response);
 
             throw new NotSupportedException("RDF extension does not transform OpenSearch response from " + response.ContentType);
         }
+
+        #region implemented abstract members of OpenSearchEngineExtension
+
+        public override IOpenSearchResultCollection CreateOpenSearchResultFromOpenSearchResult(IOpenSearchResultCollection results) {
+            if (results is RdfXmlDocument)
+                return results;
+
+            return RdfXmlDocument.CreateFromOpenSearchResultCollection(results);
+        }
+
+        #endregion
 
         public override string DiscoveryContentType {
             get {
@@ -68,16 +78,13 @@ namespace Terradue.OpenSearch.Engine.Extensions {
         public override OpenSearchUrl FindOpenSearchDescriptionUrlFromResponse(OpenSearchResponse response) {
             RdfXmlDocument rdfDoc = TransformRdfResponseToRdfXmlDocument(response);
 
-            XmlNamespaceManager xnsm = new XmlNamespaceManager(rdfDoc.NameTable);
-            xnsm.AddNamespace("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
-            xnsm.AddNamespace("atom", "http://www.w3.org/2005/Atom");
-            XmlNode link = rdfDoc.SelectSingleNode("rdf:RDF/rdf:Description/atom:link[@atom:rel='search']", xnsm);
+            SyndicationLink link = rdfDoc.Links.SingleOrDefault(l => l.RelationshipType == "search");
 
             if (link == null) return null;
-            return new OpenSearchUrl(link.Attributes.GetNamedItem("href", "http://www.w3.org/2005/Atom").InnerText);
+            return new OpenSearchUrl(link.Uri);
         }
 
-        public override System.ServiceModel.Syndication.SyndicationLink[] GetEnclosures(IOpenSearchResult result) {
+        public override Terradue.ServiceModel.Syndication.SyndicationLink[] GetEnclosures(IOpenSearchResult result) {
             throw new NotImplementedException();
         }
 
@@ -95,18 +102,16 @@ namespace Terradue.OpenSearch.Engine.Extensions {
 
                 XmlReader reader = XmlReader.Create(response.GetResponseStream());
 
-                rdfDoc = new RdfXmlDocument();
-                rdfDoc.Load(reader);
+                rdfDoc = RdfXmlDocument.Load(reader);
 
-                XmlElement elem = rdfDoc.CreateElement("queryTime", "http://a9.com/-/spec/opensearch/1.1/");
-                elem.InnerText = response.RequestTime.Milliseconds.ToString();
-                rdfDoc.DocumentElement.AppendChild(elem);
-
+                rdfDoc.Root.Add(new XElement(XNamespace.Get("http://a9.com/-/spec/opensearch/1.1/") + "queryTime", 
+                                        response.RequestTime.Milliseconds.ToString()));
+                
             } catch (Exception e) {
                 throw new InvalidOperationException("Error during transformation : " + e.Message, e);
             }
 
-            RdfOpenSearchEngineExtension.CorrectRdfAbout(rdfDoc);
+            //RdfOpenSearchEngineExtension.CorrectRdfAbout(rdfDoc);
 
             return rdfDoc;
         }
@@ -115,7 +120,7 @@ namespace Terradue.OpenSearch.Engine.Extensions {
         /// Corrects the rdf about.
         /// </summary>
         /// <param name="rdfDoc">Rdf document.</param>
-        public static void CorrectRdfAbout(RdfXmlDocument rdfDoc) {
+        /*public static void CorrectRdfAbout(RdfXmlDocument rdfDoc) {
 
             XmlNamespaceManager xnsm = new XmlNamespaceManager(rdfDoc.NameTable);
             xnsm.AddNamespace("dclite4g", "http://xmlns.com/2008/dclite4g#");
@@ -147,6 +152,6 @@ namespace Terradue.OpenSearch.Engine.Extensions {
                     dataSet.Attributes.SetNamedItem(attr);
                 }
             }
-        }
+        }*/
     }
 }

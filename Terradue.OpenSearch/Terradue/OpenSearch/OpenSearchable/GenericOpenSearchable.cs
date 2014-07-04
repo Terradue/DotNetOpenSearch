@@ -16,6 +16,7 @@ using Terradue.OpenSearch.Engine;
 using Terradue.OpenSearch.Response;
 using Terradue.OpenSearch.Result;
 using Terradue.OpenSearch.Schema;
+using System.Linq;
 
 namespace Terradue.OpenSearch {
     /// <summary>
@@ -34,6 +35,7 @@ namespace Terradue.OpenSearch {
         public GenericOpenSearchable(OpenSearchUrl url, OpenSearchEngine ose) {
             this.url = url;
             this.ose = ose;
+            this.osd = ose.AutoDiscoverFromQueryUrl(url);
         }
 
         /// <summary>
@@ -49,14 +51,21 @@ namespace Terradue.OpenSearch {
 
         #region IOpenSearchable implementation
 
-        public Tuple<string, Func<OpenSearchResponse, object>> GetTransformFunction(OpenSearchEngine ose, Type resultType) {
-            IOpenSearchEngineExtension osee = ose.GetExtension(resultType);
-            return OpenSearchFactory.BestTransformFunctionByNumberOfParam(this, osee);
+        public QuerySettings GetQuerySettings(OpenSearchEngine ose) {
+            IOpenSearchEngineExtension osee = ose.GetExtensionByDiscoveryContentType(this.DefaultMimeType);
+            if (osee == null) return null;
+
+            return new QuerySettings(this.DefaultMimeType, osee.ReadNative);
         }
 
         public OpenSearchRequest Create(string type, NameValueCollection parameters) {
-            NameValueCollection nvc = new NameValueCollection(parameters);
-            if (url != null) nvc.Add(HttpUtility.ParseQueryString(url.Query));
+            NameValueCollection nvc;
+            if (url != null) nvc = HttpUtility.ParseQueryString(url.Query);
+            else nvc = new NameValueCollection();
+            parameters.AllKeys.SingleOrDefault(k => {
+                nvc.Set(k, parameters[k]);
+                return false;
+            });
             return OpenSearchRequest.Create(this, type, nvc);
         }
 
@@ -89,10 +98,13 @@ namespace Terradue.OpenSearch {
             // do nothing.
         }
 
-        public OpenSearchUrl GetSearchBaseUrl(string mimetype) {
-            throw new InvalidOperationException("Base Url unknow for Generic OpenSearchable");
+        public string DefaultMimeType {
+            get {
+                if (string.IsNullOrEmpty(osd.DefaultUrl.Type))
+                    return "application/atom+xml";
+                return osd.DefaultUrl.Type;
+            }
         }
-
         #endregion
     }
 }

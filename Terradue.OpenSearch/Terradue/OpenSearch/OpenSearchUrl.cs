@@ -16,6 +16,7 @@ using System.Xml.Serialization;
 using System.Xml;
 using System.Text;
 using Terradue.OpenSearch.Schema;
+using Terradue.OpenSearch.Engine;
 
 namespace Terradue.OpenSearch
 {
@@ -25,9 +26,9 @@ namespace Terradue.OpenSearch
 	public class OpenSearchUrl : Uri
 	{
 
-		private int pageOffset = 1;
+        private int osdPageOffset = 1;
 
-		private int indexOffset = 1;
+        private int osdIndexOffset = 1;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Terradue.OpenSearch.OpenSearchUrl"/> class.
@@ -43,8 +44,8 @@ namespace Terradue.OpenSearch
         /// <param name="osdu">Osdu.</param>
 		public OpenSearchUrl (OpenSearchDescriptionUrl osdu) : base (osdu.Template)
 		{
-			this.indexOffset = osdu.IndexOffset;
-			this.pageOffset = osdu.PageOffset;
+			this.osdIndexOffset = osdu.IndexOffset;
+			this.osdPageOffset = osdu.PageOffset;
 		}
 
         /// <summary>
@@ -62,8 +63,7 @@ namespace Terradue.OpenSearch
 		public NameValueCollection SearchAttributes {
 			get {
 
-				UriBuilder ub = new UriBuilder (this.AbsoluteUri);
-				NameValueCollection nvc = HttpUtility.ParseQueryString (ub.Query);
+				NameValueCollection nvc = HttpUtility.ParseQueryString (this.Query);
 
 				return nvc;
 
@@ -74,7 +74,7 @@ namespace Terradue.OpenSearch
         /// Returns a <see cref="System.String"/> that represents the current <see cref="Terradue.OpenSearch.OpenSearchUrl"/>.
         /// </summary>
         /// <returns>A <see cref="System.String"/> that represents the current <see cref="Terradue.OpenSearch.OpenSearchUrl"/>.</returns>
-		public string  ToString() {
+        public new string ToString() {
 			return base.AbsoluteUri;
 		}
 
@@ -84,7 +84,8 @@ namespace Terradue.OpenSearch
         /// <value>The page offset.</value>
 		public int PageOffset {
 			get {
-				return pageOffset;
+                var po = SearchAttributes["startPage"];
+                return po == null ? osdPageOffset : int.Parse(po);
 			}
 		}
 
@@ -94,9 +95,21 @@ namespace Terradue.OpenSearch
         /// <value>The index offset.</value>
 		public int IndexOffset {
 			get {
-				return indexOffset;
+                var si = SearchAttributes["startIndex"];
+                return si == null ? osdIndexOffset : int.Parse(si);
 			}
 		}
+
+        /// <summary>
+        /// Gets the index offset.
+        /// </summary>
+        /// <value>The index offset.</value>
+        public int Count {
+            get {
+                var count = SearchAttributes["count"];
+                return count == null ? OpenSearchEngine.DEFAULT_COUNT : int.Parse(count);
+            }
+        }
 	}
 
 }

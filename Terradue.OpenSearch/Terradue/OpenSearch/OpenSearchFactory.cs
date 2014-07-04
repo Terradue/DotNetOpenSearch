@@ -18,7 +18,7 @@ using System.Text;
 using System.IO;
 using System.Security;
 using Terradue.OpenSearch.Result;
-using System.ServiceModel.Syndication;
+using Terradue.ServiceModel.Syndication;
 using Terradue.OpenSearch.Engine;
 using Terradue.OpenSearch.Response;
 using Terradue.OpenSearch.Schema;
@@ -230,16 +230,16 @@ namespace Terradue.OpenSearch {
         public static string GetParamNameFromId(NameValueCollection parameters, string id) {
 
             string param = parameters[id];
-            if (param == null) return null;
+            if (param == null)
+                return null;
 
             // first find the defintion of the parameter in the url template
             Match matchParamDef = Regex.Match(param, @"^{([^?]+)\??}$");
             // If parameter does not exist, continue
-            if (!matchParamDef.Success) return null;
+            if (!matchParamDef.Success)
+                return null;
             // We have the parameter defintion
             return matchParamDef.Groups[1].Value;
-
-            return null;
         }
 
         /// <summary>
@@ -260,27 +260,6 @@ namespace Terradue.OpenSearch {
         /// <param name="rel">Rel.</param>
         public static OpenSearchDescriptionUrl GetOpenSearchUrlByRel(OpenSearchDescription osd, string rel) {
             return osd.Url.FirstOrDefault(u => u.Relation == rel);
-        }
-
-        /// <summary>
-        /// Bests the transform function by number of parameter.
-        /// </summary>
-        /// <returns>The transform function by number of parameter.</returns>
-        /// <param name="entity">Entity.</param>
-        /// <param name="osee">Osee.</param>
-        public static Tuple<string, Func<OpenSearchResponse, object>> BestTransformFunctionByNumberOfParam(IOpenSearchable entity, IOpenSearchEngineExtension osee) {
-            string contentType = null;
-            int paramnumber = -1;
-            foreach (string mimeType in osee.GetInputFormatTransformPath()) {
-                NameValueCollection nvc = entity.GetOpenSearchParameters(mimeType);
-                if (nvc == null)
-                    continue;
-                if (nvc.Count > paramnumber) {
-                    contentType = mimeType;
-                    paramnumber = nvc.Count;
-                }
-            }
-            return new Tuple<string, Func<OpenSearchResponse, object>>(contentType, osee.TransformResponse);
         }
 
         /// <summary>
@@ -376,8 +355,7 @@ namespace Terradue.OpenSearch {
             if (osd != null) {
                 factory = new UrlBasedOpenSearchableFactory(ose);
                 return factory.Create(osd);
-            }
-            else
+            } else
                 throw new EntryPointNotFoundException(string.Format("No OpenSearch description found around {0}", baseUrl));
         }
 
@@ -388,14 +366,14 @@ namespace Terradue.OpenSearch {
         /// <param name="entity">Entity.</param>
         /// <param name="mimeType">MIME type.</param>
         /// <param name="paramName">Parameter name.</param>
-        public static string GetIdFromParamName (IOpenSearchable entity, string mimeType, string paramName){
+        public static string GetIdFromParamName(IOpenSearchable entity, string mimeType, string paramName) {
 
             NameValueCollection nvc = entity.GetOpenSearchParameters(mimeType);
             NameValueCollection revNvc = ReverseTemplateOpenSearchParameters(nvc);
             return revNvc[paramName];
 
         }
-       
+
         /// <summary>
         /// Gets the open search parameters.
         /// </summary>
@@ -432,20 +410,91 @@ namespace Terradue.OpenSearch {
             return nvc;
 
         }
-        public void Test () {
-            var engine = new OpenSearchEngine();
-            engine.LoadPlugins();
-            var entity = new GenericOpenSearchable(new OpenSearchUrl("http://eo-virtual-archive4.esa.int/search/ASA_IM__0P/atom"), engine);
-            var parameters = new NameValueCollection();
-            parameters.Add("count", "20");
-            parameters.Add("start", "1992-01-01");
-            parameters.Add("stop", "2014-04-15");
-            parameters.Add("bbox", "24,30,42,53");
-            var result = engine.Query(entity, parameters, "Atom");
-            XmlWriter atomWriter = XmlWriter.Create("result.xml");
-            Atom10FeedFormatter atomFormatter = new Atom10FeedFormatter((SyndicationFeed)result.Result);
-            atomFormatter.WriteTo(atomWriter);
-            atomWriter.Close();
+
+        public static void RemoveLinksByRel(IOpenSearchResult osr, string relType) {
+            IOpenSearchResultCollection results = (IOpenSearchResultCollection)osr.Result;
+
+            var matchLinks = results.Links.Where(l => l.RelationshipType == relType).ToArray();
+            foreach (var link in matchLinks) {
+                results.Links.Remove(link);
+            }
+
+            foreach (IOpenSearchResultItem item in results.Items) {
+                matchLinks = item.Links.Where(l => l.RelationshipType == relType).ToArray();
+                foreach (var link in matchLinks) {
+                    item.Links.Remove(link);
+                }
+            }
+        }
+
+        public static Type ResolveTypeFromRequest(HttpRequest request, OpenSearchEngine ose) {
+
+            Type type = typeof(AtomFeed);
+
+            if (request.Params["format"] != null) {
+                var osee = ose.GetExtensionByExtensionName(request.Params["format"]);
+                if (osee != null) {
+                    type = osee.GetTransformType();
+                }
+            } else {
+                foreach (string contentType in request.AcceptTypes) {
+                    var osee = ose.GetExtensionByDiscoveryContentType(contentType);
+                    if (osee != null) {
+                        type = osee.GetTransformType();
+                        break;
+                    }
+                }
+            }
+
+            return type;
+        }
+
+        public static void ReplaceSelfLinks(IOpenSearchResult osr, Func<IOpenSearchResultItem,OpenSearchDescription,string,string> entryTemplate) {
+            IOpenSearchResultCollection feed = osr.Result;
+
+            var matchLinks = feed.Links.Where(l => l.RelationshipType == "self").ToArray();
+            foreach (var link in matchLinks) {
+                feed.Links.Remove(link);
+            }
+
+            IProxiedOpenSearchable entity = (IProxiedOpenSearchable)osr.OpenSearchableEntity;
+            OpenSearchDescription osd = entity.GetProxyOpenSearchDescription();
+            UriBuilder myUrl = new UriBuilder(OpenSearchFactory.GetOpenSearchUrlByType(osd, "application/atom+xml").Template);
+            string[] queryString = Array.ConvertAll(osr.SearchParameters.AllKeys, key => string.Format("{0}={1}", key, osr.SearchParameters[key]));
+            myUrl.Query = string.Join("&", queryString);
+
+            feed.Links.Add(new SyndicationLink(myUrl.Uri, "self", "Reference link", "application/atom+xml", 0));
+
+            foreach (IOpenSearchResultItem item in feed.Items) {
+                string template = entryTemplate(item, osd, "application/atom+xml");
+                if (template != null) {
+                    item.Links.Add(new SyndicationLink(new Uri(template), "self", "Reference link", "application/atom+xml", 0));
+                }
+            }
+        }
+
+        public static void ReplaceOpenSearchDescriptionLinks(IOpenSearchResult osr) {
+            IOpenSearchResultCollection feed = osr.Result;
+
+            var matchLinks = feed.Links.Where(l => l.RelationshipType == "search").ToArray();
+            foreach (var link in matchLinks) {
+                feed.Links.Remove(link);
+            }
+
+            OpenSearchDescription osd;
+            if (osr.OpenSearchableEntity is IProxiedOpenSearchable) osd = ((IProxiedOpenSearchable)osr.OpenSearchableEntity).GetProxyOpenSearchDescription();
+            else osd = osr.OpenSearchableEntity.GetOpenSearchDescription();
+            OpenSearchDescriptionUrl url = OpenSearchFactory.GetOpenSearchUrlByRel(osd, "self");
+            if (url != null) feed.Links.Add(new SyndicationLink(new Uri(url.Template), "search", "OpenSearch Description link", "application/opensearchdescription+xml", 0));
+
+            foreach (IOpenSearchResultItem item in feed.Items) {
+                matchLinks = item.Links.Where(l => l.RelationshipType == "search").ToArray();
+                foreach (var link in matchLinks) {
+                    item.Links.Remove(link);
+                }
+                if (url != null) item.Links.Add(new SyndicationLink(new Uri(url.Template), "search", "OpenSearch Description link", "application/opensearchdescription+xml", 0));
+            }
+
         }
     }
 
