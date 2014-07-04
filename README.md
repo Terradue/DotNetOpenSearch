@@ -58,9 +58,6 @@ following git commands.
 
 ```
 git clone git@github.com:Terradue/Terradue.OpenSearch.git Terradue.OpenSearch
-cd Terradue.OpenSearch
-./configure
-./make
 ```
 
 ## TODO
