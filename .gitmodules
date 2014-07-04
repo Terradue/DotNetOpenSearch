@@ -1,3 +1,0 @@
-[submodule "externals/DotNetSyndication"]
-	path = externals/DotNetSyndication
-	url = git@github.com:Terradue/DotNetSyndication.git
