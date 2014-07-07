@@ -1,4 +1,4 @@
-[![Build Status](https://build.terradue.com/buildStatus/icon?job=DotNetOpenSearch)"https://build.terradue.com/job/DotNetOpenSearch/"]
+[![Build Status](https://build.terradue.com/buildStatus/icon?job=DotNetOpenSearch)(https://build.terradue.com/job/DotNetOpenSearch/)]
 
 # DotNetOpenSearch - OpenSearch library for .Net
 
