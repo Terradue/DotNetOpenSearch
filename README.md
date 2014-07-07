@@ -1,3 +1,5 @@
+[![Build Status](https://build.terradue.com/buildStatus/icon?job=DotNetOpenSearch)](https://build.terradue.com/job/DotNetOpenSearch/)
+
 # DotNetOpenSearch - OpenSearch library for .Net
 
 Terradue.OpenSearch is a library targeting .NET 4.0 and above providing an easy way to perform OpenSearch query from a class or an URL to multiple and custom types of results (Atom, Rdf, etc.)
