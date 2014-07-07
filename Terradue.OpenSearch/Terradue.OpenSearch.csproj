@@ -52,7 +52,7 @@
     <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="Mono.Addins" />
-    <Reference Include="Terradue.ServiceModel">
+    <Reference Include="Terradue.ServiceModel.Syndication">
       <HintPath>..\packages\Terradue.ServiceModel.Syndication.1.0.0.0\lib\net40\Terradue.ServiceModel.Syndication.dll</HintPath>
     </Reference>
   </ItemGroup>
