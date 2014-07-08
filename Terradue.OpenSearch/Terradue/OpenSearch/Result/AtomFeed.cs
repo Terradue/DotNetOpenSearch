@@ -289,6 +289,7 @@ namespace Terradue.OpenSearch.Result {
                 item.Date = result.Date;
             item.Links = result.Links;
             item.Title = result.Title;
+            item.LastUpdatedTime = DateTime.UtcNow;
 
             item.ElementExtensions = new SyndicationElementExtensionCollection(result.ElementExtensions);
 

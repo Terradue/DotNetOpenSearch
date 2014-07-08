@@ -122,7 +122,7 @@ namespace Terradue.OpenSearch {
         }
 
         public QuerySettings GetQuerySettings(OpenSearchEngine ose) {
-            IOpenSearchEngineExtension osee = ose.GetExtensionByDiscoveryContentType(this.DefaultMimeType);
+            IOpenSearchEngineExtension osee = ose.GetExtensionByContentTypeAbility(this.DefaultMimeType);
             if (osee == null)
                 return null;
             return new QuerySettings(this.DefaultMimeType, osee.ReadNative);

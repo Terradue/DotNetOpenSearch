@@ -438,7 +438,7 @@ namespace Terradue.OpenSearch {
                 }
             } else {
                 foreach (string contentType in request.AcceptTypes) {
-                    var osee = ose.GetExtensionByDiscoveryContentType(contentType);
+                    var osee = ose.GetExtensionByContentTypeAbility(contentType);
                     if (osee != null) {
                         type = osee.GetTransformType();
                         break;
@@ -457,8 +457,15 @@ namespace Terradue.OpenSearch {
                 feed.Links.Remove(link);
             }
 
-            IProxiedOpenSearchable entity = (IProxiedOpenSearchable)osr.OpenSearchableEntity;
-            OpenSearchDescription osd = entity.GetProxyOpenSearchDescription();
+            OpenSearchDescription osd = null;
+            if (osr.OpenSearchableEntity is IProxiedOpenSearchable) {
+                IProxiedOpenSearchable entity = (IProxiedOpenSearchable)osr.OpenSearchableEntity;
+                osd = entity.GetProxyOpenSearchDescription(); 
+            } else {
+                osd = osr.OpenSearchableEntity.GetOpenSearchDescription();
+            }
+            if (OpenSearchFactory.GetOpenSearchUrlByType(osd, "application/atom+xml") == null)
+                return;
             UriBuilder myUrl = new UriBuilder(OpenSearchFactory.GetOpenSearchUrlByType(osd, "application/atom+xml").Template);
             string[] queryString = Array.ConvertAll(osr.SearchParameters.AllKeys, key => string.Format("{0}={1}", key, osr.SearchParameters[key]));
             myUrl.Query = string.Join("&", queryString);

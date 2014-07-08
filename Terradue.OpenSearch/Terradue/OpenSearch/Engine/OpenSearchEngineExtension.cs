@@ -20,7 +20,7 @@ namespace Terradue.OpenSearch.Engine {
     public abstract class OpenSearchEngineExtension<T> : IOpenSearchEngineExtension {
         public abstract string Name { get; }
 
-        public Type GetTransformType() {
+        public virtual Type GetTransformType() {
             return typeof(T);
         }
 

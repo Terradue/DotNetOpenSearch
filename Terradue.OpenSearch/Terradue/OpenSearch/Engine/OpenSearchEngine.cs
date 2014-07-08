@@ -34,7 +34,7 @@ namespace Terradue.OpenSearch.Engine {
         internal const int DEFAULT_COUNT = 20;
 
 
-        Dictionary<Type, IOpenSearchEngineExtension> extensions;
+        Dictionary<int, IOpenSearchEngineExtension> extensions;
         List<PreFilterAction> preFilters;
         List<PostFilterAction> postFilters;
 
@@ -42,7 +42,7 @@ namespace Terradue.OpenSearch.Engine {
         /// Initializes a new instance of the <see cref="Terradue.OpenSearch.OpenSearchEngine"/> class.
         /// </summary>
         public OpenSearchEngine() {
-            extensions = new Dictionary<Type,IOpenSearchEngineExtension>();
+            extensions = new Dictionary<int,IOpenSearchEngineExtension>();
             preFilters = new List<PreFilterAction>();
             postFilters = new List<PostFilterAction>();
             DefaultCount = DEFAULT_COUNT;
@@ -52,34 +52,6 @@ namespace Terradue.OpenSearch.Engine {
         public delegate void PreFilterAction(ref OpenSearchRequest request);
 
         public delegate void PostFilterAction(OpenSearchRequest request, ref OpenSearchResponse response);
-
-        /// <summary>
-        /// Gets the IOpenSearchEngineExtension registered for the given Type.
-        /// </summary>
-        /// <returns>IOpenSearchEngineExtension that manage the Type.</returns>
-        /// <param name="type">Type registered.</param>
-        /// <exception cref="InvalidOperationException">The type does not exists in the registered extensions</exception>
-        public IOpenSearchEngineExtension GetExtension(Type type) {
-            if (type == null)
-                throw new ArgumentNullException("type");
-            try {
-                return extensions[type];
-            } catch (Exception) {
-                throw new InvalidOperationException("No OpenSearch extension found for type " + type.Name);
-            }
-        }
-
-        /// <summary>
-        /// Gets the extension by extension's content type discovery capability
-        /// </summary>
-        /// <returns>The extension</returns>
-        /// <param name="contentType">native mime-Type</param>
-        public IOpenSearchEngineExtension GetExtensionByDiscoveryContentType(string contentType) {
-            foreach (IOpenSearchEngineExtension extension in extensions.Values) {
-                if (extension.DiscoveryContentType == contentType) return extension;
-            }
-            throw new KeyNotFoundException(string.Format("Engine extension to read natively {0} not found", contentType));
-        }
 
         /// <summary>
         /// Gets or sets the default time out.
@@ -105,8 +77,8 @@ namespace Terradue.OpenSearch.Engine {
         /// <param name="type">Type to be registered</param>
         /// <param name="extension">Extension associated with the type</param>
         /// <exception cref="ArgumentException">An extension with the same typoe already registered.</exception>
-        public void RegisterType(Type type, IOpenSearchEngineExtension extension) {
-            extensions.Add(type, extension);
+        public void RegisterExtension(IOpenSearchEngineExtension extension) {
+            extensions.Add(extension.GetHashCode(), extension);
         }
 
         /// <summary>
@@ -352,7 +324,7 @@ namespace Terradue.OpenSearch.Engine {
 
             Type type = result.Result.GetType();
 
-            IOpenSearchEngineExtension osee = extensions[type];
+            IOpenSearchEngineExtension osee = GetFirstExtensionByTypeAbility(type);
 
             if (osee == null)
                 throw new InvalidOperationException("No registered extensions able to get media enclosures for " + type.ToString());
@@ -396,7 +368,7 @@ namespace Terradue.OpenSearch.Engine {
             foreach (TypeExtensionNode node in AddinManager.GetExtensionNodes (typeof(IOpenSearchEngineExtension))) {
                 IOpenSearchEngineExtension osee = (IOpenSearchEngineExtension)node.CreateInstance();
                 Type type = osee.GetTransformType();
-                this.RegisterType(type, osee);
+                this.RegisterExtension(osee);
             }
 
         }
@@ -426,7 +398,7 @@ namespace Terradue.OpenSearch.Engine {
             return null;
         }
 
-        public Dictionary<Type, IOpenSearchEngineExtension> Extensions {
+        public Dictionary<int, IOpenSearchEngineExtension> Extensions {
             get {
                 return extensions;
             }

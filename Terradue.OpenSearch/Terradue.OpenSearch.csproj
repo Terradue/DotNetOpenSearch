@@ -90,6 +90,7 @@
     <Compile Include="Terradue\OpenSearch\Engine\Extensions\AtomOpenSearchEngineExtension.cs" />
     <Compile Include="Terradue\OpenSearch\Result\AtomFeed.cs" />
     <Compile Include="Terradue\OpenSearch\Schema\OpenSearchDescription.Extra.cs" />
+    <Compile Include="Terradue\OpenSearch\Engine\Extensions\XmlOpenSearchEngineExtension.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
