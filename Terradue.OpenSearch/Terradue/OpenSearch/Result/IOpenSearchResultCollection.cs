@@ -15,14 +15,12 @@ using Terradue.ServiceModel.Syndication;
 using System.IO;
 using System.Collections.ObjectModel;
 
-namespace Terradue.OpenSearch.Result
-{
+namespace Terradue.OpenSearch.Result {
 
     /// <summary>
     /// Interface to represent a collection of results item
     /// </summary>
-    public interface IOpenSearchResultCollection
-	{
+    public interface IOpenSearchResultCollection {
 
         string Id { get; }
 
@@ -40,22 +38,20 @@ namespace Terradue.OpenSearch.Result
 
         long Count { get; }
 
-        void SerializeToStream (Stream stream);
+        void SerializeToStream(Stream stream);
 
-        string SerializeToString ();
+        string SerializeToString();
 
         string ContentType { get; }
 
         bool ShowNamespaces { get; set; }
-
-	}
+    }
 
 
     /// <summary>
     /// Interface that represent a result item
     /// </summary>
-    public interface IOpenSearchResultItem
-    {
+    public interface IOpenSearchResultItem {
         string Id { get; }
 
         string Title { get; }

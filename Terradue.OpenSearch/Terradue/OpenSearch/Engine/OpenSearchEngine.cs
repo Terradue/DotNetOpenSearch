@@ -406,9 +406,9 @@ namespace Terradue.OpenSearch.Engine {
 
         IOpenSearchResult CreateOpenSearchResult(IOpenSearchResultCollection newResults, OpenSearchRequest request, OpenSearchResponse response) {
 
+            bool totalResults = false;
+
             foreach (SyndicationElementExtension ext in newResults.ElementExtensions.ToArray()) {
-                if ( ext.OuterName == "totalResults" && ext.OuterNamespace == "http://a9.com/-/spec/opensearch/1.1/")
-                    newResults.ElementExtensions.Remove(ext);
                 if ( ext.OuterName == "startIndex" && ext.OuterNamespace == "http://a9.com/-/spec/opensearch/1.1/")
                     newResults.ElementExtensions.Remove(ext);
                 if ( ext.OuterName == "itemsPerPage" && ext.OuterNamespace == "http://a9.com/-/spec/opensearch/1.1/")
@@ -416,8 +416,6 @@ namespace Terradue.OpenSearch.Engine {
                 if ( ext.OuterName == "Query" && ext.OuterNamespace == "http://a9.com/-/spec/opensearch/1.1/")
                     newResults.ElementExtensions.Remove(ext);
             }
-
-            newResults.ElementExtensions.Add("totalResults", "http://a9.com/-/spec/opensearch/1.1/", newResults.Items.Count());
             newResults.ElementExtensions.Add("startIndex", "http://a9.com/-/spec/opensearch/1.1/", request.OpenSearchUrl.IndexOffset);
             newResults.ElementExtensions.Add("itemsPerPage", "http://a9.com/-/spec/opensearch/1.1/", request.OpenSearchUrl.Count);
             var query = newResults.Links.SingleOrDefault(l => l.RelationshipType == "self");
