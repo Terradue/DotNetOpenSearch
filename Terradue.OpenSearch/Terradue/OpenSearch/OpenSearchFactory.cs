@@ -489,22 +489,25 @@ namespace Terradue.OpenSearch {
             }
 
             OpenSearchDescription osd;
-            if (osr.OpenSearchableEntity is IProxiedOpenSearchable) osd = ((IProxiedOpenSearchable)osr.OpenSearchableEntity).GetProxyOpenSearchDescription();
-            else osd = osr.OpenSearchableEntity.GetOpenSearchDescription();
+            if (osr.OpenSearchableEntity is IProxiedOpenSearchable)
+                osd = ((IProxiedOpenSearchable)osr.OpenSearchableEntity).GetProxyOpenSearchDescription();
+            else
+                osd = osr.OpenSearchableEntity.GetOpenSearchDescription();
             OpenSearchDescriptionUrl url = OpenSearchFactory.GetOpenSearchUrlByRel(osd, "self");
-            if (url != null) feed.Links.Add(new SyndicationLink(new Uri(url.Template), "search", "OpenSearch Description link", "application/opensearchdescription+xml", 0));
+            if (url != null)
+                feed.Links.Add(new SyndicationLink(new Uri(url.Template), "search", "OpenSearch Description link", "application/opensearchdescription+xml", 0));
 
             foreach (IOpenSearchResultItem item in feed.Items) {
                 matchLinks = item.Links.Where(l => l.RelationshipType == "search").ToArray();
                 foreach (var link in matchLinks) {
                     item.Links.Remove(link);
                 }
-                if (url != null) item.Links.Add(new SyndicationLink(new Uri(url.Template), "search", "OpenSearch Description link", "application/opensearchdescription+xml", 0));
+                if (url != null)
+                    item.Links.Add(new SyndicationLink(new Uri(url.Template), "search", "OpenSearch Description link", "application/opensearchdescription+xml", 0));
             }
 
         }
 
-<<<<<<< HEAD
         public static OpenSearchDescriptionUrl GetOpenSearchUrlByTypeAndMaxParam(OpenSearchDescription osd, List<string> mimeTypes, NameValueCollection osParameters) {
 
             OpenSearchDescriptionUrl url = null;
@@ -513,7 +516,7 @@ namespace Terradue.OpenSearch {
             foreach (var urlC in osd.Url) {
                 UriBuilder tempU = new UriBuilder(BuildRequestUrlFromTemplateNameParameters(new OpenSearchUrl(urlC.Template), osParameters));
                 int numParam = HttpUtility.ParseQueryString(tempU.Query).Count;
-                if (maxParam < numParam){
+                if (maxParam < numParam) {
                     maxParam = numParam;
                     url = urlC;
                 }
@@ -533,7 +536,8 @@ namespace Terradue.OpenSearch {
 
             }
             return newNvc;
-=======
+        }
+
         public static SyndicationLink[] GetEnclosures(IOpenSearchResultCollection result) {
 
             List<SyndicationLink> links = new List<SyndicationLink>();
@@ -547,7 +551,6 @@ namespace Terradue.OpenSearch {
             }
 
             return links.ToArray();
->>>>>>> 813935fe9596ad0d0ed5cab432b44d4bc2288b60
         }
     }
 
