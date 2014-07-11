@@ -503,6 +503,36 @@ namespace Terradue.OpenSearch {
             }
 
         }
+
+        public static OpenSearchDescriptionUrl GetOpenSearchUrlByTypeAndMaxParam(OpenSearchDescription osd, List<string> mimeTypes, NameValueCollection osParameters) {
+
+            OpenSearchDescriptionUrl url = null;
+            int maxParam = -1;
+
+            foreach (var urlC in osd.Url) {
+                UriBuilder tempU = new UriBuilder(BuildRequestUrlFromTemplateNameParameters(new OpenSearchUrl(urlC.Template), osParameters));
+                int numParam = HttpUtility.ParseQueryString(tempU.Query).Count;
+                if (maxParam < numParam){
+                    maxParam = numParam;
+                    url = urlC;
+                }
+            }
+
+            return url;
+
+        }
+
+        public static NameValueCollection ReplaceTemplateByIdentifier(NameValueCollection osParameters, OpenSearchDescriptionUrl osdUrl) {
+            NameValueCollection dic = osdUrl.GetIdentifierDictionary();
+            NameValueCollection newNvc = new NameValueCollection();
+            foreach (var templateKey in osParameters.AllKeys) {
+                if (dic[templateKey] == null)
+                    continue;
+                newNvc.Add(dic[templateKey], osParameters[templateKey]);
+
+            }
+            return newNvc;
+        }
     }
 
 
