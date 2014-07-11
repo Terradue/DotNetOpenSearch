@@ -32,8 +32,6 @@ namespace Terradue.OpenSearch.Engine {
 
         public abstract string DiscoveryContentType { get; }
 
-        public abstract SyndicationLink[] GetEnclosures(IOpenSearchResult result);
-
         public abstract string Identifier { get; }
     }
 }

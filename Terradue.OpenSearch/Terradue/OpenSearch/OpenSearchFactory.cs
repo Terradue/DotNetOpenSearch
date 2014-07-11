@@ -503,6 +503,21 @@ namespace Terradue.OpenSearch {
             }
 
         }
+
+        public static SyndicationLink[] GetEnclosures(IOpenSearchResultCollection result) {
+
+            List<SyndicationLink> links = new List<SyndicationLink>();
+
+            foreach (IOpenSearchResultItem item in result.Items) {
+                foreach (SyndicationLink link in item.Links) {
+                    if (link.RelationshipType == "enclosure") {
+                        links.Add(link);
+                    }
+                }
+            }
+
+            return links.ToArray();
+        }
     }
 
 

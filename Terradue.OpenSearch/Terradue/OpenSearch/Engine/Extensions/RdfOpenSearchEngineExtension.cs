@@ -84,10 +84,6 @@ namespace Terradue.OpenSearch.Engine.Extensions {
             return new OpenSearchUrl(link.Uri);
         }
 
-        public override Terradue.ServiceModel.Syndication.SyndicationLink[] GetEnclosures(IOpenSearchResult result) {
-            throw new NotImplementedException();
-        }
-
         #endregion
 
         /// <summary>

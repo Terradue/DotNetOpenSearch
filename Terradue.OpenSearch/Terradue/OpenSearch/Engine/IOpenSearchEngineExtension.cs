@@ -61,13 +61,6 @@ namespace Terradue.OpenSearch {
         string DiscoveryContentType { get; }
 
         /// <summary>
-        /// Gets the enclosures of an OpenSearch result 
-        /// </summary>
-        /// <returns>The enclosures in the format of SyndicationLink.</returns>
-        /// <param name="result">OpenSearchResult.</param>
-        SyndicationLink[] GetEnclosures(IOpenSearchResult result);
-
-        /// <summary>
         /// Gets the name of the extension.
         /// </summary>
         /// <value>The name.</value>
