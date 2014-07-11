@@ -504,6 +504,7 @@ namespace Terradue.OpenSearch {
 
         }
 
+<<<<<<< HEAD
         public static OpenSearchDescriptionUrl GetOpenSearchUrlByTypeAndMaxParam(OpenSearchDescription osd, List<string> mimeTypes, NameValueCollection osParameters) {
 
             OpenSearchDescriptionUrl url = null;
@@ -532,6 +533,21 @@ namespace Terradue.OpenSearch {
 
             }
             return newNvc;
+=======
+        public static SyndicationLink[] GetEnclosures(IOpenSearchResultCollection result) {
+
+            List<SyndicationLink> links = new List<SyndicationLink>();
+
+            foreach (IOpenSearchResultItem item in result.Items) {
+                foreach (SyndicationLink link in item.Links) {
+                    if (link.RelationshipType == "enclosure") {
+                        links.Add(link);
+                    }
+                }
+            }
+
+            return links.ToArray();
+>>>>>>> 813935fe9596ad0d0ed5cab432b44d4bc2288b60
         }
     }
 

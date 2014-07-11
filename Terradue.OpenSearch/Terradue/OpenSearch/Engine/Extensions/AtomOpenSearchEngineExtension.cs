@@ -63,21 +63,6 @@ namespace Terradue.OpenSearch.Engine.Extensions {
             return new OpenSearchUrl(link.Uri);
         }
 
-        public override SyndicationLink[] GetEnclosures(IOpenSearchResult results) {
-
-            List<SyndicationLink> links = new List<SyndicationLink>();
-
-            foreach (IOpenSearchResultItem item in results.Result.Items) {
-                foreach (SyndicationLink link in item.Links) {
-                    if (link.RelationshipType == "enclosure") {
-                        links.Add(link);
-                    }
-                }
-            }
-
-            return links.ToArray();
-        }
-
         public override IOpenSearchResultCollection CreateOpenSearchResultFromOpenSearchResult(IOpenSearchResultCollection results) {
             if (results is AtomFeed)
                 return results;

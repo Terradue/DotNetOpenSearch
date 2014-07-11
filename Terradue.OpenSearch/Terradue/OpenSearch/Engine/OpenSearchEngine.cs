@@ -329,7 +329,7 @@ namespace Terradue.OpenSearch.Engine {
             if (osee == null)
                 throw new InvalidOperationException("No registered extensions able to get media enclosures for " + type.ToString());
 
-            return osee.GetEnclosures(result);
+            return OpenSearchFactory.GetEnclosures(result.Result);
 
         }
 
