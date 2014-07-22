@@ -31,7 +31,7 @@ namespace Terradue.OpenSearch.Engine {
     /// </summary>
     public sealed partial class OpenSearchEngine : IOpenSearchableFactory {
 
-        internal const int DEFAULT_COUNT = 20;
+        public const int DEFAULT_COUNT = 20;
 
 
         Dictionary<int, IOpenSearchEngineExtension> extensions;
@@ -415,6 +415,8 @@ namespace Terradue.OpenSearch.Engine {
                     newResults.ElementExtensions.Remove(ext);
                 if ( ext.OuterName == "Query" && ext.OuterNamespace == "http://a9.com/-/spec/opensearch/1.1/")
                     newResults.ElementExtensions.Remove(ext);
+                if (ext.OuterName == "totalResults" && ext.OuterNamespace == "http://a9.com/-/spec/opensearch/1.1/")
+                    totalResults = true;
             }
             newResults.ElementExtensions.Add("startIndex", "http://a9.com/-/spec/opensearch/1.1/", request.OpenSearchUrl.IndexOffset);
             newResults.ElementExtensions.Add("itemsPerPage", "http://a9.com/-/spec/opensearch/1.1/", request.OpenSearchUrl.Count);
