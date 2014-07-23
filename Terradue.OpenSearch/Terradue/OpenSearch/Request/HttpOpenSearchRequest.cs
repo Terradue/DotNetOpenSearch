@@ -56,7 +56,7 @@ namespace Terradue.OpenSearch.Request {
 
             int retry = 2;
 
-            while (retry > 0) {
+            while (retry >= 0) {
                 try {
                     Stopwatch sw = Stopwatch.StartNew();
                     httpWebRequest = (HttpWebRequest)WebRequest.Create(this.OpenSearchUrl);
@@ -69,7 +69,7 @@ namespace Terradue.OpenSearch.Request {
                 } catch (WebException e) {
                     if (e.Status == WebExceptionStatus.Timeout) throw new TimeoutException(String.Format("Search Request {0} has timed out", httpWebRequest.RequestUri.AbsoluteUri), e);
                     retry--;
-                    if (retry >= 0) {
+                    if (retry > 0) {
                         Thread.Sleep(1000);
                         continue;
                     }
@@ -79,7 +79,7 @@ namespace Terradue.OpenSearch.Request {
                 }
             }
 
-            return null;
+            throw new Exception("Unknown error during query at " + httpWebRequest.RequestUri.AbsoluteUri);
         }
 
         #endregion
