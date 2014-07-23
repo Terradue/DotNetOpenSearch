@@ -455,6 +455,11 @@ namespace Terradue.OpenSearch {
         }
 
         public static void ReplaceSelfLinks(IOpenSearchResult osr, Func<IOpenSearchResultItem,OpenSearchDescription,string,string> entryTemplate) {
+            ReplaceSelfLinks(osr, entryTemplate, "application/atom+xml");
+        }
+
+
+        public static void ReplaceSelfLinks(IOpenSearchResult osr, Func<IOpenSearchResultItem,OpenSearchDescription,string,string> entryTemplate, string contentType) {
             IOpenSearchResultCollection feed = osr.Result;
 
             var matchLinks = feed.Links.Where(l => l.RelationshipType == "self").ToArray();
@@ -469,18 +474,33 @@ namespace Terradue.OpenSearch {
             } else {
                 osd = osr.OpenSearchableEntity.GetOpenSearchDescription();
             }
-            if (OpenSearchFactory.GetOpenSearchUrlByType(osd, "application/atom+xml") == null)
+            if (OpenSearchFactory.GetOpenSearchUrlByType(osd, contentType) == null)
                 return;
-            UriBuilder myUrl = new UriBuilder(OpenSearchFactory.GetOpenSearchUrlByType(osd, "application/atom+xml").Template);
-            string[] queryString = Array.ConvertAll(osr.SearchParameters.AllKeys, key => string.Format("{0}={1}", key, osr.SearchParameters[key]));
+
+            NameValueCollection newNvc = new NameValueCollection(osr.SearchParameters);
+            NameValueCollection nvc = OpenSearchFactory.GetOpenSearchParameters(OpenSearchFactory.GetOpenSearchUrlByType(osd, contentType));
+            newNvc.AllKeys.FirstOrDefault(k => {
+                if ( nvc[k] == null )
+                    newNvc.Remove(k);
+                return false;
+            });
+            nvc.AllKeys.FirstOrDefault(k => {
+                Match matchParamDef = Regex.Match(nvc[k], @"^{([^?]+)\??}$");
+                if (!matchParamDef.Success)
+                    newNvc.Set(k, nvc[k]);
+                return false;
+            });
+
+            UriBuilder myUrl = new UriBuilder(OpenSearchFactory.GetOpenSearchUrlByType(osd, contentType).Template);
+            string[] queryString = Array.ConvertAll(newNvc.AllKeys, key => string.Format("{0}={1}", key, newNvc[key]));
             myUrl.Query = string.Join("&", queryString);
 
-            feed.Links.Add(new SyndicationLink(myUrl.Uri, "self", "Reference link", "application/atom+xml", 0));
+            feed.Links.Add(new SyndicationLink(myUrl.Uri, "self", "Reference link", contentType, 0));
 
             foreach (IOpenSearchResultItem item in feed.Items) {
-                string template = entryTemplate(item, osd, "application/atom+xml");
+                string template = entryTemplate(item, osd, contentType);
                 if (template != null) {
-                    item.Links.Add(new SyndicationLink(new Uri(template), "self", "Reference link", "application/atom+xml", 0));
+                    item.Links.Add(new SyndicationLink(new Uri(template), "self", "Reference link", contentType, 0));
                 }
             }
         }
