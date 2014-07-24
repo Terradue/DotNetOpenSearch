@@ -219,12 +219,8 @@ namespace Terradue.OpenSearch.Result {
 
         public string Identifier {
             get {
-                foreach (var ext in this.ElementExtensions) {
-                    XmlElement element = ext.GetObject<XmlElement>();
-                    if (element.LocalName == "identifier")
-                        return element.InnerText;
-                }
-                return HttpUtility.UrlEncode(base.Id);
+                var identifier = ElementExtensions.ReadElementExtensions<string>("identifier", "http://purl.org/dc/elements/1.1/");
+                return identifier.Count == 0 ? base.Id : identifier[0];
             }
             set {
                 foreach (var ext in this.ElementExtensions.ToArray()) {
@@ -283,6 +279,8 @@ namespace Terradue.OpenSearch.Result {
 
             AtomItem item = new AtomItem();
 
+            item.ElementExtensions = new SyndicationElementExtensionCollection(result.ElementExtensions);
+
             item.Id = result.Id;
             item.Identifier = result.Identifier;
             if ( result.Date.Ticks != 0 )
@@ -291,7 +289,7 @@ namespace Terradue.OpenSearch.Result {
             item.Title = result.Title;
             item.LastUpdatedTime = DateTime.UtcNow;
 
-            item.ElementExtensions = new SyndicationElementExtensionCollection(result.ElementExtensions);
+
 
             return item;
         }
