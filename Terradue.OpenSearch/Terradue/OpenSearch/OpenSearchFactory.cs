@@ -442,11 +442,13 @@ namespace Terradue.OpenSearch {
                     type = osee.GetTransformType();
                 }
             } else {
-                foreach (string contentType in request.AcceptTypes) {
-                    var osee = ose.GetExtensionByContentTypeAbility(contentType);
-                    if (osee != null) {
-                        type = osee.GetTransformType();
-                        break;
+                if (request.AcceptTypes != null) {
+                    foreach (string contentType in request.AcceptTypes) {
+                        var osee = ose.GetExtensionByContentTypeAbility(contentType);
+                        if (osee != null) {
+                            type = osee.GetTransformType();
+                            break;
+                        }
                     }
                 }
             }
@@ -480,7 +482,7 @@ namespace Terradue.OpenSearch {
             NameValueCollection newNvc = new NameValueCollection(osr.SearchParameters);
             NameValueCollection nvc = OpenSearchFactory.GetOpenSearchParameters(OpenSearchFactory.GetOpenSearchUrlByType(osd, contentType));
             newNvc.AllKeys.FirstOrDefault(k => {
-                if ( nvc[k] == null )
+                if (nvc[k] == null)
                     newNvc.Remove(k);
                 return false;
             });
