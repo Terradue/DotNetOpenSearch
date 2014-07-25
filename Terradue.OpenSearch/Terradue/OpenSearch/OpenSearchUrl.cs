@@ -84,8 +84,7 @@ namespace Terradue.OpenSearch
         /// <value>The page offset.</value>
 		public int PageOffset {
 			get {
-                var po = SearchAttributes["startPage"];
-                return po == null ? osdPageOffset : int.Parse(po);
+                return string.IsNullOrEmpty(SearchAttributes["startPage"]) ? osdPageOffset : int.Parse(SearchAttributes["startPage"]);
 			}
 		}
 
@@ -95,8 +94,7 @@ namespace Terradue.OpenSearch
         /// <value>The index offset.</value>
 		public int IndexOffset {
 			get {
-                var si = SearchAttributes["startIndex"];
-                return si == null ? osdIndexOffset : int.Parse(si);
+                return string.IsNullOrEmpty(SearchAttributes["startIndex"]) ? osdIndexOffset : int.Parse(SearchAttributes["startIndex"]);
 			}
 		}
 
