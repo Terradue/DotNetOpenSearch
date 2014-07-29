@@ -28,6 +28,10 @@ namespace Terradue.OpenSearch.Result {
 
         Collection<SyndicationLink> Links { get; }
 
+        Collection<SyndicationCategory> Categories { get; }
+
+        Collection<SyndicationPerson> Authors { get; }
+
         SyndicationElementExtensionCollection ElementExtensions { get; }
 
         string Title { get; }
@@ -61,6 +65,10 @@ namespace Terradue.OpenSearch.Result {
         string Identifier { get; }
 
         Collection<SyndicationLink> Links { get; }
+
+        Collection<SyndicationCategory> Categories { get; }
+
+        Collection<SyndicationPerson> Authors { get; }
 
         SyndicationElementExtensionCollection ElementExtensions { get; }
 

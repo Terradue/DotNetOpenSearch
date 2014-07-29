@@ -211,6 +211,20 @@ namespace Terradue.OpenSearch.Result {
             }
         }
 
+        Collection<SyndicationCategory> categories;
+        public Collection<SyndicationCategory> Categories {
+            get {
+                return categories;
+            }
+        }
+
+        Collection<SyndicationPerson> authors;
+        public Collection<SyndicationPerson> Authors {
+            get {
+                return authors;
+            }
+        }
+
         #endregion
 
         internal static SyndicationLink SyndicationLinkFromXElement(XElement elem) {
@@ -331,6 +345,20 @@ namespace Terradue.OpenSearch.Result {
             }
         }
 
+
+        readonly Collection<SyndicationCategory> categories;
+        public Collection<SyndicationCategory> Categories {
+            get {
+                return categories;
+            }
+        }
+
+        readonly Collection<SyndicationPerson> authors;
+        public Collection<SyndicationPerson> Authors {
+            get {
+                return authors;
+            }
+        }
         #endregion
     }
 }
