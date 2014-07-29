@@ -457,7 +457,7 @@ namespace Terradue.OpenSearch {
         }
 
         public static void ReplaceSelfLinks(IOpenSearchResult osr, Func<IOpenSearchResultItem,OpenSearchDescription,string,string> entryTemplate) {
-            ReplaceSelfLinks(osr, entryTemplate, "application/atom+xml");
+            ReplaceSelfLinks(osr, entryTemplate, osr.Result.ContentType);
         }
 
 
@@ -500,6 +500,10 @@ namespace Terradue.OpenSearch {
             feed.Links.Add(new SyndicationLink(myUrl.Uri, "self", "Reference link", contentType, 0));
 
             foreach (IOpenSearchResultItem item in feed.Items) {
+                matchLinks = item.Links.Where(l => l.RelationshipType == "self").ToArray();
+                foreach (var link in matchLinks) {
+                    item.Links.Remove(link);
+                }
                 string template = entryTemplate(item, osd, contentType);
                 if (template != null) {
                     item.Links.Add(new SyndicationLink(new Uri(template), "self", "Reference link", contentType, 0));
