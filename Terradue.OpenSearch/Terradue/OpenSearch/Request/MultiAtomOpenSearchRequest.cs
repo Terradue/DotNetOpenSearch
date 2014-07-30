@@ -262,10 +262,12 @@ namespace Terradue.OpenSearch.Request {
 
             entities2 = new Dictionary<IOpenSearchable, int>(entities.Length);
 
+            // Find the request states with the same combination of opensearchable items
             List<MultiAtomOpenSearchRequestState> states = requestStatesCache.FindAll(s => s.Entities.Keys.ToArray().SequenceEqual(entities, new OpenSearchableComparer()));
-
+            // and with the same opensearch parameters
             states = states.FindAll(s => OpenSearchFactory.PaginationFreeEqual(s.Parameters, parameters) == true);
 
+            // if no such state, create new one with the entity pagination parameter unset (=1)
             if (states.Count <= 0) {
                 foreach (IOpenSearchable entity in entities)
                     entities2.Add(entity, 1);
@@ -273,18 +275,19 @@ namespace Terradue.OpenSearch.Request {
                 return false;
             }
 
+            // if found, what was is the startPage parameter requested (assume 1)
             int startPage = 1;
-
             try {
                 startPage = int.Parse(parameters["startPage"]);
             } catch (Exception) {
             }
 
-            MultiAtomOpenSearchRequestState state = 
-                states.Where(m => int.Parse(m.Parameters["startPage"]) <= startPage)
-					.OrderByDescending(m => int.Parse(m.Parameters["startPage"]))
-					.FirstOrDefault();
+            // Lets try the find the latest startPage regarding the requested startPage (closest) in the cached states
+            List<MultiAtomOpenSearchRequestState> temp = states.Where(m => int.Parse(m.Parameters["startPage"]) <= startPage).ToList();
+            temp = temp.OrderByDescending(m => int.Parse(m.Parameters["startPage"])).ToList();
+            MultiAtomOpenSearchRequestState state = temp.FirstOrDefault();
 
+            // If not, useless and create new one with the entity pagination parameter unset (=1)
             if (state.Entities == null) {
                 foreach (IOpenSearchable entity in entities)
                     entities2.Add(entity, 1);
@@ -292,11 +295,13 @@ namespace Terradue.OpenSearch.Request {
                 return false;
             }
 
+            //Set the OpenSearch params to the closest pagination params found
             foreach (IOpenSearchable entity in state.Entities.Keys) {
                 entities2.Add(entity, state.Entities[entity]);
             }
 
-            parameters2 = state.Parameters;
+
+            parameters2 = new NameValueCollection(state.Parameters);
 
             return true;
 

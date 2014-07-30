@@ -175,7 +175,7 @@ namespace Terradue.OpenSearch.Result {
         }
     }
 
-    public class AtomItem : SyndicationItem, IOpenSearchResultItem {
+    public class AtomItem : SyndicationItem, IOpenSearchResultItem, IEquatable<AtomItem> {
         public AtomItem() {
         }
 
@@ -261,6 +261,24 @@ namespace Terradue.OpenSearch.Result {
         }
 
         #endregion
+
+        #region IEquatable implementation
+
+        public bool Equals(AtomItem other) {
+            if (this.Id == other.Id) return true;
+            return false;
+        }
+
+        #endregion
+
+        public override int GetHashCode()
+        {
+
+            //Get hash code for the Name field if it is not null.
+            int hashProductName = Id == null ? 0 : Id.GetHashCode();
+
+            return hashProductName;
+        }
 
         public static AtomItem FromOpenSearchResultItem(IOpenSearchResultItem result) {
             if (result == null)
