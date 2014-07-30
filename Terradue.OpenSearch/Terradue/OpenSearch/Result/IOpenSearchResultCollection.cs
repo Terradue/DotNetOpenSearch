@@ -22,7 +22,7 @@ namespace Terradue.OpenSearch.Result {
     /// </summary>
     public interface IOpenSearchResultCollection {
 
-        string Id { get; }
+        string Id { get; set; }
 
         IEnumerable<IOpenSearchResultItem> Items { get; }
 
@@ -56,7 +56,7 @@ namespace Terradue.OpenSearch.Result {
     /// Interface that represent a result item
     /// </summary>
     public interface IOpenSearchResultItem {
-        string Id { get; }
+        string Id { get; set; }
 
         string Title { get; }
 

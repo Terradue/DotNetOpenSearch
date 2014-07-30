@@ -456,6 +456,18 @@ namespace Terradue.OpenSearch {
             return type;
         }
 
+        public static void ReplaceId(ref IOpenSearchResult osr) {
+            IOpenSearchResultCollection feed = osr.Result;
+
+            var matchLinks = feed.Links.Where(l => l.RelationshipType == "self").ToArray();
+            if (matchLinks.Count() > 0) feed.Id = matchLinks[0].Uri.ToString();
+
+            foreach (IOpenSearchResultItem item in feed.Items) {
+                matchLinks = item.Links.Where(l => l.RelationshipType == "self").ToArray();
+                if (matchLinks.Count() > 0) item.Id = matchLinks[0].Uri.ToString();
+            }
+        }
+
         public static void ReplaceSelfLinks(IOpenSearchResult osr, Func<IOpenSearchResultItem,OpenSearchDescription,string,string> entryTemplate) {
             ReplaceSelfLinks(osr, entryTemplate, osr.Result.ContentType);
         }

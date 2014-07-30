@@ -93,6 +93,14 @@ namespace Terradue.OpenSearch.Result {
             }
         }
 
+        public new string Id {
+            get {
+                var links = Links.Where(l => l.RelationshipType == "self").ToArray();
+                if (links.Count() > 0) return links[0].Uri.ToString();
+                return base.Id;
+            }
+        }
+
         string IOpenSearchResultCollection.Title {
             get {
                 return base.Title.Text;
@@ -199,11 +207,22 @@ namespace Terradue.OpenSearch.Result {
 
         #region IOpenSearchResultItem implementation
 
+        public new string Id {
+            get {
+                var links = Links.Where(l => l.RelationshipType == "self").ToArray();
+                if (links.Count() > 0) return links[0].Uri.ToString();
+                return base.Id;
+            }
+            set {
+                base.Id = value;
+            }
+        }
+
         public new string Title {
             get {
                 return base.Title.Text;
             }
-            set {
+            protected set {
                 base.Title = new TextSyndicationContent(value);
             }
         }
@@ -212,7 +231,7 @@ namespace Terradue.OpenSearch.Result {
             get {
                 return base.PublishDate.DateTime;
             }
-            set {
+            protected set {
                 base.PublishDate = new DateTimeOffset(value);
             }
         }
@@ -222,7 +241,7 @@ namespace Terradue.OpenSearch.Result {
                 var identifier = ElementExtensions.ReadElementExtensions<string>("identifier", "http://purl.org/dc/elements/1.1/");
                 return identifier.Count == 0 ? base.Id : identifier[0];
             }
-            set {
+            protected set {
                 foreach (var ext in this.ElementExtensions.ToArray()) {
                     if (ext.OuterName == "identifier" && ext.OuterNamespace == "http://purl.org/dc/elements/1.1/") {
                         this.ElementExtensions.Remove(ext);
@@ -233,30 +252,11 @@ namespace Terradue.OpenSearch.Result {
             }
         }
 
-        /*SyndicationElementExtensionCollection IOpenSearchResultItem.ElementExtensions {
-            get {
-                SyndicationElementExtensionCollection elements = new SyndicationElementExtensionCollection(this.ElementExtensions);
-                if (this.Content != null) {
-                    MemoryStream ms = new MemoryStream();
-                    var xw = XmlWriter.Create(ms);
-                    this.Content.WriteTo(xw, "Content", "http://www.w3.org/2005/Atom");
-                    xw.Flush();
-                    xw.Close();
-                    ms.Seek(0, SeekOrigin.Begin);
-                    elements.Add(XElement.Load(ms).CreateReader());
-                }
-
-                return elements;
-            }
-        }*/
-
         public bool ShowNamespaces {
             get {
                 return true;
             }
             set {
-                ;
-                ;
             }
         }
 

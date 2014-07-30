@@ -113,6 +113,8 @@ namespace Terradue.OpenSearch.Result {
                 var link = Links.Single(l => l.RelationshipType == "self");
                 return link == null ? description.Attribute(rdfns + "about").Value : link.Uri.ToString();
             }
+            set{
+            }
         }
 
         public IEnumerable<IOpenSearchResultItem> Items {
@@ -293,6 +295,7 @@ namespace Terradue.OpenSearch.Result {
             get {
                 return root.Attribute(XName.Get("about", "http://www.w3.org/1999/02/22-rdf-syntax-ns#")).Value;
             }
+            set{ }
         }
 
         public string Title {
