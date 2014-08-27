@@ -34,7 +34,7 @@ namespace Terradue.OpenSearch.Result {
 
         SyndicationElementExtensionCollection ElementExtensions { get; }
 
-        string Title { get; }
+        string Title { get; set; }
 
         DateTime Date { get; }
 

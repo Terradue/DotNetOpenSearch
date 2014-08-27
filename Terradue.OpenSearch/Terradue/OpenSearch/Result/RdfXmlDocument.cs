@@ -127,6 +127,9 @@ namespace Terradue.OpenSearch.Result {
             get {
                 return rdf.Element(dclite4g + "Series").Element(dc + "title").Value;
             }
+            set {
+
+            }
         }
 
         public DateTime Date {
@@ -225,6 +228,7 @@ namespace Terradue.OpenSearch.Result {
             get {
                 return authors;
             }
+            set{ }
         }
 
         #endregion

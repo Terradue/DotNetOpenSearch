@@ -434,7 +434,7 @@ namespace Terradue.OpenSearch {
 
         public static Type ResolveTypeFromRequest(HttpRequest request, OpenSearchEngine ose) {
 
-            Type type = typeof(AtomFeed);
+            Type type = ose.Extensions.First().Value.GetTransformType();
 
             if (request.Params["format"] != null) {
                 var osee = ose.GetExtensionByExtensionName(request.Params["format"]);
@@ -520,6 +520,21 @@ namespace Terradue.OpenSearch {
                 if (template != null) {
                     item.Links.Add(new SyndicationLink(new Uri(template), "self", "Reference link", contentType, 0));
                 }
+            }
+        }
+
+
+        public static void ReplaceId(IOpenSearchResult osr) {
+            IOpenSearchResultCollection feed = osr.Result;
+
+            var matchLinks = feed.Links.Where(l => l.RelationshipType == "self").ToArray();
+            if (matchLinks.Count() > 0)
+                feed.Id = matchLinks[0].Uri.ToString();
+
+            foreach (IOpenSearchResultItem item in feed.Items) {
+                matchLinks = item.Links.Where(l => l.RelationshipType == "self").ToArray();
+                if (matchLinks.Count() > 0)
+                    item.Id = matchLinks[0].Uri.ToString();
             }
         }
 
