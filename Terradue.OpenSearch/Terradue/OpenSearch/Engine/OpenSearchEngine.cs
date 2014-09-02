@@ -130,18 +130,18 @@ namespace Terradue.OpenSearch.Engine {
             // 7) Transform the response
             IOpenSearchResultCollection results = querySettings.ReadNative.Invoke(response);
 
-            // 8) Change format
+            // 8) Apply post search filters
+            entity.ApplyResultFilters(request, ref results);
+
+            // 9) Change format
             IOpenSearchEngineExtension osee = GetExtensionByExtensionName(resultName);
             IOpenSearchResultCollection newResults = osee.CreateOpenSearchResultFromOpenSearchResult(results);
 
-            // 9) Create Result
+            // 10) Create Result
             osr = CreateOpenSearchResult(newResults, request, response);
 
-            // 8) Assign the original entity to the IOpenSearchResult
+            // 11) Assign the original entity to the IOpenSearchResult
             osr.OpenSearchableEntity = entity;
-
-            // 9) Apply post search filters
-            entity.ApplyResultFilters(ref osr);
 
             return osr;
 
@@ -202,18 +202,18 @@ namespace Terradue.OpenSearch.Engine {
             // 7) Transform the response
             IOpenSearchResultCollection results = querySettings.ReadNative.Invoke(response);
 
-            // 8) Change format
+            // 8) Apply post search filters
+            entity.ApplyResultFilters(request, ref results);
+
+            // 9) Change format
             IOpenSearchEngineExtension osee = GetFirstExtensionByTypeAbility(resultType);
             IOpenSearchResultCollection newResults = osee.CreateOpenSearchResultFromOpenSearchResult(results);
 
-            // 9) Create Result container
+            // 10) Create Result container
             osr = CreateOpenSearchResult(newResults, request, response);
 
-            // 10) Assign the original entity to the IOpenSearchResult
+            // 11) Assign the original entity to the IOpenSearchResult
             osr.OpenSearchableEntity = entity;
-
-            // 11) Apply post search filters
-            entity.ApplyResultFilters(ref osr);
 
             return osr;
         }
@@ -247,14 +247,18 @@ namespace Terradue.OpenSearch.Engine {
             // 5) Apply the pre-search functions
             ApplyPostSearchFilters(request, ref response);
 
-            // 7) Transform the response    
-            osr = CreateOpenSearchResult(querySettings.ReadNative.Invoke(response), request, response);
-
-            // 8) Assign the original entity to the IOpenSearchResult
-            osr.OpenSearchableEntity = entity;
+            // 7) Read the response 
+            var results = querySettings.ReadNative.Invoke(response);
 
             // 9) Apply post search filters
-            entity.ApplyResultFilters(ref osr);
+            entity.ApplyResultFilters(request, ref results);
+
+            // 10 Create the container
+            osr = CreateOpenSearchResult(results, request, response);
+
+            // 11) Assign the original entity to the IOpenSearchResult
+            osr.OpenSearchableEntity = entity;
+
 
             return osr;
         }

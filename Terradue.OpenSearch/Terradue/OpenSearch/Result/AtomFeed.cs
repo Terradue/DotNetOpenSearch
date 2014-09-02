@@ -27,7 +27,7 @@ namespace Terradue.OpenSearch.Result {
         }
 
         public AtomFeed(AtomFeed feed) : base(feed, false) {
-            items = feed.Items.Select(i => new AtomItem(i)).ToList();
+            items = feed.items.Select(i => new AtomItem(i)).ToList();
         }
 
         public AtomFeed(SyndicationFeed feed) : base(feed, false) {
@@ -36,7 +36,7 @@ namespace Terradue.OpenSearch.Result {
 
         public AtomFeed(AtomFeed feed, bool cloneItems) : base(feed, false) {
             if (cloneItems == true) {
-                items = feed.Items.Select(i => new AtomItem(i)).ToList();
+                items = feed.items.Select(i => new AtomItem(i)).ToList();
             } else
                 items = feed.items;
 
@@ -47,20 +47,10 @@ namespace Terradue.OpenSearch.Result {
             return new AtomFeed(feed);
         }
 
-        public new  IEnumerable<AtomItem> Items {
-            get {
-                return items.ToArray();
-            }
-
-            set{
-                items = value.ToList();
-            }
-        }
-
         public SyndicationFeed Feed {
             get {
                 SyndicationFeed feed = new SyndicationFeed(this, true);
-                feed.Items = this.Items.Select(i => new SyndicationItem(i));
+                feed.Items = this.Items.Cast<SyndicationItem>().Select(i => new SyndicationItem(i));
                 return feed;
             }
         }
@@ -87,9 +77,12 @@ namespace Terradue.OpenSearch.Result {
             throw new NotImplementedException();
         }
 
-        IEnumerable<IOpenSearchResultItem> IOpenSearchResultCollection.Items {
+        public new IEnumerable<IOpenSearchResultItem> Items {
             get {
-                return Items;
+                return items.Cast<IOpenSearchResultItem>();
+            }
+            set{
+                items = value.Cast<AtomItem>().ToList();
             }
         }
 

@@ -22,6 +22,7 @@ using Terradue.ServiceModel.Syndication;
 using Terradue.OpenSearch.Engine;
 using Terradue.OpenSearch.Response;
 using Terradue.OpenSearch.Schema;
+using Terradue.OpenSearch.Request;
 
 namespace Terradue.OpenSearch {
     /// <summary>
@@ -148,6 +149,8 @@ namespace Terradue.OpenSearch {
                 }
 
             }
+
+            finalQueryParameters.Set("enableSourceproduct", "true");
 
             string[] queryString = Array.ConvertAll(finalQueryParameters.AllKeys, key => string.Format("{0}={1}", key, finalQueryParameters[key]));
             finalUrl.Query = string.Join("&", queryString);
@@ -456,8 +459,8 @@ namespace Terradue.OpenSearch {
             return type;
         }
 
-        public static void ReplaceId(ref IOpenSearchResult osr) {
-            IOpenSearchResultCollection feed = osr.Result;
+        public static void ReplaceId(ref IOpenSearchResultCollection osr) {
+            IOpenSearchResultCollection feed = osr;
 
             var matchLinks = feed.Links.Where(l => l.RelationshipType == "self").ToArray();
             if (matchLinks.Count() > 0) feed.Id = matchLinks[0].Uri.ToString();
@@ -468,13 +471,13 @@ namespace Terradue.OpenSearch {
             }
         }
 
-        public static void ReplaceSelfLinks(IOpenSearchResult osr, Func<IOpenSearchResultItem,OpenSearchDescription,string,string> entryTemplate) {
-            ReplaceSelfLinks(osr, entryTemplate, osr.Result.ContentType);
+        public static void ReplaceSelfLinks(IOpenSearchable entity, OpenSearchRequest request, IOpenSearchResultCollection osr, Func<IOpenSearchResultItem,OpenSearchDescription,string,string> entryTemplate) {
+            ReplaceSelfLinks(entity, request, osr, entryTemplate, osr.ContentType);
         }
 
 
-        public static void ReplaceSelfLinks(IOpenSearchResult osr, Func<IOpenSearchResultItem,OpenSearchDescription,string,string> entryTemplate, string contentType) {
-            IOpenSearchResultCollection feed = osr.Result;
+        public static void ReplaceSelfLinks(IOpenSearchable entity, OpenSearchRequest request, IOpenSearchResultCollection osr, Func<IOpenSearchResultItem,OpenSearchDescription,string,string> entryTemplate, string contentType) {
+            IOpenSearchResultCollection feed = osr;
 
             var matchLinks = feed.Links.Where(l => l.RelationshipType == "self").ToArray();
             foreach (var link in matchLinks) {
@@ -482,16 +485,15 @@ namespace Terradue.OpenSearch {
             }
 
             OpenSearchDescription osd = null;
-            if (osr.OpenSearchableEntity is IProxiedOpenSearchable) {
-                IProxiedOpenSearchable entity = (IProxiedOpenSearchable)osr.OpenSearchableEntity;
-                osd = entity.GetProxyOpenSearchDescription(); 
+            if (entity is IProxiedOpenSearchable) {
+                osd = ((IProxiedOpenSearchable)entity).GetProxyOpenSearchDescription(); 
             } else {
-                osd = osr.OpenSearchableEntity.GetOpenSearchDescription();
+                osd = entity.GetOpenSearchDescription();
             }
             if (OpenSearchFactory.GetOpenSearchUrlByType(osd, contentType) == null)
                 return;
 
-            NameValueCollection newNvc = new NameValueCollection(osr.SearchParameters);
+            NameValueCollection newNvc = new NameValueCollection(request.Parameters);
             NameValueCollection nvc = OpenSearchFactory.GetOpenSearchParameters(OpenSearchFactory.GetOpenSearchUrlByType(osd, contentType));
             newNvc.AllKeys.FirstOrDefault(k => {
                 if (nvc[k] == null)
@@ -538,8 +540,8 @@ namespace Terradue.OpenSearch {
             }
         }
 
-        public static void ReplaceOpenSearchDescriptionLinks(IOpenSearchResult osr) {
-            IOpenSearchResultCollection feed = osr.Result;
+        public static void ReplaceOpenSearchDescriptionLinks(IOpenSearchable entity, IOpenSearchResultCollection osr) {
+            IOpenSearchResultCollection feed = osr;
 
             var matchLinks = feed.Links.Where(l => l.RelationshipType == "search").ToArray();
             foreach (var link in matchLinks) {
@@ -547,10 +549,10 @@ namespace Terradue.OpenSearch {
             }
 
             OpenSearchDescription osd;
-            if (osr.OpenSearchableEntity is IProxiedOpenSearchable)
-                osd = ((IProxiedOpenSearchable)osr.OpenSearchableEntity).GetProxyOpenSearchDescription();
+            if (entity is IProxiedOpenSearchable)
+                osd = ((IProxiedOpenSearchable)entity).GetProxyOpenSearchDescription();
             else
-                osd = osr.OpenSearchableEntity.GetOpenSearchDescription();
+                osd = entity.GetOpenSearchDescription();
             OpenSearchDescriptionUrl url = OpenSearchFactory.GetOpenSearchUrlByRel(osd, "self");
             if (url != null)
                 feed.Links.Add(new SyndicationLink(new Uri(url.Template), "search", "OpenSearch Description link", "application/opensearchdescription+xml", 0));

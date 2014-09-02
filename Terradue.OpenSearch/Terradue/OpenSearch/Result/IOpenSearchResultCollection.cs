@@ -24,7 +24,7 @@ namespace Terradue.OpenSearch.Result {
 
         string Id { get; set; }
 
-        IEnumerable<IOpenSearchResultItem> Items { get; }
+        IEnumerable<IOpenSearchResultItem> Items { get; set; }
 
         Collection<SyndicationLink> Links { get; }
 

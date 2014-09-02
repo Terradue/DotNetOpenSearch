@@ -94,7 +94,7 @@ namespace Terradue.OpenSearch {
             throw new NotImplementedException();
         }
 
-        public void ApplyResultFilters(ref IOpenSearchResult osr) {
+        public void ApplyResultFilters(OpenSearchRequest request, ref IOpenSearchResultCollection osr) {
             // do nothing.
         }
 

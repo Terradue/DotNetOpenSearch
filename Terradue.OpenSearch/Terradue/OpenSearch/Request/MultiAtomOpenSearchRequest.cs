@@ -223,13 +223,13 @@ namespace Terradue.OpenSearch.Request {
             if (feed.Items.Count() >= originalCount) {
 
                 if (f1.Items.Count() != 0 && f2.Items.Count() != 0) {
-                    if (f1.Items.Last().PublishDate >= f2.Items.First().PublishDate)
+                    if (f1.Items.Last().Date >= f2.Items.First().Date)
                         return feed;
                 }
 
             }
 
-            feed.Items = f1.Items.Union(f2.Items).OrderByDescending(u => u.PublishDate);
+            feed.Items = f1.Items.Union(f2.Items).OrderByDescending(u => u.Date);
 
             feed.Items = feed.Items.Take(originalCount);
 

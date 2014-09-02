@@ -117,7 +117,7 @@ namespace Terradue.OpenSearch {
             return count;
         }
 
-        public void ApplyResultFilters(ref IOpenSearchResult osr) {
+        public void ApplyResultFilters(OpenSearchRequest request, ref IOpenSearchResultCollection osr) {
 
         }
 

@@ -94,7 +94,7 @@ namespace Terradue.OpenSearch {
         /// Optional function that apply to the result after the search and before the result is returned by OpenSearchEngine.
         /// </summary>
         /// <param name="osr">IOpenSearchResult cotnaing the result of the a search</param>
-        void ApplyResultFilters(ref IOpenSearchResult osr);
+        void ApplyResultFilters(OpenSearchRequest request, ref IOpenSearchResultCollection osr);
 
         /// <summary>
         /// Gets the default MIME-type that the entity can be searched for

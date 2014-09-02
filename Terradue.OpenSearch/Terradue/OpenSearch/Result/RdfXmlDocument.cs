@@ -119,7 +119,10 @@ namespace Terradue.OpenSearch.Result {
 
         public IEnumerable<IOpenSearchResultItem> Items {
             get {
-                return items.ToArray();
+                return items.Cast<IOpenSearchResultItem>();
+            }
+            set {
+                items = value.Cast<RdfXmlResult>().ToList();
             }
         }
 
