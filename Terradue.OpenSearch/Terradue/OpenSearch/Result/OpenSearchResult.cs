@@ -53,6 +53,8 @@ namespace Terradue.OpenSearch.Result {
             }
         }
 
+        public TimeSpan Duration { get; set; }
+
         public string MimeType { 
             get {
                 return result.ContentType;

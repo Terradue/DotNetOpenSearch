@@ -117,28 +117,31 @@ namespace Terradue.OpenSearch.Engine {
             // 2) Create the request
             OpenSearchRequest request = entity.Create(querySettings.PreferredContentType, parameters);
 
-            // 5) Apply the pre-search functions
+            // 3) Apply the pre-search functions
             ApplyPreSearchFilters(ref request);
 
-            // 6) Perform the Search
+            // 4) Perform the Search
             OpenSearchResponse response = request.GetResponse();
             response.Entity = entity;
 
             // 5) Apply the pre-search functions
             ApplyPostSearchFilters(request, ref response);
 
-            // 7) Transform the response
+            // 6) Transform the response
             IOpenSearchResultCollection results = querySettings.ReadNative.Invoke(response);
 
-            // 8) Apply post search filters
+            // 7) Apply post search filters
             entity.ApplyResultFilters(request, ref results);
 
-            // 9) Change format
+            // 8) Change format
             IOpenSearchEngineExtension osee = GetExtensionByExtensionName(resultName);
             IOpenSearchResultCollection newResults = osee.CreateOpenSearchResultFromOpenSearchResult(results);
 
-            // 10) Create Result
+            // 9) Create Result
             osr = CreateOpenSearchResult(newResults, request, response);
+
+            // 10) Add the request duration to the IOpenSearchResult
+            osr.Duration = response.RequestTime;
 
             // 11) Assign the original entity to the IOpenSearchResult
             osr.OpenSearchableEntity = entity;
@@ -189,31 +192,34 @@ namespace Terradue.OpenSearch.Engine {
             // 2) Create the request
             OpenSearchRequest request = entity.Create(querySettings.PreferredContentType, parameters);
 
-            // 5) Apply the pre-search functions
+            // 3) Apply the pre-search functions
             ApplyPreSearchFilters(ref request);
 
-            // 6) Perform the Search
+            // 4) Perform the Search
             OpenSearchResponse response = request.GetResponse();
             response.Entity = entity;
 
             // 5) Apply the pre-search functions
             ApplyPostSearchFilters(request, ref response);
 
-            // 7) Transform the response
+            // 6) Transform the response
             IOpenSearchResultCollection results = querySettings.ReadNative.Invoke(response);
 
-            // 8) Apply post search filters
+            // 7) Apply post search filters
             entity.ApplyResultFilters(request, ref results);
 
-            // 9) Change format
+            // 8) Change format
             IOpenSearchEngineExtension osee = GetFirstExtensionByTypeAbility(resultType);
             IOpenSearchResultCollection newResults = osee.CreateOpenSearchResultFromOpenSearchResult(results);
 
-            // 10) Create Result container
+            // 9) Create Result container
             osr = CreateOpenSearchResult(newResults, request, response);
 
-            // 11) Assign the original entity to the IOpenSearchResult
+            // 10) Assign the original entity to the IOpenSearchResult
             osr.OpenSearchableEntity = entity;
+
+            // 11) Add the request duration to the IOpenSearchResult
+            osr.Duration = response.RequestTime;
 
             return osr;
         }
@@ -237,28 +243,30 @@ namespace Terradue.OpenSearch.Engine {
             // 2) Create the request
             OpenSearchRequest request = entity.Create(querySettings.PreferredContentType, parameters);
 
-            // 5) Apply the pre-search functions
+            // 3) Apply the pre-search functions
             ApplyPreSearchFilters(ref request);
 
-            // 6) Perform the Search
+            // 4) Perform the Search
             OpenSearchResponse response = request.GetResponse();
             response.Entity = entity;
 
             // 5) Apply the pre-search functions
             ApplyPostSearchFilters(request, ref response);
 
-            // 7) Read the response 
+            // 6) Read the response 
             var results = querySettings.ReadNative.Invoke(response);
 
-            // 9) Apply post search filters
+            // 7) Apply post search filters
             entity.ApplyResultFilters(request, ref results);
 
-            // 10 Create the container
+            // 8 Create the container
             osr = CreateOpenSearchResult(results, request, response);
 
-            // 11) Assign the original entity to the IOpenSearchResult
+            // 9) Assign the original entity to the IOpenSearchResult
             osr.OpenSearchableEntity = entity;
 
+            // 10) Add the request duration to the IOpenSearchResult
+            osr.Duration = response.RequestTime;
 
             return osr;
         }

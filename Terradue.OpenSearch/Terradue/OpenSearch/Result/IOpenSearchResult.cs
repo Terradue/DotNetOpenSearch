@@ -30,6 +30,12 @@ namespace Terradue.OpenSearch.Result
         IOpenSearchable OpenSearchableEntity { get; set; }
 
         /// <summary>
+        /// Gets or sets the duration of the related request.
+        /// </summary>
+        /// <value>The duration.</value>
+        TimeSpan Duration { get; set; }
+
+        /// <summary>
         /// Declarative mimeType of the results
         /// </summary>
         /// <value>The type of the MIME.</value>
