@@ -472,11 +472,14 @@ namespace Terradue.OpenSearch {
         }
 
         public static void ReplaceSelfLinks(IOpenSearchable entity, OpenSearchRequest request, IOpenSearchResultCollection osr, Func<IOpenSearchResultItem,OpenSearchDescription,string,string> entryTemplate) {
-            ReplaceSelfLinks(entity, request, osr, entryTemplate, osr.ContentType);
+            ReplaceSelfLinks(entity, request.Parameters, osr, entryTemplate, osr.ContentType);
         }
 
+        public static void ReplaceSelfLinks(IOpenSearchable entity, NameValueCollection parameters, IOpenSearchResultCollection osr, Func<IOpenSearchResultItem,OpenSearchDescription,string,string> entryTemplate) {
+            ReplaceSelfLinks(entity, parameters, osr, entryTemplate, osr.ContentType);
+        }
 
-        public static void ReplaceSelfLinks(IOpenSearchable entity, OpenSearchRequest request, IOpenSearchResultCollection osr, Func<IOpenSearchResultItem,OpenSearchDescription,string,string> entryTemplate, string contentType) {
+        public static void ReplaceSelfLinks(IOpenSearchable entity, NameValueCollection parameters, IOpenSearchResultCollection osr, Func<IOpenSearchResultItem,OpenSearchDescription,string,string> entryTemplate, string contentType) {
             IOpenSearchResultCollection feed = osr;
 
             var matchLinks = feed.Links.Where(l => l.RelationshipType == "self").ToArray();
@@ -493,7 +496,7 @@ namespace Terradue.OpenSearch {
             if (OpenSearchFactory.GetOpenSearchUrlByType(osd, contentType) == null)
                 return;
 
-            NameValueCollection newNvc = new NameValueCollection(request.Parameters);
+            NameValueCollection newNvc = new NameValueCollection(parameters);
             NameValueCollection nvc = OpenSearchFactory.GetOpenSearchParameters(OpenSearchFactory.GetOpenSearchUrlByType(osd, contentType));
             newNvc.AllKeys.FirstOrDefault(k => {
                 if (nvc[k] == null)
