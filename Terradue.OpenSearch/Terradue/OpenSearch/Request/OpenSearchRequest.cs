@@ -34,7 +34,7 @@ namespace Terradue.OpenSearch.Request {
         /// <value>The parameters.</value>
         public NameValueCollection Parameters {
             get {
-                return HttpUtility.ParseQueryString(url.Query);
+                return url.SearchAttributes;
             }
         }
 

@@ -8,7 +8,7 @@
 
 using System;
 using System.Collections.Specialized;
-using System.ServiceModel.Syndication;
+using Terradue.ServiceModel.Syndication;
 
 namespace Terradue.OpenSearch.Result
 {
@@ -21,13 +21,19 @@ namespace Terradue.OpenSearch.Result
         /// Gets the result.
         /// </summary>
         /// <value>The result.</value>
-        object Result { get; }
+        IOpenSearchResultCollection Result { get; }
 
         /// <summary>
         /// Gets or sets the IOpenSearchable entity of the result.
         /// </summary>
         /// <value>The open searchable entity.</value>
         IOpenSearchable OpenSearchableEntity { get; set; }
+
+        /// <summary>
+        /// Gets or sets the duration of the related request.
+        /// </summary>
+        /// <value>The duration.</value>
+        TimeSpan Duration { get; set; }
 
         /// <summary>
         /// Declarative mimeType of the results

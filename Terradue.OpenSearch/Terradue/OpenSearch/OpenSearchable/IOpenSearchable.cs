@@ -17,22 +17,46 @@ using Terradue.OpenSearch.Result;
 using Terradue.OpenSearch.Schema;
 
 namespace Terradue.OpenSearch {
+
+    /// <summary>Delegate type for generating a specific OpenSearchResult from an OpenSearch response.</summary>
+    /// <remarks>Instances of this delegate are used to transform an OpenSearchResponse into a an IOpenSearchResultCollection, which correspond to an output format.</remarks>
+    /// <param name="osr">The OpenSearch response object to be transformed.</param>
+    /// <returns>The result collection, i.e, an object that can be serialized to the desired output format.</returns> 
+    public delegate IOpenSearchResultCollection ReadNativeFunction(OpenSearchResponse osr);
+
+    /// <summary>Helper class that encapsulates the settings for an OpenSearch query and its result generation.</summary>
+    /// <remarks>Instances of this object are returned by classes implementing IOpenSearchable. It is used by OpenSearch engines to control the query process from the OpenSearch request to the initial result generation.</remarks>
+    public class QuerySettings {
+
+        /// <summary>Gets or sets the preferred content type.</summary>
+        public string PreferredContentType { get; set; }
+
+        /// <summary>Gets or sets the function that returns the in the OpenSearch result in the format preferred by the IOpenSearchable using these QuerySettings.</summary>
+        public ReadNativeFunction ReadNative { get; set; }
+
+        /// <summary>Creates a new instance of QuerySettings with the specified parameters.</summary>
+        /// <param name="preferredContentType">The preferred content type.</param>
+        /// <param name="readNative">The function to be called to obtain the formatted OpenSearch result.</param>
+        public QuerySettings(string preferredContentType, ReadNativeFunction readNative) {
+            this.PreferredContentType = preferredContentType;
+            this.ReadNative = readNative;
+        }
+
+    }
+
     /// <summary>
     /// IOpenSearchable.
     /// </summary>
     /// <description>Internal interface that enables OpenSearch mechanism on its class</description>
     public partial interface IOpenSearchable {
 
-        /// <summary>
-        /// Get the transform function according to the type of the result requested. OpenSearch is passed as argument
-        /// to be used with the default functions in OpenSearchEngine and OpenSearchFactory
+        /// Get the transform function according to the entity. OpenSearch is pasFunc<OpenSearchResponse, IOpenSearchResultCollection> /// to be used with the default functions in OpenSearchEngine and OpenSearchFactory
         /// </summary>
         /// <seealso cref="OpenSearchEngine.GetExtension"/>
-        /// <seealso cref="OpenSearchFactory.BestTransformFunctionByNumberOfParam"/> 
+        /// <seealso cref="OpenSearchFactory.GetBestQuerySettingsByNumberOfParam"/> 
         /// <returns>A tuple with the transform function and the mime-type that will be read as input</returns>
         /// <param name="ose">OpenSearchEngine instance</param>
-        /// <param name="resultType">Result type</param>
-        Tuple<string, Func<OpenSearchResponse, object>> GetTransformFunction(OpenSearchEngine ose, Type resultType);
+        QuerySettings GetQuerySettings(OpenSearchEngine ose);
 
         /// <summary>
         /// Create the OpenSearch Request for the requested mime-type the specified type and parameters.
@@ -61,13 +85,6 @@ namespace Terradue.OpenSearch {
         NameValueCollection GetOpenSearchParameters(string mimeType);
 
         /// <summary>
-        /// Gets the search base URL.
-        /// </summary>
-        /// <returns>The search base URL.</returns>
-        /// <param name="mimeType">MIME type.</param>
-        OpenSearchUrl GetSearchBaseUrl(string mimeType);
-
-        /// <summary>
         /// Get the total of possible results for the OpenSearchable entity
         /// </summary>
         /// <returns>a unsigned long number representing the number of items searchable</returns>
@@ -77,7 +94,14 @@ namespace Terradue.OpenSearch {
         /// Optional function that apply to the result after the search and before the result is returned by OpenSearchEngine.
         /// </summary>
         /// <param name="osr">IOpenSearchResult cotnaing the result of the a search</param>
-        void ApplyResultFilters(ref IOpenSearchResult osr);
+        void ApplyResultFilters(OpenSearchRequest request, ref IOpenSearchResultCollection osr);
+
+        /// <summary>
+        /// Gets the default MIME-type that the entity can be searched for
+        /// </summary>
+        /// <value>The default MIME-type.</value>
+        string DefaultMimeType { get; }
+
     }
 
     /// <summary>

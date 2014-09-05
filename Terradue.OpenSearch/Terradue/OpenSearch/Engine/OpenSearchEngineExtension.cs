@@ -9,7 +9,7 @@
 using System;
 using Mono.Addins;
 using System.Collections.Generic;
-using System.ServiceModel.Syndication;
+using Terradue.ServiceModel.Syndication;
 using Terradue.OpenSearch.Response;
 using Terradue.OpenSearch.Result;
 
@@ -20,19 +20,17 @@ namespace Terradue.OpenSearch.Engine {
     public abstract class OpenSearchEngineExtension<T> : IOpenSearchEngineExtension {
         public abstract string Name { get; }
 
-        public abstract string[] GetInputFormatTransformPath();
-
-        public Type GetTransformType() {
+        public virtual Type GetTransformType() {
             return typeof(T);
         }
 
-        public abstract object TransformResponse(OpenSearchResponse response);
+        public abstract IOpenSearchResultCollection ReadNative(OpenSearchResponse response);
+
+        public abstract IOpenSearchResultCollection CreateOpenSearchResultFromOpenSearchResult(IOpenSearchResultCollection results);
 
         public abstract OpenSearchUrl FindOpenSearchDescriptionUrlFromResponse(OpenSearchResponse response);
 
         public abstract string DiscoveryContentType { get; }
-
-        public abstract SyndicationLink[] GetEnclosures(IOpenSearchResult result);
 
         public abstract string Identifier { get; }
     }

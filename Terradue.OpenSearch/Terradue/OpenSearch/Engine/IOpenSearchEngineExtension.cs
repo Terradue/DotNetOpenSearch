@@ -9,7 +9,7 @@
 using System;
 using Mono.Addins;
 using System.Collections.Generic;
-using System.ServiceModel.Syndication;
+using Terradue.ServiceModel.Syndication;
 using Terradue.OpenSearch.Response;
 using Terradue.OpenSearch.Result;
 
@@ -25,11 +25,6 @@ namespace Terradue.OpenSearch {
     /// </description>
     [TypeExtensionPoint()]
     public interface IOpenSearchEngineExtension {
-        /// <summary>
-        /// Gets an array of contentType string that the extension is able to read.
-        /// </summary>
-        /// <returns>The input format transform path.</returns>
-        string[] GetInputFormatTransformPath();
 
         /// <summary>
         /// Gets the main Type of object that the extension generates
@@ -48,7 +43,9 @@ namespace Terradue.OpenSearch {
         /// </summary>
         /// <returns>The response transformed into the declared Type.</returns>
         /// <param name="response">OpenSearchResponse.</param>
-        object TransformResponse(OpenSearchResponse response);
+        IOpenSearchResultCollection ReadNative(OpenSearchResponse response);
+
+        IOpenSearchResultCollection CreateOpenSearchResultFromOpenSearchResult(IOpenSearchResultCollection results);
 
         /// <summary>
         /// Discover the OpenSearchDescription Url from an OpenSearchResponse
@@ -62,13 +59,6 @@ namespace Terradue.OpenSearch {
         /// </summary>
         /// <value>The type of the discovery content.</value>
         string DiscoveryContentType { get; }
-
-        /// <summary>
-        /// Gets the enclosures of an OpenSearch result 
-        /// </summary>
-        /// <returns>The enclosures in the format of SyndicationLink.</returns>
-        /// <param name="result">OpenSearchResult.</param>
-        SyndicationLink[] GetEnclosures(IOpenSearchResult result);
 
         /// <summary>
         /// Gets the name of the extension.

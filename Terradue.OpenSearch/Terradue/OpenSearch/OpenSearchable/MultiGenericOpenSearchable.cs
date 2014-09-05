@@ -29,12 +29,15 @@ namespace Terradue.OpenSearch {
 
         OpenSearchEngine ose;
 
+        bool concurrent;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Terradue.OpenSearch.MultiGenericOpenSearchable"/> class.
         /// </summary>
         /// <param name="entities">Entities.</param>
         /// <param name="ose">Ose.</param>
-        public MultiGenericOpenSearchable(List<IOpenSearchable> entities, OpenSearchEngine ose) {
+        public MultiGenericOpenSearchable(List<IOpenSearchable> entities, OpenSearchEngine ose, bool concurrent = false) {
+            this.concurrent = concurrent;
             this.ose = ose;
             this.entities = new List<IOpenSearchable>(entities);
         }
@@ -55,8 +58,10 @@ namespace Terradue.OpenSearch {
         /// <returns>The internal open search URL.</returns>
         /// <param name="parameters">Parameters.</param>
         protected OpenSearchUrl GetInternalOpenSearchUrl(NameValueCollection parameters) {
-            UriBuilder url = new UriBuilder(string.Format("http://{0)", System.Environment.MachineName));
-            url.Path += "/multi/";
+            int hash = 0;
+            entities.SingleOrDefault(e => {hash += e.Identifier.GetHashCode(); return false;});
+            UriBuilder url = new UriBuilder(string.Format("http://{0}", System.Environment.MachineName));
+            url.Path += "/multi/" + hash;
             var array = (from key in parameters.AllKeys
                          from value in parameters.GetValues(key)
                          select string.Format("{0}={1}", HttpUtility.UrlEncode(key), HttpUtility.UrlEncode(value)))
@@ -98,7 +103,7 @@ namespace Terradue.OpenSearch {
 
             OpenSearchUrl url = GetInternalOpenSearchUrl(parameters);
 
-            return new MultiAtomOpenSearchRequest(ose, entities.ToArray(), type, url);
+            return new MultiAtomOpenSearchRequest(ose, entities.ToArray(), type, url, concurrent);
 
         }
 
@@ -112,18 +117,22 @@ namespace Terradue.OpenSearch {
             return count;
         }
 
-        public void ApplyResultFilters(ref IOpenSearchResult osr) {
+        public void ApplyResultFilters(OpenSearchRequest request, ref IOpenSearchResultCollection osr) {
 
         }
 
-        public Tuple<string, Func<OpenSearchResponse, object>> GetTransformFunction(OpenSearchEngine ose, Type resultType) {
-            return OpenSearchFactory.BestTransformFunctionByNumberOfParam(this, ose.GetExtension(resultType));
+        public QuerySettings GetQuerySettings(OpenSearchEngine ose) {
+            IOpenSearchEngineExtension osee = ose.GetExtensionByContentTypeAbility(this.DefaultMimeType);
+            if (osee == null)
+                return null;
+            return new QuerySettings(this.DefaultMimeType, osee.ReadNative);
         }
 
-        public OpenSearchUrl GetSearchBaseUrl(string mimetype) {
-            throw new NotImplementedException();
+        public string DefaultMimeType {
+            get {
+                return "application/atom+xml";
+            }
         }
-
         #endregion
 
     }

@@ -11,25 +11,30 @@ using System.Linq;
 using System.Xml;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.ServiceModel.Syndication;
+using Terradue.ServiceModel.Syndication;
 using System.IO;
+using System.Collections.ObjectModel;
 
-namespace Terradue.OpenSearch.Result
-{
+namespace Terradue.OpenSearch.Result {
 
     /// <summary>
     /// Interface to represent a collection of results item
     /// </summary>
-    public interface IOpenSearchResultCollection
-	{
+    public interface IOpenSearchResultCollection {
 
-        List<IOpenSearchResultItem> Items { get; }
+        string Id { get; set; }
 
-        List<SyndicationLink> Links { get; }
+        IEnumerable<IOpenSearchResultItem> Items { get; set; }
 
-        XmlNodeList ElementExtensions { get; }
+        Collection<SyndicationLink> Links { get; }
 
-        string Title { get; }
+        Collection<SyndicationCategory> Categories { get; }
+
+        Collection<SyndicationPerson> Authors { get; }
+
+        SyndicationElementExtensionCollection ElementExtensions { get; }
+
+        string Title { get; set; }
 
         DateTime Date { get; }
 
@@ -37,17 +42,21 @@ namespace Terradue.OpenSearch.Result
 
         long Count { get; }
 
-        void Serialize (Stream stream);
+        void SerializeToStream(Stream stream);
 
-	}
+        string SerializeToString();
+
+        string ContentType { get; }
+
+        bool ShowNamespaces { get; set; }
+    }
 
 
     /// <summary>
     /// Interface that represent a result item
     /// </summary>
-    public interface IOpenSearchResultItem
-    {
-        string Id { get; }
+    public interface IOpenSearchResultItem {
+        string Id { get; set; }
 
         string Title { get; }
 
@@ -55,9 +64,15 @@ namespace Terradue.OpenSearch.Result
 
         string Identifier { get; }
 
-        List<SyndicationLink> Links { get; }
+        Collection<SyndicationLink> Links { get; }
 
-        XmlNodeList ElementExtensions { get; }
+        Collection<SyndicationCategory> Categories { get; }
+
+        Collection<SyndicationPerson> Authors { get; }
+
+        SyndicationElementExtensionCollection ElementExtensions { get; }
+
+        bool ShowNamespaces { get; set; }
 
     }
 }

@@ -10,6 +10,7 @@ using System;
 using System.Collections.Specialized;
 using System.IO;
 using System.Diagnostics;
+using System.Text;
 
 namespace Terradue.OpenSearch.Response
 {
@@ -39,6 +40,17 @@ namespace Terradue.OpenSearch.Response
 			sw.Start();
 			timeSpan = sw.Elapsed;
 		}
+
+        public MemoryOpenSearchResponse(string input, string contentType){
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            response = new MemoryStream();
+            var bytes = Encoding.Default.GetBytes( input );
+            response.Write(bytes, 0, bytes.Length);
+            this.contentType = contentType;
+            sw.Start();
+            timeSpan = sw.Elapsed;
+        }
 
 		#region implemented abstract members of OpenSearchResponse
 
