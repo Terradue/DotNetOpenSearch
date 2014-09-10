@@ -57,7 +57,7 @@ namespace Terradue.OpenSearch.Result {
             get {
                 return base.PublishDate.DateTime;
             }
-            protected set {
+            set {
                 base.PublishDate = new DateTimeOffset(value);
             }
         }
@@ -67,7 +67,7 @@ namespace Terradue.OpenSearch.Result {
                 var identifier = ElementExtensions.ReadElementExtensions<string>("identifier", "http://purl.org/dc/elements/1.1/");
                 return identifier.Count == 0 ? base.Id : identifier[0];
             }
-            protected set {
+            set {
                 foreach (var ext in this.ElementExtensions.ToArray()) {
                     if (ext.OuterName == "identifier" && ext.OuterNamespace == "http://purl.org/dc/elements/1.1/") {
                         this.ElementExtensions.Remove(ext);

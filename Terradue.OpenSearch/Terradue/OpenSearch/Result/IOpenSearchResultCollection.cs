@@ -38,7 +38,7 @@ namespace Terradue.OpenSearch.Result {
 
         DateTime Date { get; }
 
-        string Identifier { get; }
+        string Identifier { get; set; }
 
         long Count { get; }
 
@@ -60,9 +60,9 @@ namespace Terradue.OpenSearch.Result {
 
         string Title { get; set; }
 
-        DateTime Date { get; }
+        DateTime Date { get; set; }
 
-        string Identifier { get; }
+        string Identifier { get; set; }
 
         Collection<SyndicationLink> Links { get; }
 

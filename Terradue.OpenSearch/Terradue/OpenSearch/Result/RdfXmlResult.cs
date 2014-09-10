@@ -25,15 +25,15 @@ namespace Terradue.OpenSearch.Result {
 
         public RdfXmlResult(IOpenSearchResultItem item) : base() {
 
-            root = new XElement(XName.Get("dataset", "http://xmlns.com/2008/dclite4g#"));
+            root = new XElement(XName.Get("dataset", RdfXmlDocument.dclite4gns.NamespaceName));
 
-            root.SetAttributeValue(XName.Get("about", "http://www.w3.org/1999/02/22-rdf-syntax-ns#"), item.Id);
+            root.SetAttributeValue(XName.Get("about", RdfXmlDocument.rdfns.NamespaceName), item.Id);
             if (!string.IsNullOrEmpty(item.Title))
-                root.Add(new XElement(XName.Get("title", "http://purl.org/dc/elements/1.1/"), item.Title));
+                Title = item.Title;
             if (item.Date.Ticks != 0)
-                root.Add(new XElement(XName.Get("date", "http://purl.org/dc/elements/1.1/")), item.Date.ToString("yyyy-MM-ddThh:mm:ss.fZ"));
+                Date = item.Date;
             if (!string.IsNullOrEmpty(item.Identifier))
-                root.Add(new XElement(XName.Get("identifier", "http://purl.org/dc/elements/1.1/"), item.Identifier));
+                Identifier = item.Identifier;
             foreach (SyndicationElementExtension ext in item.ElementExtensions) {
                 root.Add(XElement.Load(ext.GetReader()));
             }
@@ -58,7 +58,9 @@ namespace Terradue.OpenSearch.Result {
             get {
                 return root.Attribute(XName.Get("about", "http://www.w3.org/1999/02/22-rdf-syntax-ns#")).Value;
             }
-            set{ }
+            set{ 
+                root.SetAttributeValue(XName.Get("about", "http://www.w3.org/1999/02/22-rdf-syntax-ns#"), value);
+            }
         }
 
         public string Title {
@@ -70,6 +72,7 @@ namespace Terradue.OpenSearch.Result {
                 }
             }
             set {
+                root.Elements(XName.Get("title", "http://purl.org/dc/elements/1.1/")).Remove();
                 root.Add(new XElement(XName.Get("title", "http://purl.org/dc/elements/1.1/"), value));
             }
         }
@@ -82,11 +85,19 @@ namespace Terradue.OpenSearch.Result {
                     return DateTime.UtcNow;
                 }
             }
+            set {
+                root.Elements(XName.Get("date", "http://purl.org/dc/elements/1.1/")).Remove();
+                root.Add(new XElement(XName.Get("date", "http://purl.org/dc/elements/1.1/"), value.ToString("yyyy-MM-ddThh:mm:ss.fffZ")));
+            }
         }
 
         public string Identifier {
             get {
                 return root.Element(XName.Get("identifier", "http://purl.org/dc/elements/1.1/")).Value;
+            }
+            set {
+                root.Elements(XName.Get("identifier", "http://purl.org/dc/elements/1.1/")).Remove();
+                root.Add(new XElement(XName.Get("identifier", "http://purl.org/dc/elements/1.1/"), value));
             }
         }
 
