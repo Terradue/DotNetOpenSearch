@@ -165,7 +165,7 @@ namespace Terradue.OpenSearch.Engine {
 
         public IOpenSearchEngineExtension GetExtensionByExtensionName(string resultName) {
             foreach (IOpenSearchEngineExtension extension in extensions.Values) {
-                if (extension.Identifier == resultName)
+                if (string.Compare(extension.Identifier, resultName, true) == 0)
                     return  extension;
             }
             throw new KeyNotFoundException(string.Format("Engine extension to transform to {0} not found", resultName));
@@ -394,6 +394,16 @@ namespace Terradue.OpenSearch.Engine {
             foreach (IOpenSearchEngineExtension osee in extensions.Values) {
 
                 if (osee.DiscoveryContentType == contentType)
+                    return osee;
+            }
+
+            return null;
+        }
+
+        public IOpenSearchEngineExtension GetExtensionByContentTypeAbility(string[] contentType) {
+            foreach (IOpenSearchEngineExtension osee in extensions.Values) {
+
+                if (contentType.Contains(osee.DiscoveryContentType))
                     return osee;
             }
 

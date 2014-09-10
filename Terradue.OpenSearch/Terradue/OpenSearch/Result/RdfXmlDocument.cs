@@ -44,8 +44,10 @@ namespace Terradue.OpenSearch.Result {
             if (rdf == null)
                 throw new FormatException("Not a RDF document");
             description = rdf.Element(rdfns + "Description");
-            if (description == null)
-                throw new FormatException("RDF document does not contain a description node");
+            if (description == null) {
+                description = new XElement(XName.Get("Description", rdfns.NamespaceName));
+                rdf.Add(description);
+            }
             series = rdf.Element(dclite4gns + "Series");
 
             items = LoadItems(rdf);
@@ -57,10 +59,10 @@ namespace Terradue.OpenSearch.Result {
         public RdfXmlDocument(IOpenSearchResultCollection results) : base() {
 
             doc = new XDocument();
-            rdf = new XElement(XName.Get("RDF", "http://www.w3.org/1999/02/22-rdf-syntax-ns#"));
+            rdf = new XElement(XName.Get("RDF", RdfXmlDocument.rdfns.NamespaceName));
             doc.Add(rdf);
            
-            description = new XElement(XName.Get("Description", "http://www.w3.org/1999/02/22-rdf-syntax-ns#"));
+            description = new XElement(XName.Get("Description", RdfXmlDocument.rdfns.NamespaceName));
 
             Title = results.Title;
             Identifier = results.Identifier;
@@ -76,7 +78,7 @@ namespace Terradue.OpenSearch.Result {
             }
 
             if (results.Date.Ticks > 0)
-                description.Add(new XElement(XName.Get("date", "http://purl.org/dc/elements/1.1/")), results.Date.ToString("yyyy-MM-ddThh:mm:ss.fZ"));
+                description.Add(new XElement(XName.Get("date", RdfXmlDocument.dcns.NamespaceName)), results.Date.ToString("yyyy-MM-ddThh:mm:ss.fZ"));
 
             if (results.Items != null) {
                 List<RdfXmlResult> items = new List<RdfXmlResult>();
@@ -120,7 +122,7 @@ namespace Terradue.OpenSearch.Result {
 
             List<RdfXmlResult> items = new List<RdfXmlResult>();
 
-            foreach (XElement dataSet in rdf.Elements(XName.Get("DataSet","http://xmlns.com/2008/dclite4g#"))) {
+            foreach (XElement dataSet in rdf.Elements(XName.Get("DataSet",RdfXmlDocument.dclite4gns.NamespaceName))) {
 
                 items.Add(new RdfXmlResult(dataSet));
 
@@ -133,8 +135,7 @@ namespace Terradue.OpenSearch.Result {
 
         public string Id {
             get {
-                var link = Links.Single(l => l.RelationshipType == "self");
-                return link == null ? description.Attribute(rdfns + "about").Value : link.Uri.ToString();
+                return description != null ? description.Attribute(rdfns + "about").Value : Identifier;
             }
             set {
             }

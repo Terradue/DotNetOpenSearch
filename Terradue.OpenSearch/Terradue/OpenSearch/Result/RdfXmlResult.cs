@@ -25,9 +25,8 @@ namespace Terradue.OpenSearch.Result {
 
         public RdfXmlResult(IOpenSearchResultItem item) : base() {
 
-            root = new XElement(XName.Get("dataset", RdfXmlDocument.dclite4gns.NamespaceName));
+            root = new XElement(XName.Get("DataSet", RdfXmlDocument.dclite4gns.NamespaceName));
 
-            root.SetAttributeValue(XName.Get("about", RdfXmlDocument.rdfns.NamespaceName), item.Id);
             if (!string.IsNullOrEmpty(item.Title))
                 Title = item.Title;
             if (item.Date.Ticks != 0)
@@ -109,9 +108,12 @@ namespace Terradue.OpenSearch.Result {
 
         public Collection<Terradue.ServiceModel.Syndication.SyndicationLink> Links {
             get {
-                IEnumerable<SyndicationLink> col = root.Elements(XName.Get("link", "http://www.w3.org/2005/Atom"))
-                    .Select(l => RdfXmlDocument.SyndicationLinkFromXElement(l));
-                return new Collection<SyndicationLink>(col.ToList());
+                Collection<SyndicationLink> col = new Collection<SyndicationLink>();
+                var about = root.Attribute(XName.Get("about", RdfXmlDocument.rdfns.NamespaceName));
+                if (about != null) {
+                    col.Add(new SyndicationLink(new Uri(about.Value), "self", "Reference link", "application/rdf+xml", 0));
+                }
+                return col;
             }
         }
 
