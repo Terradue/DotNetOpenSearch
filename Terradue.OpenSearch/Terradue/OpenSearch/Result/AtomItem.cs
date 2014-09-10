@@ -48,7 +48,7 @@ namespace Terradue.OpenSearch.Result {
             get {
                 return base.Title.Text;
             }
-            protected set {
+            set {
                 base.Title = new TextSyndicationContent(value);
             }
         }

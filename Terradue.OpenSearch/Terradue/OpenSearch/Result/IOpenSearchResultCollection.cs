@@ -58,7 +58,7 @@ namespace Terradue.OpenSearch.Result {
     public interface IOpenSearchResultItem {
         string Id { get; set; }
 
-        string Title { get; }
+        string Title { get; set; }
 
         DateTime Date { get; }
 
