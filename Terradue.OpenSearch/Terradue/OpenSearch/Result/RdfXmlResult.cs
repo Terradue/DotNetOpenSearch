@@ -49,16 +49,25 @@ namespace Terradue.OpenSearch.Result {
             root.Add(new XElement(XName.Get("title", "http://purl.org/dc/elements/1.1/"), Title));
             root.Add(new XElement(XName.Get("date", "http://purl.org/dc/elements/1.1/"), Date.ToString("yyyy-MM-ddThh:mm:ss.fffZ")));
             root.Add(new XElement(XName.Get("identifier", "http://purl.org/dc/elements/1.1/"), Identifier));
+
             XElement exts = XElement.Load(ElementExtensions.GetReaderAtExtensionWrapper());
             root.Add(exts.Elements());
+            // TODO : to be moved to EO specific
+            if (exts.Descendants(XName.Get("beginPosition", "http://www.opengis.net/gml/3.2")).Count() > 0) {
+                root.Add(new XElement(XName.Get("dtstart", "http://www.w3.org/2002/12/cal/ical#"), exts.Descendants(XName.Get("beginPosition", "http://www.opengis.net/gml/3.2")).First().Value));
+            }
+            if (exts.Descendants(XName.Get("endPosition", "http://www.opengis.net/gml/3.2")).Count() > 0) {
+                root.Add(new XElement(XName.Get("dtend", "http://www.w3.org/2002/12/cal/ical#"), exts.Descendants(XName.Get("endPosition", "http://www.opengis.net/gml/3.2")).First().Value));
+            }
+            root.SetAttributeValue(XName.Get("ical", XNamespace.Xmlns.NamespaceName), "http://www.w3.org/2002/12/cal/ical#");
             root.Add(GetOnlineResources());
             return root;
         }
 
-        IEnumerable<XElement> GetOnlineResources(){
+        IEnumerable<XElement> GetOnlineResources() {
             List<XElement> elements = new List<XElement>();
             var enclosures = Links.Where(l => l.RelationshipType == "enclosure");
-            foreach ( var enclosure in enclosures ) {
+            foreach (var enclosure in enclosures) {
                 UriBuilder uri = new UriBuilder(enclosure.Uri);
                 XElement onlineResource = new XElement(XName.Get("onlineResource", RdfXmlDocument.dclite4gns.NamespaceName));
                 XElement ws = new XElement(XName.Get(uri.Scheme.ToUpper(), RdfXmlDocument.wsns.NamespaceName));
@@ -76,7 +85,7 @@ namespace Terradue.OpenSearch.Result {
                 var link = Links.FirstOrDefault(l => l.RelationshipType == "self");
                 return link == null ? null : link.Uri.ToString();
             }
-            set{
+            set {
             }
         }
 
@@ -96,13 +105,15 @@ namespace Terradue.OpenSearch.Result {
         }
 
         SyndicationElementExtensionCollection elementExtensions = new SyndicationElementExtensionCollection();
+
         public SyndicationElementExtensionCollection ElementExtensions {
             get {
                 return elementExtensions;
             }
         }
 
-        Collection<Terradue.ServiceModel.Syndication.SyndicationLink> links = new Collection<SyndicationLink>(); 
+        Collection<Terradue.ServiceModel.Syndication.SyndicationLink> links = new Collection<SyndicationLink>();
+
         public Collection<Terradue.ServiceModel.Syndication.SyndicationLink> Links {
             get {
                 return links;
@@ -120,6 +131,7 @@ namespace Terradue.OpenSearch.Result {
         }
 
         readonly Collection<SyndicationCategory> categories = new Collection<SyndicationCategory>();
+
         public Collection<SyndicationCategory> Categories {
             get {
                 return categories;
@@ -127,11 +139,13 @@ namespace Terradue.OpenSearch.Result {
         }
 
         readonly Collection<SyndicationPerson> authors = new Collection<SyndicationPerson>();
+
         public Collection<SyndicationPerson> Authors {
             get {
                 return authors;
             }
         }
+
         #endregion
 
        
