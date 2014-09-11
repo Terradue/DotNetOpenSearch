@@ -165,7 +165,7 @@ namespace Terradue.OpenSearch.Engine {
 
         public IOpenSearchEngineExtension GetExtensionByExtensionName(string resultName) {
             foreach (IOpenSearchEngineExtension extension in extensions.Values) {
-                if (extension.Identifier == resultName)
+                if (string.Compare(extension.Identifier, resultName, true) == 0)
                     return  extension;
             }
             throw new KeyNotFoundException(string.Format("Engine extension to transform to {0} not found", resultName));
@@ -400,6 +400,16 @@ namespace Terradue.OpenSearch.Engine {
             return null;
         }
 
+        public IOpenSearchEngineExtension GetExtensionByContentTypeAbility(string[] contentType) {
+            foreach (IOpenSearchEngineExtension osee in extensions.Values) {
+
+                if (contentType.Contains(osee.DiscoveryContentType))
+                    return osee;
+            }
+
+            return null;
+        }
+
         public IOpenSearchEngineExtension GetFirstExtensionByTypeAbility(Type type) {
             foreach (IOpenSearchEngineExtension osee in extensions.Values) {
 
@@ -432,8 +442,11 @@ namespace Terradue.OpenSearch.Engine {
             }
             newResults.ElementExtensions.Add("startIndex", "http://a9.com/-/spec/opensearch/1.1/", request.OpenSearchUrl.IndexOffset);
             newResults.ElementExtensions.Add("itemsPerPage", "http://a9.com/-/spec/opensearch/1.1/", request.OpenSearchUrl.Count);
-            var query = newResults.Links.SingleOrDefault(l => l.RelationshipType == "self");
-            newResults.ElementExtensions.Add("Query", "http://a9.com/-/spec/opensearch/1.1/", query == null ? "" : query.Uri.ToString());
+            XElement query = new XElement(XName.Get("Query", "http://a9.com/-/spec/opensearch/1.1/"));
+            foreach (var key in request.Parameters.AllKeys) {
+                query.SetAttributeValue(XName.Get(key), request.Parameters[key]);
+            }
+            newResults.ElementExtensions.Add(query.CreateReader());
 
             OpenSearchResult osr = new OpenSearchResult(newResults, request.Parameters);
 

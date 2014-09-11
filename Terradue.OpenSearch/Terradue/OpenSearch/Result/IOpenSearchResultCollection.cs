@@ -38,9 +38,11 @@ namespace Terradue.OpenSearch.Result {
 
         DateTime Date { get; }
 
-        string Identifier { get; }
+        string Identifier { get; set; }
 
         long Count { get; }
+
+        long TotalResults { get; }
 
         void SerializeToStream(Stream stream);
 
@@ -56,13 +58,13 @@ namespace Terradue.OpenSearch.Result {
     /// Interface that represent a result item
     /// </summary>
     public interface IOpenSearchResultItem {
-        string Id { get; set; }
+        string Id { get; }
 
-        string Title { get; }
+        string Title { get; set; }
 
-        DateTime Date { get; }
+        DateTime Date { get; set; }
 
-        string Identifier { get; }
+        string Identifier { get; set; }
 
         Collection<SyndicationLink> Links { get; }
 

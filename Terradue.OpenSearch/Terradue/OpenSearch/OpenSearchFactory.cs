@@ -150,6 +150,13 @@ namespace Terradue.OpenSearch {
 
             }
 
+            foreach (string parameter in remoteParametersDef.AllKeys) {
+                Match matchParamDef = Regex.Match(remoteParametersDef[parameter], @"^{([^?]+)\??}$");
+                // If parameter does not exist, continue
+                if (!matchParamDef.Success)
+                    finalQueryParameters.Set(parameter, remoteParametersDef[parameter]);
+            }
+
             finalQueryParameters.Set("enableSourceproduct", "true");
 
             string[] queryString = Array.ConvertAll(finalQueryParameters.AllKeys, key => string.Format("{0}={1}", key, finalQueryParameters[key]));
@@ -459,17 +466,19 @@ namespace Terradue.OpenSearch {
             return type;
         }
 
-        public static void ReplaceId(ref IOpenSearchResultCollection osr) {
+        /*public static void ReplaceId(ref IOpenSearchResultCollection osr) {
             IOpenSearchResultCollection feed = osr;
 
             var matchLinks = feed.Links.Where(l => l.RelationshipType == "self").ToArray();
-            if (matchLinks.Count() > 0) feed.Id = matchLinks[0].Uri.ToString();
+            if (matchLinks.Count() > 0)
+                feed.Id = matchLinks[0].Uri.ToString();
 
             foreach (IOpenSearchResultItem item in feed.Items) {
                 matchLinks = item.Links.Where(l => l.RelationshipType == "self").ToArray();
-                if (matchLinks.Count() > 0) item.Id = matchLinks[0].Uri.ToString();
+                if (matchLinks.Count() > 0)
+                    item.Id = matchLinks[0].Uri.ToString();
             }
-        }
+        }*/
 
         public static void ReplaceSelfLinks(IOpenSearchable entity, OpenSearchRequest request, IOpenSearchResultCollection osr, Func<IOpenSearchResultItem,OpenSearchDescription,string,string> entryTemplate) {
             ReplaceSelfLinks(entity, request.Parameters, osr, entryTemplate, osr.ContentType);
@@ -529,7 +538,7 @@ namespace Terradue.OpenSearch {
         }
 
 
-        public static void ReplaceId(IOpenSearchResult osr) {
+        /*public static void ReplaceId(IOpenSearchResult osr) {
             IOpenSearchResultCollection feed = osr.Result;
 
             var matchLinks = feed.Links.Where(l => l.RelationshipType == "self").ToArray();
@@ -541,7 +550,7 @@ namespace Terradue.OpenSearch {
                 if (matchLinks.Count() > 0)
                     item.Id = matchLinks[0].Uri.ToString();
             }
-        }
+        }*/
 
         public static void ReplaceOpenSearchDescriptionLinks(IOpenSearchable entity, IOpenSearchResultCollection osr) {
             IOpenSearchResultCollection feed = osr;

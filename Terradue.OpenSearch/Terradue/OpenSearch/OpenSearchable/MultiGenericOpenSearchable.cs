@@ -107,14 +107,16 @@ namespace Terradue.OpenSearch {
 
         }
 
-        public ulong TotalResults () {
+        public long TotalResults {
+            get {
 
-            ulong count = 0;
+                long count = 0;
 
-            foreach (IOpenSearchable entity in entities) {
-                count = count + entity.TotalResults();
+                foreach (IOpenSearchable entity in entities) {
+                    count = count + entity.TotalResults;
+                }
+                return count;
             }
-            return count;
         }
 
         public void ApplyResultFilters(OpenSearchRequest request, ref IOpenSearchResultCollection osr) {

@@ -106,13 +106,17 @@ namespace Terradue.OpenSearch.Result {
 
         public string Identifier {
             get {
-                List<XmlElement> elements = new List<XmlElement>();
-                foreach (var ext in ElementExtensions) {
-                    XmlElement element = ext.GetObject<XmlElement>();
-                    if (element.LocalName == "identifier")
-                        return element.InnerText;
+                var identifiers = ElementExtensions.ReadElementExtensions<string>("identifier", "http://purl.org/dc/elements/1.1/");
+                if (identifiers.Count > 0)
+                    return identifiers[0];
+                return null;
+            }
+            set {
+                var identifiers = ElementExtensions.ReadElementExtensions<SyndicationElementExtension>("identifier", "http://purl.org/dc/elements/1.1/");
+                foreach (var identifier in identifiers) {
+                    ElementExtensions.Remove(identifier);
                 }
-                return HttpUtility.UrlEncode(Id);
+                ElementExtensions.Add("identifier", "http://purl.org/dc/elements/1.1/", value);
             }
         }
 
@@ -127,6 +131,14 @@ namespace Terradue.OpenSearch.Result {
             }
         }
 
+        public long TotalResults {
+            get {
+                var el = ElementExtensions.ReadElementExtensions<string>("totalResults", "http://a9.com/-/spec/opensearch/1.1/");
+                if (el.Count > 0)
+                    return long.Parse(el[0]);
+                return 0;
+            }
+        }
 
         bool showNamespaces;
 
