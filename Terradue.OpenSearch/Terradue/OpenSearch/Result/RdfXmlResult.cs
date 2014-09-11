@@ -70,6 +70,7 @@ namespace Terradue.OpenSearch.Result {
             foreach (var enclosure in enclosures) {
                 UriBuilder uri = new UriBuilder(enclosure.Uri);
                 XElement onlineResource = new XElement(XName.Get("onlineResource", RdfXmlDocument.dclite4gns.NamespaceName));
+                onlineResource.SetAttributeValue(XName.Get("ws", XNamespace.Xmlns.NamespaceName), "http://dclite4g.xmlns.com/ws.rdf#");
                 XElement ws = new XElement(XName.Get(uri.Scheme.ToUpper(), RdfXmlDocument.wsns.NamespaceName));
                 ws.SetAttributeValue(XName.Get("about", RdfXmlDocument.rdfns.NamespaceName), uri.ToString());
                 onlineResource.Add(ws);
