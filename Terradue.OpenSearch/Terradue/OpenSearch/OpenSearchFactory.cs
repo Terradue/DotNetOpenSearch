@@ -466,7 +466,7 @@ namespace Terradue.OpenSearch {
             return type;
         }
 
-        public static void ReplaceId(ref IOpenSearchResultCollection osr) {
+        /*public static void ReplaceId(ref IOpenSearchResultCollection osr) {
             IOpenSearchResultCollection feed = osr;
 
             var matchLinks = feed.Links.Where(l => l.RelationshipType == "self").ToArray();
@@ -478,7 +478,7 @@ namespace Terradue.OpenSearch {
                 if (matchLinks.Count() > 0)
                     item.Id = matchLinks[0].Uri.ToString();
             }
-        }
+        }*/
 
         public static void ReplaceSelfLinks(IOpenSearchable entity, OpenSearchRequest request, IOpenSearchResultCollection osr, Func<IOpenSearchResultItem,OpenSearchDescription,string,string> entryTemplate) {
             ReplaceSelfLinks(entity, request.Parameters, osr, entryTemplate, osr.ContentType);
@@ -538,7 +538,7 @@ namespace Terradue.OpenSearch {
         }
 
 
-        public static void ReplaceId(IOpenSearchResult osr) {
+        /*public static void ReplaceId(IOpenSearchResult osr) {
             IOpenSearchResultCollection feed = osr.Result;
 
             var matchLinks = feed.Links.Where(l => l.RelationshipType == "self").ToArray();
@@ -550,7 +550,7 @@ namespace Terradue.OpenSearch {
                 if (matchLinks.Count() > 0)
                     item.Id = matchLinks[0].Uri.ToString();
             }
-        }
+        }*/
 
         public static void ReplaceOpenSearchDescriptionLinks(IOpenSearchable entity, IOpenSearchResultCollection osr) {
             IOpenSearchResultCollection feed = osr;

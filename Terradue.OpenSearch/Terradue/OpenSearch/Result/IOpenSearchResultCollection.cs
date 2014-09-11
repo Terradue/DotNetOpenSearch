@@ -42,6 +42,8 @@ namespace Terradue.OpenSearch.Result {
 
         long Count { get; }
 
+        long TotalResults { get; }
+
         void SerializeToStream(Stream stream);
 
         string SerializeToString();
@@ -56,7 +58,7 @@ namespace Terradue.OpenSearch.Result {
     /// Interface that represent a result item
     /// </summary>
     public interface IOpenSearchResultItem {
-        string Id { get; set; }
+        string Id { get; }
 
         string Title { get; set; }
 

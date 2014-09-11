@@ -16,81 +16,63 @@ using System.Xml.Linq;
 using System.Collections.ObjectModel;
 using System.Runtime.Serialization;
 using System.IO;
+using System.ComponentModel;
 
 namespace Terradue.OpenSearch.Result {
     /// <summary>
     /// Rdf xml document.
     /// </summary>
-    public class RdfXmlDocument : XDocument, IOpenSearchResultCollection {
-        XElement rdf, series, description;
+    public class RdfXmlDocument : IOpenSearchResultCollection {
 
-        public static XNamespace rdfns = XNamespace.Get("http://www.w3.org/1999/02/22-rdf-syntax-ns#"), 
+
+        public static XNamespace rdfns = XNamespace.Get("http://www.w3.org/1999/02/22-rdf-syntax-ns#"),
             dclite4gns = XNamespace.Get("http://xmlns.com/2008/dclite4g#"),
             dcns = XNamespace.Get("http://purl.org/dc/elements/1.1/"),
             osns = XNamespace.Get("http://a9.com/-/spec/opensearch/1.1/"),
-            atomns = XNamespace.Get("http://www.w3.org/2005/Atom");
-
-        XDocument doc;
+            atomns = XNamespace.Get("http://www.w3.org/2005/Atom"),
+            wsns = XNamespace.Get("http://dclite4g.xmlns.com/ws.rdf#");
 
         List<RdfXmlResult> items;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Terradue.OpenSearch.Result.RdfXmlDocument"/> class.
         /// </summary>
-        internal RdfXmlDocument(XDocument doc) : base(doc) {
+        internal RdfXmlDocument(XDocument doc) : base() {
 
-            this.doc = doc;
-            rdf = this.Element(rdfns + "RDF");
+            XElement rdf, series, description;
+
+            rdf = doc.Element(rdfns + "RDF");
             if (rdf == null)
                 throw new FormatException("Not a RDF document");
             description = rdf.Element(rdfns + "Description");
-            if (description == null) {
-                description = new XElement(XName.Get("Description", rdfns.NamespaceName));
-                rdf.Add(description);
-            }
+
             series = rdf.Element(dclite4gns + "Series");
 
-            items = LoadItems(rdf);
+            IEnumerable<XElement> datasets = rdf.Elements(dclite4gns + "DataSet");
 
-            AlignNameSpaces(rdf);
+            items = LoadItems(datasets);
+
+            elementExtensions = XElementsToElementExtensions(description.Elements());
 
         }
 
         public RdfXmlDocument(IOpenSearchResultCollection results) : base() {
 
-            doc = new XDocument();
-            rdf = new XElement(XName.Get("RDF", RdfXmlDocument.rdfns.NamespaceName));
-            doc.Add(rdf);
-           
-            description = new XElement(XName.Get("Description", RdfXmlDocument.rdfns.NamespaceName));
-
             Title = results.Title;
             Identifier = results.Identifier;
             Id = results.Id;
 
-            if (results.ElementExtensions != null) {
-                foreach (SyndicationElementExtension ext in results.ElementExtensions) {
-                    using (XmlReader xr = ext.GetReader()) {
-                        XElement xEl = XElement.ReadFrom(xr) as XElement;
-                        rdf.Add(xEl);
-                    }
-                }
-            }
+            elementExtensions = results.ElementExtensions;
 
             if (results.Date.Ticks > 0)
-                description.Add(new XElement(XName.Get("date", RdfXmlDocument.dcns.NamespaceName)), results.Date.ToString("yyyy-MM-ddThh:mm:ss.fZ"));
-
             if (results.Items != null) {
-                List<RdfXmlResult> items = new List<RdfXmlResult>();
+                items = new List<RdfXmlResult>();
                 foreach (var item in results.Items) {
                     var newItem = new RdfXmlResult(item);
                     items.Add(newItem);
-                    rdf.Add(newItem.Root);
                 }
-                this.items = items;
             }
 
-            AlignNameSpaces(rdf);
         }
 
         /// <summary>
@@ -99,6 +81,25 @@ namespace Terradue.OpenSearch.Result {
         /// <param name="reader">Reader.</param>
         public new static RdfXmlDocument Load(XmlReader reader) {
             return new RdfXmlDocument(XDocument.Load(reader));
+        }
+
+        public XElement GetDescription() {
+            XElement description = new XElement(XName.Get("Description", rdfns.NamespaceName));
+            foreach ( var link in Links ) {
+                XElement atomlink = new XElement(XName.Get("link", RdfXmlDocument.atomns.NamespaceName));
+                atomlink.SetAttributeValue(XName.Get("rel", RdfXmlDocument.atomns.NamespaceName), link.RelationshipType);
+                atomlink.SetAttributeValue(XName.Get("type", RdfXmlDocument.atomns.NamespaceName), link.MediaType);
+                atomlink.SetAttributeValue(XName.Get("href", RdfXmlDocument.atomns.NamespaceName), link.Uri);
+                if ( link.Length > 0 )
+                    atomlink.SetAttributeValue(XName.Get("length", RdfXmlDocument.atomns.NamespaceName), link.Length);
+                description.Add(atomlink);
+            }
+            XElement exts = XElement.Load(ElementExtensions.GetReaderAtExtensionWrapper());
+            description.Add(exts.Elements());
+            description.SetAttributeValue(rdfns + "about", Identifier);
+            description.Add(new XElement(XName.Get("title", dcns.NamespaceName), Title));
+            description.Add(new XElement(XName.Get("date", RdfXmlDocument.dcns.NamespaceName), Date.ToString("yyyy-MM-ddThh:mm:ss.fZ")));
+            return description;
         }
 
         void AlignNameSpaces(XElement rdf) {
@@ -112,17 +113,11 @@ namespace Terradue.OpenSearch.Result {
             rdf.SetAttributeValue(XName.Get("dc", XNamespace.Xmlns.NamespaceName), "http://purl.org/dc/elements/1.1/");
         }
 
-        public XmlNameTable NameTable {
-            get {
-                return doc.CreateReader().NameTable;
-            }
-        }
-
-        public static List<RdfXmlResult> LoadItems(XElement rdf) {
+        static List<RdfXmlResult> LoadItems(IEnumerable<XElement> datasets) {
 
             List<RdfXmlResult> items = new List<RdfXmlResult>();
 
-            foreach (XElement dataSet in rdf.Elements(XName.Get("DataSet",RdfXmlDocument.dclite4gns.NamespaceName))) {
+            foreach (XElement dataSet in datasets) {
 
                 items.Add(new RdfXmlResult(dataSet));
 
@@ -134,11 +129,8 @@ namespace Terradue.OpenSearch.Result {
         #region IResultCollection implementation
 
         public string Id {
-            get {
-                return description != null ? description.Attribute(rdfns + "about").Value : Identifier;
-            }
-            set {
-            }
+            get ;
+            set ;
         }
 
         public IEnumerable<IOpenSearchResultItem> Items {
@@ -151,72 +143,86 @@ namespace Terradue.OpenSearch.Result {
         }
 
         public string Title {
-            get {
-                return rdf.Element(dclite4gns + "Series").Element(dcns + "title").Value;
-            }
-            set {
-                try {
-                    rdf.Elements(XName.Get("title", dcns.NamespaceName)).Remove();
-                } catch {
-                }
-                rdf.Add(new XElement(XName.Get("title", dcns.NamespaceName)), value);
-            }
+            get ;
+            set ;
         }
+
+        DateTime date;
 
         public DateTime Date {
             get {
-                try {
-                    return DateTime.Parse(description.Element(dcns + "date").Value);
-                } catch {
+                if (date.Ticks == 0)
                     return DateTime.UtcNow;
-                }
+                return date;
+            }
+            set {
+                date = value;
             }
         }
 
         public string Identifier {
-            get {
-                try {
-                    return description.Attribute(rdfns + "about").Value;
-                } catch {
-                    return null;
-                }
-            }
-            set {
-                description.SetAttributeValue(rdfns + "about", value);
-            }
+            get ;
+            set ;
         }
 
         public long Count {
             get {
-                try {
-                    return long.Parse(description.Element(osns + "totalResults").Value);
-                } catch (Exception) {
-                    return -1;
-                }
+                return Items.Count();
             }
         }
+
+        public long TotalResults {
+            get {
+                var el = ElementExtensions.ReadElementExtensions<string>("totalResults", "http://a9.com/-/spec/opensearch/1.1/");
+                if (el.Count > 0)
+                    return long.Parse(el[0]);
+                return 0;
+            }
+        }
+
+        SyndicationElementExtensionCollection elementExtensions = new SyndicationElementExtensionCollection();
 
         public SyndicationElementExtensionCollection ElementExtensions {
             get {
-                return ChildrenElementToSyndicationElementExtensionCollection(doc.Root);
+                return elementExtensions;
             }
         }
+
+        Collection<Terradue.ServiceModel.Syndication.SyndicationLink> links = new Collection<SyndicationLink>();
 
         public Collection<Terradue.ServiceModel.Syndication.SyndicationLink> Links {
             get {
-                return new Collection<SyndicationLink>(description.Elements(atomns + "link")
-                                                   .Select(l => SyndicationLinkFromXElement(l)).ToList());                       
+                return links;          
             }
         }
 
-        public string SerializeToString() {
+        public XDocument PrepareDocument() {
 
+            XDocument doc = new XDocument();
+
+            XElement rdf = new XElement(XName.Get("RDF", rdfns.NamespaceName));
+            doc.Add(rdf);
+
+            XElement description = GetDescription();
+            rdf.Add(description);
+
+            foreach (var item in items) {
+                rdf.Add(item.GetElement());
+            }
+
+            AlignNameSpaces(rdf);
+
+            return doc;
+        }
+
+        public string SerializeToString() {
+            XDocument doc = PrepareDocument();
             return doc.ToString();
 
         }
 
         public void SerializeToStream(System.IO.Stream stream) {
-
+            XDocument doc = PrepareDocument();
             doc.Save(stream);
         }
 
@@ -250,7 +256,7 @@ namespace Terradue.OpenSearch.Result {
             }
         }
 
-        Collection<SyndicationCategory> categories;
+        Collection<SyndicationCategory> categories = new Collection<SyndicationCategory>();
 
         public Collection<SyndicationCategory> Categories {
             get {
@@ -258,7 +264,7 @@ namespace Terradue.OpenSearch.Result {
             }
         }
 
-        Collection<SyndicationPerson> authors;
+        Collection<SyndicationPerson> authors = new Collection<SyndicationPerson>();
 
         public Collection<SyndicationPerson> Authors {
             get {
@@ -286,12 +292,15 @@ namespace Terradue.OpenSearch.Result {
 
         }
 
-        internal static SyndicationElementExtensionCollection ChildrenElementToSyndicationElementExtensionCollection(XElement element) {
-            var feed = new SyndicationFeed();
-            foreach (XElement elem in element.Elements()) {
-                feed.ElementExtensions.Add(elem.CreateReader());
+        public static SyndicationElementExtensionCollection XElementsToElementExtensions(IEnumerable<XElement> elements) {
+
+            SyndicationElementExtensionCollection exts = new SyndicationElementExtensionCollection();
+
+            foreach (var element in elements) {
+                exts.Add(new SyndicationElementExtension(element.CreateReader()));
             }
-            return feed.ElementExtensions;
+
+            return exts;
         }
     }
 

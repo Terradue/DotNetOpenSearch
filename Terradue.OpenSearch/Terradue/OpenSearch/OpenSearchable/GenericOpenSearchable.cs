@@ -90,8 +90,10 @@ namespace Terradue.OpenSearch {
             return null;
         }
 
-        public ulong TotalResults() {
-            throw new NotImplementedException();
+        public long TotalResults {
+            get {
+                throw new NotImplementedException();
+            }
         }
 
         public void ApplyResultFilters(OpenSearchRequest request, ref IOpenSearchResultCollection osr) {

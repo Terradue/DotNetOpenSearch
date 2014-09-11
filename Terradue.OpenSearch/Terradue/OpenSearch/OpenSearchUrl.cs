@@ -104,7 +104,7 @@ namespace Terradue.OpenSearch
         /// <value>The index offset.</value>
         public int Count {
             get {
-                return string.IsNullOrEmpty(SearchAttributes["count"]) ? osdIndexOffset : int.Parse(SearchAttributes["count"]);
+                return string.IsNullOrEmpty(SearchAttributes["count"]) ? OpenSearchEngine.DEFAULT_COUNT : int.Parse(SearchAttributes["count"]);
             }
         }
 	}

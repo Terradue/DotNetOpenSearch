@@ -131,6 +131,14 @@ namespace Terradue.OpenSearch.Result {
             }
         }
 
+        public long TotalResults {
+            get {
+                var el = ElementExtensions.ReadElementExtensions<string>("totalResults", "http://a9.com/-/spec/opensearch/1.1/");
+                if (el.Count > 0)
+                    return long.Parse(el[0]);
+                return 0;
+            }
+        }
 
         bool showNamespaces;
 

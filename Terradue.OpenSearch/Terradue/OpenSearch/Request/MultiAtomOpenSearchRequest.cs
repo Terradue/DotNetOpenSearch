@@ -36,7 +36,7 @@ namespace Terradue.OpenSearch.Request {
         Dictionary<IOpenSearchable,IOpenSearchResult> results;
         AtomFeed feed;
         bool usingCache = false;
-        ulong totalResults = 0;
+        long totalResults = 0;
 
         bool concurrent = false;
 
@@ -244,7 +244,7 @@ namespace Terradue.OpenSearch.Request {
             totalResults = 0;
             foreach (IOpenSearchable entity in currentEntities.Keys) {
 
-                totalResults += entity.TotalResults();
+                totalResults += entity.TotalResults;
 
             }
         }
