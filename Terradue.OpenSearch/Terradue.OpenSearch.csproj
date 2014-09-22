@@ -49,7 +49,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Terradue\OpenSearch\Engine\Extensions\RdfOpenSearchEngineExtension.cs" />
     <Compile Include="Terradue\OpenSearch\Engine\IOpenSearchEngineExtension.cs" />
     <Compile Include="Terradue\OpenSearch\Engine\OpenSearchEngine.cs" />
     <Compile Include="Terradue\OpenSearch\Engine\OpenSearchEngineExtension.cs" />
@@ -73,7 +72,6 @@
     <Compile Include="Terradue\OpenSearch\Result\IOpenSearchResult.cs" />
     <Compile Include="Terradue\OpenSearch\Result\IOpenSearchResultCollection.cs" />
     <Compile Include="Terradue\OpenSearch\Result\OpenSearchResult.cs" />
-    <Compile Include="Terradue\OpenSearch\Result\RdfXmlDocument.cs" />
     <Compile Include="Terradue\OpenSearch\Schema\OpenSearchDescription.cs" />
     <Compile Include="Terradue\OpenSearch\OpenSearchFactory.cs" />
     <Compile Include="Terradue\OpenSearch\OpenSearchUrl.cs" />
@@ -81,7 +79,6 @@
     <Compile Include="Terradue\OpenSearch\Engine\Extensions\AtomOpenSearchEngineExtension.cs" />
     <Compile Include="Terradue\OpenSearch\Result\AtomFeed.cs" />
     <Compile Include="Terradue\OpenSearch\Schema\OpenSearchDescription.Extra.cs" />
-    <Compile Include="Terradue\OpenSearch\Engine\Extensions\XmlOpenSearchEngineExtension.cs" />
     <Compile Include="Terradue\OpenSearch\Result\AtomItem.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
