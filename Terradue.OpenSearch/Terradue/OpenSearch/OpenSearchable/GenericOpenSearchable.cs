@@ -52,7 +52,7 @@ namespace Terradue.OpenSearch {
         #region IOpenSearchable implementation
 
         public QuerySettings GetQuerySettings(OpenSearchEngine ose) {
-            IOpenSearchEngineExtension osee = ose.GetExtensionByContentTypeAbility(GetOpenSearchDescription().ContentTypes);
+            IOpenSearchEngineExtension osee = ose.GetExtensionByContentTypeAbility(this.DefaultMimeType);
             if (osee == null) return null;
 
             return new QuerySettings(osee.DiscoveryContentType, osee.ReadNative);
