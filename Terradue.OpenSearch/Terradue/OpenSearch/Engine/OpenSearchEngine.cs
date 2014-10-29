@@ -297,6 +297,7 @@ namespace Terradue.OpenSearch.Engine {
                 throw new ImpossibleSearchException("No Opensearch Description link found in results of " + url.ToString());
 
             OpenSearchDescription osd = LoadOpenSearchDescriptionDocument(descriptionUrl);
+            osd.Originator = descriptionUrl;
 
             osd.DefaultUrl = osd.Url.Single(u => u.Type == response.ContentType);
 

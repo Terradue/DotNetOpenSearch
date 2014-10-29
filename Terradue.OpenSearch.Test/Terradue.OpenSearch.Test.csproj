@@ -53,6 +53,7 @@
   <ItemGroup>
     <Compile Include="Test.cs" />
     <Compile Include="GenericTest.cs" />
+    <Compile Include="MultiGenericOpenSearchable.Test.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

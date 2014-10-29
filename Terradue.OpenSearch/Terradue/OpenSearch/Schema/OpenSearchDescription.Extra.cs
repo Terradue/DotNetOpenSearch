@@ -10,6 +10,7 @@ namespace Terradue.OpenSearch.Schema
 	public partial class OpenSearchDescription
 	{
 		
+        [System.Xml.Serialization.XmlIgnore]
         OpenSearchDescriptionUrl defaultUrl = null;
         public OpenSearchDescriptionUrl DefaultUrl {
             get {
@@ -24,11 +25,15 @@ namespace Terradue.OpenSearch.Schema
             }
         }
 
+        [System.Xml.Serialization.XmlIgnore]
         public string[] ContentTypes {
             get {
                 return Url.Select<OpenSearchDescriptionUrl, string>(u => u.Type).ToArray(); 
             }
         }
+
+        [System.Xml.Serialization.XmlIgnore]
+        public OpenSearchUrl Originator { get; set; }
 
 	}
 

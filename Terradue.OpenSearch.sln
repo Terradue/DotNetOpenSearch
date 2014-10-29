@@ -21,6 +21,6 @@ Global
 		{997A44FD-EE4A-490A-855B-88305E0CD269}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
-		StartupItem = Terradue.OpenSearch\Terradue.OpenSearch.csproj
+		StartupItem = Terradue.OpenSearch.Test\Terradue.OpenSearch.Test.csproj
 	EndGlobalSection
 EndGlobal
