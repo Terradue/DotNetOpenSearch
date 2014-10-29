@@ -90,9 +90,16 @@ namespace Terradue.OpenSearch {
             return null;
         }
 
+        long totalResults = -1;
         public long TotalResults {
             get {
-                throw new NotImplementedException();
+                if (totalResults < 0) {
+                    NameValueCollection nvc = new NameValueCollection();
+                    nvc.Set("count", "0");
+                    var osr = ose.Query(this, nvc, "atom");
+                    totalResults = osr.Result.TotalResults;
+                }
+                return totalResults;
             }
         }
 

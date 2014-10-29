@@ -566,8 +566,13 @@ namespace Terradue.OpenSearch {
             else
                 osd = entity.GetOpenSearchDescription();
             OpenSearchDescriptionUrl url = OpenSearchFactory.GetOpenSearchUrlByRel(osd, "self");
+            Uri uri;
             if (url != null)
-                feed.Links.Add(new SyndicationLink(new Uri(url.Template), "search", "OpenSearch Description link", "application/opensearchdescription+xml", 0));
+                uri = new Uri(url.Template);
+            else
+                uri = osd.Originator;
+            if (uri != null)
+                feed.Links.Add(new SyndicationLink(uri, "search", "OpenSearch Description link", "application/opensearchdescription+xml", 0));
 
             foreach (IOpenSearchResultItem item in feed.Items) {
                 matchLinks = item.Links.Where(l => l.RelationshipType == "search").ToArray();

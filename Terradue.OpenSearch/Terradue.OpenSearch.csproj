@@ -86,6 +86,7 @@
   <ItemGroup>
     <None Include="Terradue.OpenSearch.csproj" />
     <None Include="packages.config" />
+    <None Include="Terradue\OpenSearch\Request\MultiOpenSearchRequest.cs" />
   </ItemGroup>
   <Import Project="$(ProjectDir)\..\.nuget\NuGet.targets" Condition="Exists('$(ProjectDir)\..\.nuget\NuGet.targets')" />
 </Project>

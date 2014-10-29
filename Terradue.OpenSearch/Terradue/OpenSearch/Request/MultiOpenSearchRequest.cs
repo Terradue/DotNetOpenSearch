@@ -1,5 +1,5 @@
 //
-//  MultiAtomOpenSearchRequest.cs
+//  MultiOpenSearchRequest.cs
 //
 //  Author:
 //       Emmanuel Mathot <emmanuel.mathot@terradue.com>
@@ -26,8 +26,8 @@ namespace Terradue.OpenSearch.Request {
     /// This request will return an atom response and thus the entities requested must be able to return 
     /// Atom response.
     /// </description>
-    public class MultiAtomOpenSearchRequest : OpenSearchRequest {
-        static List<MultiAtomOpenSearchRequestState> requestStatesCache = new List<MultiAtomOpenSearchRequestState>();
+    public class MultiOpenSearchRequest : OpenSearchRequest {
+        static List<MultiOpenSearchRequestState> requestStatesCache = new List<MultiOpenSearchRequestState>();
         string type;
         NameValueCollection originalParameters, entitiesParameters, currentParameters;
         OpenSearchEngine ose;
@@ -47,7 +47,7 @@ namespace Terradue.OpenSearch.Request {
         /// <param name="entities">IOpenSearchable entities to be searched.</param>
         /// <param name="type">contentType of the .</param>
         /// <param name="url">URL.</param>
-        public MultiAtomOpenSearchRequest(OpenSearchEngine ose, IOpenSearchable[] entities, string type, OpenSearchUrl url, bool concurrent) : base(url) {
+        public MultiOpenSearchRequest(OpenSearchEngine ose, IOpenSearchable[] entities, string type, OpenSearchUrl url, bool concurrent) : base(url) {
             this.concurrent = concurrent;
 
             this.ose = ose;
@@ -344,7 +344,7 @@ namespace Terradue.OpenSearch.Request {
         }
 
         /// Structure to hold a request state
-        struct MultiAtomOpenSearchRequestState {
+        struct MultiOpenSearchRequestState {
             public Dictionary<IOpenSearchable, int> Entities;
             public NameValueCollection Parameters;
             public string Type;
