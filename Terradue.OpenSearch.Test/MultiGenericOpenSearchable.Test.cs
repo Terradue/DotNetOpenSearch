@@ -4,6 +4,7 @@ using Mono.Addins;
 using Terradue.OpenSearch.Engine;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Linq;
 
 namespace Terradue.OpenSearch.Test {
 
@@ -19,22 +20,113 @@ namespace Terradue.OpenSearch.Test {
             OpenSearchEngine ose = new OpenSearchEngine();
             ose.LoadPlugins();
 
-            OpenSearchUrl url = new OpenSearchUrl("http://catalogue.terradue.int/catalogue/search/MER_FRS_1P/rdf?startIndex=0&q=MER_FRS_1P&start=1992-01-01&stop=2014-10-24&bbox=-72,47,-57,58");
-            IOpenSearchable entity = new GenericOpenSearchable(url, ose);
+            IOpenSearchable entity1 = TestOpenSearchable.GenerateNumberedItomFeed("A");
 
             List<IOpenSearchable> entities = new List<IOpenSearchable>();
-            entities.Add(entity);
+            entities.Add(entity1);
 
             IOpenSearchable multiEntity = new MultiGenericOpenSearchable(entities, ose, true);
 
             NameValueCollection nvc = new NameValueCollection();
             nvc.Set("count", "100");
 
-            var osr = ose.Query(multiEntity, nvc, "rdf");
+            var osr = ose.Query(multiEntity, nvc, "atom");
 
-            Assert.That(osr.Result.Links.Count > 0);
+            Assert.AreEqual(100, osr.Result.Count);
+            Assert.AreEqual("A1", osr.Result.Items.First().Identifier);
+            Assert.AreEqual("A100", osr.Result.Items.Last().Identifier);
 
-            Console.Out.Write(osr.Result.SerializeToString());
+            nvc.Set("startIndex", "16");
+
+            osr = ose.Query(multiEntity, nvc, "atom");
+
+            Assert.AreEqual(85, osr.Result.Count);
+            Assert.AreEqual("A16", osr.Result.Items.First().Identifier);
+            Assert.AreEqual("A100", osr.Result.Items.Last().Identifier);
+
+            nvc.Set("count", "5");
+            nvc.Set("startIndex", "5");
+            nvc.Set("startPage", "4");
+
+            osr = ose.Query(multiEntity, nvc, "atom");
+
+            Assert.AreEqual(5, osr.Result.Count);
+            Assert.AreEqual("A20", osr.Result.Items.First().Identifier);
+            Assert.AreEqual("A24", osr.Result.Items.Last().Identifier);
+
+            nvc.Set("count", "5");
+            nvc.Set("startIndex", "5");
+            nvc.Set("startPage", "5");
+
+            osr = ose.Query(multiEntity, nvc, "atom");
+
+            Assert.AreEqual(5, osr.Result.Count);
+            Assert.AreEqual("A25", osr.Result.Items.First().Identifier);
+            Assert.AreEqual("A29", osr.Result.Items.Last().Identifier);
+
+            nvc.Set("count", "5");
+            nvc.Set("startIndex", "1");
+            nvc.Set("startPage", "1");
+
+            osr = ose.Query(multiEntity, nvc, "atom");
+
+            Assert.AreEqual(5, osr.Result.Count);
+            Assert.AreEqual("A1", osr.Result.Items.First().Identifier);
+            Assert.AreEqual("A5", osr.Result.Items.Last().Identifier);
+
+            nvc.Set("count", "5");
+            nvc.Set("startIndex", "1");
+            nvc.Set("startPage", "5");
+
+            osr = ose.Query(multiEntity, nvc, "atom");
+
+            Assert.AreEqual(5, osr.Result.Count);
+            Assert.AreEqual("A21", osr.Result.Items.First().Identifier);
+            Assert.AreEqual("A25", osr.Result.Items.Last().Identifier);
+
+            IOpenSearchable entity2 = TestOpenSearchable.GenerateNumberedItomFeed("B");
+
+            entities.Add(entity2);
+            multiEntity = new MultiGenericOpenSearchable(entities, ose, true);
+
+            nvc = new NameValueCollection();
+            nvc.Set("count", "10");
+
+            osr = ose.Query(multiEntity, nvc, "atom");
+
+            Assert.AreEqual(10, osr.Result.Count);
+            Assert.AreEqual("A1", osr.Result.Items.First().Identifier);
+            Assert.AreEqual("B5", osr.Result.Items.Last().Identifier);
+
+            nvc.Set("count", "4");
+            nvc.Set("startIndex", "2");
+            nvc.Set("startPage", "1");
+
+            osr = ose.Query(multiEntity, nvc, "atom");
+
+            Assert.AreEqual(4, osr.Result.Count);
+            Assert.AreEqual("B1", osr.Result.Items.First().Identifier);
+            Assert.AreEqual("A3", osr.Result.Items.Last().Identifier);
+
+            nvc.Set("count", "4");
+            nvc.Set("startIndex", "4");
+            nvc.Set("startPage", "1");
+
+            osr = ose.Query(multiEntity, nvc, "atom");
+
+            Assert.AreEqual(4, osr.Result.Count);
+            Assert.AreEqual("B2", osr.Result.Items.First().Identifier);
+            Assert.AreEqual("A4", osr.Result.Items.Last().Identifier);
+
+            nvc.Set("count", "4");
+            nvc.Set("startIndex", "4");
+            nvc.Set("startPage", "2");
+
+            osr = ose.Query(multiEntity, nvc, "atom");
+
+            Assert.AreEqual(4, osr.Result.Count);
+            Assert.AreEqual("B4", osr.Result.Items.First().Identifier);
+            Assert.AreEqual("A6", osr.Result.Items.Last().Identifier);
 
         }
     }

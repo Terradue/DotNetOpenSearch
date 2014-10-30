@@ -122,12 +122,7 @@ namespace Terradue.OpenSearch.Result {
 
         public long Count {
             get {
-                Collection<XmlElement> elements = ElementExtensions.ReadElementExtensions<XmlElement>("totalResults", "http://a9.com/-/spec/opensearch/1.1/");
-                long value = 0;
-                if (elements.Count > 0)
-                    long.TryParse(elements[0].InnerText, out value);
-                ;
-                return value;
+                return Items.Count();
             }
         }
 
