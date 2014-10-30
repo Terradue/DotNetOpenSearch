@@ -74,16 +74,6 @@ namespace Terradue.OpenSearch {
                     string paramDef = matchParamDef.Groups[1].Value;
                     string paramValue = searchParameters[parameter];
 
-                    // Special case for startPage and startIndex
-                    if (paramDef == "startPage" && !string.IsNullOrEmpty(paramValue)) {
-                        paramValue = (int.Parse(paramValue) + remoteUrlTemplate.PageOffset).ToString();
-                    }
-
-                    // Special case for startPage and startIndex
-                    if (paramDef == "startIndex" && !string.IsNullOrEmpty(paramValue)) {
-                        paramValue = (int.Parse(searchParameters[parameter]) + remoteUrlTemplate.IndexOffset).ToString();
-                    }
-
                     finalQueryParameters.Set(parameter, paramValue);
                 }
 
@@ -124,16 +114,6 @@ namespace Terradue.OpenSearch {
                     // We have the parameter defintion
                     string paramDef = matchParamDef.Groups[1].Value;
                     string paramValue = searchParameters[parameter];
-
-                    // Special case for startPage and startIndex
-                    if (paramDef == "startPage" && !string.IsNullOrEmpty(paramValue)) {
-                        paramValue = (int.Parse(paramValue) + (remoteUrlTemplate.PageOffset - 1)).ToString();
-                    }
-
-                    // Special case for startPage and startIndex
-                    if (paramDef == "startIndex" && !string.IsNullOrEmpty(paramValue)) {
-                        paramValue = (int.Parse(searchParameters[parameter]) + (remoteUrlTemplate.IndexOffset - 1)).ToString();
-                    }
 
                     // Find the paramdef in the remote URl template
                     foreach (string keyDef in remoteParametersDef.AllKeys) {
@@ -184,16 +164,6 @@ namespace Terradue.OpenSearch {
             foreach (string parameter in templateSearchParameters.AllKeys) {
            
                 string value = templateSearchParameters[parameter];
-
-                // Special case for startPage and startIndex
-                if (parameter == "startPage" && !string.IsNullOrEmpty(value)) {
-                    value = (int.Parse(value) + (remoteUrlTemplate.PageOffset - 1)).ToString();
-                }
-
-                // Special case for startPage and startIndex
-                if (parameter == "startIndex" && !string.IsNullOrEmpty(value)) {
-                    value = (int.Parse(value) + (remoteUrlTemplate.IndexOffset - 1)).ToString();
-                }
 
                 // Find the paramdef in the remote URl template
                 foreach (string keyDef in remoteParametersDef.AllKeys) {

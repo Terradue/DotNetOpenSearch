@@ -20,7 +20,7 @@ namespace Terradue.OpenSearch.Test {
             OpenSearchEngine ose = new OpenSearchEngine();
             ose.LoadPlugins();
 
-            IOpenSearchable entity1 = TestOpenSearchable.GenerateNumberedItomFeed("A");
+            IOpenSearchable entity1 = TestOpenSearchable.GenerateNumberedItomFeed("A", 100);
 
             List<IOpenSearchable> entities = new List<IOpenSearchable>();
             entities.Add(entity1);
@@ -84,7 +84,7 @@ namespace Terradue.OpenSearch.Test {
             Assert.AreEqual("A21", osr.Result.Items.First().Identifier);
             Assert.AreEqual("A25", osr.Result.Items.Last().Identifier);
 
-            IOpenSearchable entity2 = TestOpenSearchable.GenerateNumberedItomFeed("B");
+            IOpenSearchable entity2 = TestOpenSearchable.GenerateNumberedItomFeed("B", 100);
 
             entities.Add(entity2);
             multiEntity = new MultiGenericOpenSearchable(entities, ose, true);
@@ -129,6 +129,33 @@ namespace Terradue.OpenSearch.Test {
             Assert.AreEqual("A6", osr.Result.Items.Last().Identifier);
 
         }
+
+        [Test()]
+        public void MultiLimitTwoTest() {
+
+            AddinManager.Initialize();
+            AddinManager.Registry.Update(null);
+
+            OpenSearchEngine ose = new OpenSearchEngine();
+            ose.LoadPlugins();
+
+            IOpenSearchable entity1 = TestOpenSearchable.GenerateNumberedItomFeed("A", 1);
+            IOpenSearchable entity2 = TestOpenSearchable.GenerateNumberedItomFeed("B", 1);
+
+            List<IOpenSearchable> entities = new List<IOpenSearchable>();
+            entities.Add(entity1);
+            entities.Add(entity2);
+
+            IOpenSearchable multiEntity = new MultiGenericOpenSearchable(entities, ose, true);
+
+            NameValueCollection nvc = new NameValueCollection();
+
+            var osr = ose.Query(multiEntity, nvc, "atom");
+
+            Assert.AreEqual(2, osr.Result.Count);
+        }
+
+
     }
 }
 
