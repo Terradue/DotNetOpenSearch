@@ -32,7 +32,7 @@ namespace Terradue.OpenSearch.RdfEO.Test {
 
         }
 
-        [Test()]
+        /*[Test()]
         public void GenericProxiedOpenSearchableTest() {
 
             AddinManager.Initialize();
@@ -50,7 +50,7 @@ namespace Terradue.OpenSearch.RdfEO.Test {
 
             Console.Out.Write(osr.Result.SerializeToString());
 
-        }
+        }*/
     }
 }
 

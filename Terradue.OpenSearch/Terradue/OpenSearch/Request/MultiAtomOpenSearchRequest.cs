@@ -102,6 +102,32 @@ namespace Terradue.OpenSearch.Request {
 
             PrepareTotalResults();
 
+            int originalStartIndex = 1;
+
+            try {
+                originalStartIndex = int.Parse(originalParameters[OpenSearchFactory.ReverseTemplateOpenSearchParameters(OpenSearchFactory.GetBaseOpenSearchParameter())["startIndex"]]);
+            } catch (Exception) {
+            }
+
+
+            // new page -> new feed
+            feed = new AtomFeed();
+
+            // While we do not have the count needed for our results
+            // and that all the sources have are not empty
+            while (feed.Items.Count() < originalStartIndex-1 && emptySources == false) {
+
+                //
+                ExecuteConcurrentRequest();
+
+                MergeResults();
+
+                feed.Items = feed.Items.Take(originalStartIndex-1);
+
+                SetCurrentEntitiesOffset();
+
+            }
+
             while (currentStartPage <= originalStartPage) {
 
                 // new page -> new feed
@@ -142,6 +168,8 @@ namespace Terradue.OpenSearch.Request {
                 CacheCurrentState();
 
             }
+
+
                 
             feed.ElementExtensions.Add("totalResults", "http://a9.com/-/spec/opensearch/1.1/", totalResults);
         }
@@ -229,7 +257,7 @@ namespace Terradue.OpenSearch.Request {
 
             }
 
-            feed.Items = f1.Items.Union(f2.Items).OrderByDescending(u => u.Date);
+            feed.Items = f1.Items.Union(f2.Items).OrderBy(u => u.Id).OrderByDescending(u => u.Date);
 
             feed.Items = feed.Items.Take(originalCount);
 
@@ -270,7 +298,7 @@ namespace Terradue.OpenSearch.Request {
             // if no such state, create new one with the entity pagination parameter unset (=1)
             if (states.Count <= 0) {
                 foreach (IOpenSearchable entity in entities)
-                    entities2.Add(entity, 1);
+                    entities2.Add(entity, entity.GetOpenSearchDescription().Url.FirstOrDefault(p => p.Type == type).IndexOffset);
                 parameters2 = RemovePaginationParameters(parameters);
                 return false;
             }
@@ -290,7 +318,7 @@ namespace Terradue.OpenSearch.Request {
             // If not, useless and create new one with the entity pagination parameter unset (=1)
             if (state.Entities == null) {
                 foreach (IOpenSearchable entity in entities)
-                    entities2.Add(entity, 1);
+                    entities2.Add(entity, entity.GetOpenSearchDescription().Url.FirstOrDefault(p => p.Type == type).IndexOffset);
                 parameters2 = RemovePaginationParameters(parameters);
                 return false;
             }
