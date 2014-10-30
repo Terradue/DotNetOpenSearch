@@ -66,7 +66,7 @@ namespace Terradue.OpenSearch.Test {
             string[] queryString = Array.ConvertAll(query.AllKeys, key => string.Format("{0}={1}", key, query[key]));
             urlb.Query = string.Join("&", queryString);
             url = new OpenSearchDescriptionUrl("application/atom+xml", urlb.ToString(), "search");
-            url.IndexOffset = 0;
+            url.IndexOffset = 1;
             urls.Add(url);
 
             osd.Url = urls.ToArray();
@@ -114,7 +114,7 @@ namespace Terradue.OpenSearch.Test {
 
             PaginatedList<TestItem> pds = new PaginatedList<TestItem>();
 
-            int startIndex = 0;
+            int startIndex = 1;
             if (parameters["startIndex"] != null) startIndex = int.Parse(parameters["startIndex"]);
 
             pds.AddRange(Items);
@@ -125,7 +125,7 @@ namespace Terradue.OpenSearch.Test {
             pds.PageSize = 20;
             if (parameters["count"] != null) pds.PageSize = int.Parse(parameters["count"]);
 
-            pds.StartIndex = startIndex;
+            pds.StartIndex = startIndex-1;
 
             if(this.Identifier != null) feed.ElementExtensions.Add("identifier", "http://purl.org/dc/elements/1.1/", this.Identifier);
 
@@ -175,12 +175,12 @@ namespace Terradue.OpenSearch.Test {
             set;
         }
 
-        public static TestOpenSearchable GenerateNumberedItomFeed(string lid){
+        public static TestOpenSearchable GenerateNumberedItomFeed(string lid, int n){
 
             TestOpenSearchable test = new TestOpenSearchable();
             List<TestItem> items = new List<TestItem>();
 
-            for (int i = 1; i <= 100; i++) {
+            for (int i = 1; i <= n; i++) {
 
                 TestItem item = new TestItem(i);
                 item.Identifier = lid+i;
