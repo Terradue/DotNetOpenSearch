@@ -6,6 +6,7 @@
 //
 //  Copyright (c) 2014 Terradue
 
+using Manu;
 using System;
 using System.Linq;
 using System.Text.RegularExpressions;
