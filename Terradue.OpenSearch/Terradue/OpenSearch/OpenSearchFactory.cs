@@ -141,7 +141,7 @@ namespace Terradue.OpenSearch {
             foreach (string parameter in remoteParametersDef.AllKeys) {
                 Match matchParamDef = Regex.Match(remoteParametersDef[parameter], @"^{([^?]+)\??}$");
                 // If parameter does not exist, continue
-                if (!matchParamDef.Success && string.IsNullOrEmpty(parameter))
+                if (!matchParamDef.Success && !string.IsNullOrEmpty(parameter))
                     finalQueryParameters.Set(parameter, remoteParametersDef[parameter]);
             }
 
