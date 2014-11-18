@@ -27,4 +27,3 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyCulture ("")]
 [assembly: AssemblyVersion ("1.7.5.*")]
 [assembly: AssemblyInformationalVersion ("1.7.5")]
-
