@@ -112,7 +112,8 @@ namespace Terradue.OpenSearch.Engine {
 
             // 1) Find the plugin to match with urlTemplates
             querySettings = entity.GetQuerySettings(this);
-            if (querySettings == null) throw new ImpossibleSearchException(String.Format("No engine extension to query {0}", entity.Identifier));
+            if (querySettings == null)
+                throw new ImpossibleSearchException(String.Format("No engine extension to query {0}", entity.Identifier));
 
             // 2) Create the request
             OpenSearchRequest request = entity.Create(querySettings.PreferredContentType, parameters);
@@ -187,7 +188,8 @@ namespace Terradue.OpenSearch.Engine {
 
             // 1) Find the best match between urlTemplates and result format
             querySettings = entity.GetQuerySettings(this);
-            if (querySettings == null) throw new ImpossibleSearchException(String.Format("No engine extension to query {0} in order to return {1}", entity.Identifier, resultType.FullName));
+            if (querySettings == null)
+                throw new ImpossibleSearchException(String.Format("No engine extension to query {0} in order to return {1}", entity.Identifier, resultType.FullName));
 
             // 2) Create the request
             OpenSearchRequest request = entity.Create(querySettings.PreferredContentType, parameters);
@@ -238,7 +240,8 @@ namespace Terradue.OpenSearch.Engine {
 
             // 1) Find the plugin to match with urlTemplates
             querySettings = entity.GetQuerySettings(this);
-            if (querySettings == null) throw new ImpossibleSearchException(String.Format("No engine extension to query {0}", entity.Identifier));
+            if (querySettings == null)
+                throw new ImpossibleSearchException(String.Format("No engine extension to query {0}", entity.Identifier));
 
             // 2) Create the request
             OpenSearchRequest request = entity.Create(querySettings.PreferredContentType, parameters);
@@ -278,6 +281,9 @@ namespace Terradue.OpenSearch.Engine {
         /// <param name="url">URL.</param>
         public OpenSearchDescription AutoDiscoverFromQueryUrl(OpenSearchUrl url) {
 
+            OpenSearchDescription osd = null;
+            OpenSearchUrl descriptionUrl = null;
+
             OpenSearchRequest request = OpenSearchRequest.Create(url);
 
             ApplyPreSearchFilters(ref request);
@@ -286,20 +292,31 @@ namespace Terradue.OpenSearch.Engine {
 
             ApplyPostSearchFilters(request, ref response);
 
-            IOpenSearchEngineExtension osee = GetExtensionByContentTypeAbility(response.ContentType);
+            if (response.ContentType == "application/opensearchdescription+xml") {
+                osd = this.LoadOpenSearchDescriptionDocument(url);
+                descriptionUrl = url;
+            } else {
 
-            if (osee == null)
-                throw new ImpossibleSearchException("No registered extension is able to read content of type " + response.ContentType);
 
-            OpenSearchUrl descriptionUrl = osee.FindOpenSearchDescriptionUrlFromResponse(response);
+                IOpenSearchEngineExtension osee = GetExtensionByContentTypeAbility(response.ContentType);
 
-            if (descriptionUrl == null)
-                throw new ImpossibleSearchException("No Opensearch Description link found in results of " + url.ToString());
+                if (osee == null)
+                    throw new ImpossibleSearchException("No registered extension is able to read content of type " + response.ContentType);
 
-            OpenSearchDescription osd = LoadOpenSearchDescriptionDocument(descriptionUrl);
+                descriptionUrl = osee.FindOpenSearchDescriptionUrlFromResponse(response);
+
+                if (descriptionUrl == null)
+                    throw new ImpossibleSearchException("No Opensearch Description link found in results of " + url.ToString());
+
+                osd = LoadOpenSearchDescriptionDocument(descriptionUrl);
+            }
+
+            string contentType = response.ContentType;
+            if (contentType == "application/opensearchdescription+xml")
+                contentType = "application/atom+xml";
+
             osd.Originator = descriptionUrl;
-
-            osd.DefaultUrl = osd.Url.Single(u => u.Type == response.ContentType);
+            osd.DefaultUrl = osd.Url.Single(u => u.Type == contentType);
 
             return osd;
         }
@@ -325,6 +342,8 @@ namespace Terradue.OpenSearch.Engine {
             } catch (Exception e) {
                 throw new Exception("Exception querying OpenSearch description at " + url.ToString() + " : " + e.Message, e);
             }
+
+
 
         }
 
@@ -432,11 +451,11 @@ namespace Terradue.OpenSearch.Engine {
             bool totalResults = false;
 
             foreach (SyndicationElementExtension ext in newResults.ElementExtensions.ToArray()) {
-                if ( ext.OuterName == "startIndex" && ext.OuterNamespace == "http://a9.com/-/spec/opensearch/1.1/")
+                if (ext.OuterName == "startIndex" && ext.OuterNamespace == "http://a9.com/-/spec/opensearch/1.1/")
                     newResults.ElementExtensions.Remove(ext);
-                if ( ext.OuterName == "itemsPerPage" && ext.OuterNamespace == "http://a9.com/-/spec/opensearch/1.1/")
+                if (ext.OuterName == "itemsPerPage" && ext.OuterNamespace == "http://a9.com/-/spec/opensearch/1.1/")
                     newResults.ElementExtensions.Remove(ext);
-                if ( ext.OuterName == "Query" && ext.OuterNamespace == "http://a9.com/-/spec/opensearch/1.1/")
+                if (ext.OuterName == "Query" && ext.OuterNamespace == "http://a9.com/-/spec/opensearch/1.1/")
                     newResults.ElementExtensions.Remove(ext);
                 if (ext.OuterName == "totalResults" && ext.OuterNamespace == "http://a9.com/-/spec/opensearch/1.1/")
                     totalResults = true;
