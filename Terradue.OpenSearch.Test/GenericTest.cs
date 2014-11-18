@@ -19,10 +19,10 @@ namespace Terradue.OpenSearch.RdfEO.Test {
             OpenSearchEngine ose = new OpenSearchEngine();
 
             ose.LoadPlugins();
-            OpenSearchUrl url = new OpenSearchUrl("http://catalogue.terradue.int/catalogue/search/MER_FRS_1P/rdf?startIndex=0&q=MER_FRS_1P&start=1992-01-01&stop=2014-10-24&bbox=-72,47,-57,58");
+            OpenSearchUrl url = new OpenSearchUrl("https://challenges.esa.int/eceo/datapackage/FRSPAR/description?key=495f181f-47d3-4668-b717-d36d4a560837");
             IOpenSearchable entity = new GenericOpenSearchable(url, ose);
 
-            var osr = ose.Query(entity, new System.Collections.Specialized.NameValueCollection(), "rdf");
+            var osr = ose.Query(entity, new System.Collections.Specialized.NameValueCollection(), "atom");
 
             OpenSearchFactory.ReplaceOpenSearchDescriptionLinks(entity, osr.Result);
 
