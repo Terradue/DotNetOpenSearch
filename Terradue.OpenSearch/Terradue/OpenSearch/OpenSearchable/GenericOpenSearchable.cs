@@ -109,7 +109,7 @@ namespace Terradue.OpenSearch {
 
         public string DefaultMimeType {
             get {
-                if (string.IsNullOrEmpty(GetOpenSearchDescription().DefaultUrl.Type))
+                if (string.IsNullOrEmpty(GetOpenSearchDescription().DefaultUrl.Type) || GetOpenSearchDescription().DefaultUrl.Type == "application/opensearchdescription+xml")
                     return "application/atom+xml";
                 return osd.DefaultUrl.Type;
             }
