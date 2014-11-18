@@ -20,7 +20,7 @@ namespace Terradue.OpenSearch.RdfEO.Test {
 
             ose.LoadPlugins();
             OpenSearchUrl url = new OpenSearchUrl("https://challenges.esa.int/eceo/datapackage/FRSPAR/description?key=495f181f-47d3-4668-b717-d36d4a560837");
-            IOpenSearchable entity = new GenericOpenSearchable(url, ose);
+            IOpenSearchable entity = OpenSearchFactory.FindOpenSearchable(ose, url);
 
             var osr = ose.Query(entity, new System.Collections.Specialized.NameValueCollection(), "atom");
 
