@@ -101,6 +101,14 @@ namespace Terradue.OpenSearch {
             // Parse the possible parametrs of the remote urls
             NameValueCollection remoteParametersDef = HttpUtility.ParseQueryString(finalUrl.Query);
 
+            // control duplicates
+            foreach (string key in remoteParametersDef)
+            {
+                if (string.IsNullOrEmpty(key)) continue;
+                int count = remoteParametersDef.GetValues(key).Count();
+                if (count > 1) throw new OpenSearchException(string.Format("Url template [{0}] from OpenSearch Description cannot contains duplicates parameter definition: {1}", finalUrl, key));
+            }
+
             // For each parameter requested
             foreach (string parameter in searchParameters.AllKeys) {
                 if (urlTemplateDef[parameter] == null)
@@ -133,7 +141,7 @@ namespace Terradue.OpenSearch {
             foreach (string parameter in remoteParametersDef.AllKeys) {
                 Match matchParamDef = Regex.Match(remoteParametersDef[parameter], @"^{([^?]+)\??}$");
                 // If parameter does not exist, continue
-                if (!matchParamDef.Success)
+                if (!matchParamDef.Success && string.IsNullOrEmpty(parameter))
                     finalQueryParameters.Set(parameter, remoteParametersDef[parameter]);
             }
 
