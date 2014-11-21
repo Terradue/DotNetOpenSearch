@@ -171,6 +171,12 @@ namespace Terradue.OpenSearch.Result {
 
             AtomFeed feed = new AtomFeed(new SyndicationFeed());
 
+            feed.Id = results.Id;
+            feed.Identifier = results.Identifier;
+            foreach ( var author in results.Authors ){
+                feed.Authors.Add(author);
+            }
+
             if ( results.ElementExtensions != null )
                 feed.ElementExtensions = new SyndicationElementExtensionCollection(results.ElementExtensions);
 
