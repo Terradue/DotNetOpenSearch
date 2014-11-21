@@ -77,6 +77,17 @@ namespace Terradue.OpenSearch.Result {
             throw new NotImplementedException();
         }
 
+        public new string Id {
+            get {
+                var links = Links.Where(l => l.RelationshipType == "self").ToArray();
+                if (links.Count() > 0) return links[0].Uri.ToString();
+                return base.Id;
+            }
+            set {
+                base.Id = value;
+            }
+        }
+
         public new IEnumerable<IOpenSearchResultItem> Items {
             get {
                 return items.Cast<IOpenSearchResultItem>();
