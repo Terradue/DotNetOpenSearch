@@ -117,17 +117,17 @@ namespace Terradue.OpenSearch.Result {
 
         public string Identifier {
             get {
-                var identifiers = ElementExtensions.ReadElementExtensions<string>("identifier", "http://purl.org/dc/elements/1.1/");
-                if (identifiers.Count > 0)
-                    return identifiers[0];
-                return null;
+                var identifier = ElementExtensions.ReadElementExtensions<string>("identifier", "http://purl.org/dc/elements/1.1/");
+                return identifier.Count == 0 ? base.Id : identifier[0];
             }
             set {
-                var identifiers = ElementExtensions.ReadElementExtensions<SyndicationElementExtension>("identifier", "http://purl.org/dc/elements/1.1/");
-                foreach (var identifier in identifiers) {
-                    ElementExtensions.Remove(identifier);
+                foreach (var ext in this.ElementExtensions.ToArray()) {
+                    if (ext.OuterName == "identifier" && ext.OuterNamespace == "http://purl.org/dc/elements/1.1/") {
+                        this.ElementExtensions.Remove(ext);
+                        continue;
+                    }
                 }
-                ElementExtensions.Add("identifier", "http://purl.org/dc/elements/1.1/", value);
+                this.ElementExtensions.Add(new XElement(XName.Get("identifier", "http://purl.org/dc/elements/1.1/"), value).CreateReader());
             }
         }
 
