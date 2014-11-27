@@ -44,21 +44,12 @@ namespace Terradue.OpenSearch.Result {
             }
         }
 
-        public new string Title {
-            get {
-                return base.Title.Text;
-            }
-            set {
-                base.Title = new TextSyndicationContent(value);
-            }
-        }
-
         public DateTime Date {
             get {
-                return base.PublishDate.DateTime;
+                return base.LastUpdatedTime.DateTime;
             }
             set {
-                base.PublishDate = new DateTimeOffset(value);
+                base.LastUpdatedTime = new DateTimeOffset(value);
             }
         }
 

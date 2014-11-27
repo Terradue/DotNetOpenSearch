@@ -97,12 +97,12 @@ namespace Terradue.OpenSearch.Result {
             }
         }
 
-        string IOpenSearchResultCollection.Title {
+        TextSyndicationContent IOpenSearchResultCollection.Title {
             get {
-                return base.Title.Text;
+                return base.Title;
             }
             set {
-                base.Title = new TextSyndicationContent(value);
+                base.Title = value;
             }
         }
 

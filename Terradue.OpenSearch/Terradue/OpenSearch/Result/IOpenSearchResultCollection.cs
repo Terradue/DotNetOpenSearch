@@ -26,17 +26,25 @@ namespace Terradue.OpenSearch.Result {
 
         IEnumerable<IOpenSearchResultItem> Items { get; set; }
 
-        Collection<SyndicationLink> Links { get; }
+        Collection<SyndicationLink> Links { get; set; }
 
         Collection<SyndicationCategory> Categories { get; }
 
         Collection<SyndicationPerson> Authors { get; }
 
-        SyndicationElementExtensionCollection ElementExtensions { get; }
+        Collection<SyndicationPerson> Contributors { get; }
 
-        string Title { get; set; }
+        TextSyndicationContent Copyright { get; set; }
 
-        DateTime Date { get; }
+        SyndicationElementExtensionCollection ElementExtensions { get; set; }
+
+        TextSyndicationContent Title { get; set; }
+
+        TextSyndicationContent Description { get; set; }
+
+        DateTime Date { get; set; }
+
+        string Generator { get; set; }
 
         string Identifier { get; set; }
 
@@ -58,21 +66,28 @@ namespace Terradue.OpenSearch.Result {
     /// Interface that represent a result item
     /// </summary>
     public interface IOpenSearchResultItem {
-        string Id { get; }
 
-        string Title { get; set; }
+        string Id { get; set; }
+
+        TextSyndicationContent Title { get; set; }
 
         DateTime Date { get; set; }
 
+        TextSyndicationContent Summary { get; set; }
+
         string Identifier { get; set; }
 
-        Collection<SyndicationLink> Links { get; }
+        Collection<SyndicationLink> Links { get; set; }
 
         Collection<SyndicationCategory> Categories { get; }
 
+        Collection<SyndicationPerson> Contributors { get; }
+
         Collection<SyndicationPerson> Authors { get; }
 
-        SyndicationElementExtensionCollection ElementExtensions { get; }
+        TextSyndicationContent Copyright { get; set; }
+
+        SyndicationElementExtensionCollection ElementExtensions { get; set; }
 
         bool ShowNamespaces { get; set; }
 
