@@ -112,6 +112,22 @@ namespace Terradue.OpenSearch.Result {
             item.Links = result.Links;
             item.Title = result.Title;
             item.LastUpdatedTime = DateTime.UtcNow;
+            item.Summary = result.Summary;
+            item.Authors.Clear();
+            result.Authors.FirstOrDefault(a => {
+                item.Authors.Add(a);
+                return false;
+            });
+            result.Categories.FirstOrDefault(c => {
+                item.Categories.Add(c);
+                return false;
+            });
+            item.Content = result.Content;
+            result.Contributors.FirstOrDefault(c => {
+                item.Contributors.Add(c);
+                return false;
+            });
+            item.Copyright = result.Copyright;
 
             return item;
         }
