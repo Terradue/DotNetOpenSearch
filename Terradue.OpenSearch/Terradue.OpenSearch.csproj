@@ -83,6 +83,7 @@
     <Compile Include="Terradue\OpenSearch\OpenSearchable\IAtomizable.cs" />
     <Compile Include="Terradue\OpenSearch\OpenSearchException.cs" />
     <Compile Include="Terradue\OpenSearch\Result\IOpenSearchResultItem.cs" />
+    <Compile Include="Terradue\OpenSearch\Schema\OpenSearchDescription.Parameter.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
