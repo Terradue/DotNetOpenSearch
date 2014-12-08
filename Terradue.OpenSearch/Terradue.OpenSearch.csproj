@@ -9,8 +9,6 @@
     <AssemblyName>Terradue.OpenSearch</AssemblyName>
     <ReleaseVersion>1.5</ReleaseVersion>
     <SynchReleaseVersion>false</SynchReleaseVersion>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -83,6 +81,12 @@
     <Compile Include="Terradue\OpenSearch\OpenSearchable\IAtomizable.cs" />
     <Compile Include="Terradue\OpenSearch\OpenSearchException.cs" />
     <Compile Include="Terradue\OpenSearch\Result\IOpenSearchResultItem.cs" />
+    <Compile Include="Terradue\OpenSearch\Schema\OpenSearchDescription.Parameter.cs" />
+    <Compile Include="Terradue\OpenSearch\Engine\Extensions\ParametersOpenSearchEngineExtension.cs" />
+    <Compile Include="Terradue\OpenSearch\Response\ParametersOpenSearchResponse.cs" />
+    <Compile Include="Terradue\OpenSearch\Result\ParametersResult.cs" />
+    <Compile Include="Terradue\OpenSearch\Request\ParametersOpenSearchRequest.cs" />
+    <Compile Include="Terradue\OpenSearch\Result\ParameterDescription.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -114,6 +114,10 @@ namespace Terradue.OpenSearch {
                 return osd.DefaultUrl.Type;
             }
         }
+
+        public ParametersResult DescribeParameters() {
+            throw new NotImplementedException();
+        }
         #endregion
     }
 }

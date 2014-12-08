@@ -102,6 +102,8 @@ namespace Terradue.OpenSearch {
         /// <value>The default MIME-type.</value>
         string DefaultMimeType { get; }
 
+        ParametersResult DescribeParameters ();
+
     }
 
     /// <summary>
