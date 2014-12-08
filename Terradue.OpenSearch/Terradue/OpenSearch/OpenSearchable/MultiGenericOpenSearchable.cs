@@ -135,6 +135,10 @@ namespace Terradue.OpenSearch {
                 return "application/atom+xml";
             }
         }
+
+        public ParametersResult DescribeParameters() {
+            throw new NotImplementedException();
+        }
         #endregion
 
     }
