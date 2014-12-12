@@ -334,7 +334,7 @@ namespace Terradue.OpenSearch {
                         }
                     }
                 }
-                if (e.InnerException is InvalidOperationException) {
+                else {
                     osd = ose.AutoDiscoverFromQueryUrl(new OpenSearchUrl(baseUrl));
                     factory = new UrlBasedOpenSearchableFactory(ose);
                     return factory.Create(tryUrl);
