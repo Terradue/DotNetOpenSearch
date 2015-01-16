@@ -47,7 +47,7 @@ namespace Terradue.OpenSearch.Engine.Extensions {
             }
         }
 
-        public override IOpenSearchResultCollection ReadNative(OpenSearchResponse response) {
+        public override IOpenSearchResultCollection ReadNative(IOpenSearchResponse response) {
             if (response.ContentType == "application/x-parameters+json")
                 return TransformJsonResponseToSuggestions((ParametersOpenSearchResponse)response);
 
@@ -60,7 +60,7 @@ namespace Terradue.OpenSearch.Engine.Extensions {
             }
         }
 
-        public override OpenSearchUrl FindOpenSearchDescriptionUrlFromResponse(OpenSearchResponse response) {
+        public override OpenSearchUrl FindOpenSearchDescriptionUrlFromResponse(IOpenSearchResponse response) {
 
             if (response.ContentType == "application/x-parameters+json") {
                 // TODO

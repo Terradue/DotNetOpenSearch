@@ -23,6 +23,7 @@ using Terradue.OpenSearch.Response;
 using Terradue.OpenSearch.Result;
 using Terradue.OpenSearch.Schema;
 using System.Xml.Linq;
+using System.IO;
 
 namespace Terradue.OpenSearch.Engine {
 
@@ -51,7 +52,7 @@ namespace Terradue.OpenSearch.Engine {
 
         public delegate void PreFilterAction(ref OpenSearchRequest request);
 
-        public delegate void PostFilterAction(OpenSearchRequest request, ref OpenSearchResponse response);
+        public delegate void PostFilterAction(OpenSearchRequest request, ref IOpenSearchResponse response);
 
         /// <summary>
         /// Gets or sets the default time out.
@@ -122,7 +123,7 @@ namespace Terradue.OpenSearch.Engine {
             ApplyPreSearchFilters(ref request);
 
             // 4) Perform the Search
-            OpenSearchResponse response = request.GetResponse();
+            IOpenSearchResponse response = request.GetResponse();
             response.Entity = entity;
 
             // 5) Apply the pre-search functions
@@ -198,7 +199,7 @@ namespace Terradue.OpenSearch.Engine {
             ApplyPreSearchFilters(ref request);
 
             // 4) Perform the Search
-            OpenSearchResponse response = request.GetResponse();
+            IOpenSearchResponse response = request.GetResponse();
             response.Entity = entity;
 
             // 5) Apply the pre-search functions
@@ -250,7 +251,7 @@ namespace Terradue.OpenSearch.Engine {
             ApplyPreSearchFilters(ref request);
 
             // 4) Perform the Search
-            OpenSearchResponse response = request.GetResponse();
+            IOpenSearchResponse response = request.GetResponse();
             response.Entity = entity;
 
             // 5) Apply the pre-search functions
@@ -288,7 +289,7 @@ namespace Terradue.OpenSearch.Engine {
 
             ApplyPreSearchFilters(ref request);
 
-            OpenSearchResponse response = request.GetResponse();
+            IOpenSearchResponse response = request.GetResponse();
 
             ApplyPostSearchFilters(request, ref response);
 
@@ -332,13 +333,17 @@ namespace Terradue.OpenSearch.Engine {
 
             ApplyPreSearchFilters(ref request);
 
-            OpenSearchResponse response = request.GetResponse();
+            IOpenSearchResponse response = request.GetResponse();
 
             ApplyPostSearchFilters(request, ref response);
 
+            if (response.ObjectType != typeof(byte[]))
+                throw new InvalidOperationException("The OpenSearch Description document did not return byte[] body");
+
             try {
                 XmlSerializer ser = new XmlSerializer(typeof(OpenSearchDescription));
-                return (OpenSearchDescription)ser.Deserialize(XmlReader.Create(response.GetResponseStream()));
+                Stream stream = new MemoryStream((byte[])response.GetResponseObject());
+                return (OpenSearchDescription)ser.Deserialize(XmlReader.Create(stream));
             } catch (Exception e) {
                 throw new Exception("Exception querying OpenSearch description at " + url.ToString() + " : " + e.Message, e);
             }
@@ -370,7 +375,7 @@ namespace Terradue.OpenSearch.Engine {
         /// </summary>
         /// <param name="request">Request.</param>
         /// <param name="response">Response.</param>
-        private void ApplyPostSearchFilters(OpenSearchRequest request, ref OpenSearchResponse response) {
+        private void ApplyPostSearchFilters(OpenSearchRequest request, ref IOpenSearchResponse response) {
             foreach (PostFilterAction filter in postFilters) {
 
                 filter.Invoke(request, ref response);
@@ -446,7 +451,7 @@ namespace Terradue.OpenSearch.Engine {
             }
         }
 
-        IOpenSearchResult CreateOpenSearchResult(IOpenSearchResultCollection newResults, OpenSearchRequest request, OpenSearchResponse response) {
+        IOpenSearchResult CreateOpenSearchResult(IOpenSearchResultCollection newResults, OpenSearchRequest request, IOpenSearchResponse response) {
 
             bool totalResults = false;
 

@@ -61,7 +61,7 @@ namespace Terradue.OpenSearch.Request {
 
         #region implemented abstract members of OpenSearchRequest
 
-        public override OpenSearchResponse GetResponse() {
+        public override IOpenSearchResponse GetResponse() {
 
             Stopwatch sw = Stopwatch.StartNew();
             RequestCurrentPage();

@@ -43,7 +43,7 @@ namespace Terradue.OpenSearch {
         /// </summary>
         /// <returns>The response transformed into the declared Type.</returns>
         /// <param name="response">OpenSearchResponse.</param>
-        IOpenSearchResultCollection ReadNative(OpenSearchResponse response);
+        IOpenSearchResultCollection ReadNative(IOpenSearchResponse response);
 
         IOpenSearchResultCollection CreateOpenSearchResultFromOpenSearchResult(IOpenSearchResultCollection results);
 
@@ -52,7 +52,7 @@ namespace Terradue.OpenSearch {
         /// </summary>
         /// <returns>The OpenSearchDescription URL from OpenSearchResponse.</returns>
         /// <param name="response">OpenSearchResponse.</param>
-        OpenSearchUrl FindOpenSearchDescriptionUrlFromResponse(OpenSearchResponse response);
+        OpenSearchUrl FindOpenSearchDescriptionUrlFromResponse(IOpenSearchResponse response);
 
         /// <summary>
         /// Gets the contentType that the extension is able to read to discover the OpenSearchDescription.

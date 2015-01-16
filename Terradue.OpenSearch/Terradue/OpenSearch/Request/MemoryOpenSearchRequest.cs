@@ -49,9 +49,9 @@ namespace Terradue.OpenSearch.Request
 
 		#region implemented abstract members of OpenSearchRequest
 
-		public override OpenSearchResponse GetResponse() {
+		public override IOpenSearchResponse GetResponse() {
 			memStream.Seek(0, SeekOrigin.Begin);
-			return new MemoryOpenSearchResponse(memStream, contentType);
+            return new MemoryOpenSearchResponse(memStream.ToArray(), contentType);
 		}
 
         public override OpenSearchUrl OpenSearchUrl {

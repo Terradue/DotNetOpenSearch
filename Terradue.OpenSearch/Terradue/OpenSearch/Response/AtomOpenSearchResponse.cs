@@ -23,20 +23,21 @@ namespace Terradue.OpenSearch.Response
 
         AtomFeed result;
 
-        public AtomOpenSearchResponse(AtomFeed result, TimeSpan timeSpan) : base(new MemoryStream(),"application/atom+xml") {
+        public AtomOpenSearchResponse(AtomFeed result, TimeSpan timeSpan) : base("application/atom+xml") {
 
             this.timeSpan = timeSpan;
             this.result = result;
 
             Stopwatch sw = new Stopwatch();
             sw.Start();
-            response = new MemoryStream();
-            var writer = XmlWriter.Create(response);
+            MemoryStream responseStream = new MemoryStream();
+            var writer = XmlWriter.Create(responseStream);
             Atom10FeedFormatter atomFormatter = new Atom10FeedFormatter(result.Feed);
             atomFormatter.WriteTo(writer);
             writer.Flush();
             writer.Close();
-            response.Seek(0, SeekOrigin.Begin);
+            responseStream.Seek(0, SeekOrigin.Begin);
+            response = responseStream.ToArray();
             sw.Start();
             this.timeSpan += sw.Elapsed;
 
@@ -44,7 +45,7 @@ namespace Terradue.OpenSearch.Response
 
 		#region implemented abstract members of OpenSearchResponse
 
-		public override System.IO.Stream GetResponseStream() {
+        public override object GetResponseObject() {
 
             return response;
 		}

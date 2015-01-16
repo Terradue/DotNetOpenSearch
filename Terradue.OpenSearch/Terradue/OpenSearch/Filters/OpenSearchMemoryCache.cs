@@ -52,7 +52,6 @@ namespace Terradue.OpenSearch.Filters {
             OpenSearchResponseCacheItem item = new OpenSearchResponseCacheItem(it);
             watch.Stop();
 
-
             request = new CachedOpenSearchRequest(item.OpenSearchUrl,item.OpenSearchResponse, watch.Elapsed);
 
 		}
@@ -62,13 +61,13 @@ namespace Terradue.OpenSearch.Filters {
         /// </summary>
         /// <param name="request">Request.</param>
         /// <param name="response">Response.</param>
-        public void CacheResponse(OpenSearchRequest request, ref OpenSearchResponse response){
+        public void CacheResponse(OpenSearchRequest request, ref IOpenSearchResponse response){
 
-            if (response.GetType() != typeof(CachedOpenSearchResponse)) {
+            /*if (response.GetType() != typeof(CachedOpenSearchResponse)) {
                 response = new CachedOpenSearchResponse(response);
-            }
+            }*/
 
-            OpenSearchResponseCacheItem item = new OpenSearchResponseCacheItem(request.OpenSearchUrl, (CachedOpenSearchResponse)response);
+            OpenSearchResponseCacheItem item = new OpenSearchResponseCacheItem(request.OpenSearchUrl, response);
             CacheItemPolicy policy = this.CreatePolicy(item);
             cache.Set(item, policy);
 
@@ -91,7 +90,7 @@ namespace Terradue.OpenSearch.Filters {
     /// </summary>
 	public class OpenSearchResponseCacheItem : CacheItem {
 
-        public OpenSearchResponseCacheItem(OpenSearchUrl url, CachedOpenSearchResponse response): base(url.ToString(), response){
+        public OpenSearchResponseCacheItem(OpenSearchUrl url, IOpenSearchResponse response): base(url.ToString(), response){
 
 		}
 
@@ -105,9 +104,9 @@ namespace Terradue.OpenSearch.Filters {
 			}
 		}
 
-		public OpenSearchResponse OpenSearchResponse{
+		public IOpenSearchResponse OpenSearchResponse{
 			get {
-				return (OpenSearchResponse)base.Value;
+				return (IOpenSearchResponse)base.Value;
 			}
 		}
 
@@ -118,15 +117,15 @@ namespace Terradue.OpenSearch.Filters {
     /// </summary>
 	public class CachedOpenSearchRequest : OpenSearchRequest {
 
-        private CachedOpenSearchResponse response;
+        private IOpenSearchResponse response;
 
-        public CachedOpenSearchRequest(OpenSearchUrl url, OpenSearchResponse response, TimeSpan elapsed) :base(url) {
+        public CachedOpenSearchRequest(OpenSearchUrl url, IOpenSearchResponse response, TimeSpan elapsed) :base(url) {
 			base.OpenSearchUrl = url;
-            this.response = new CachedOpenSearchResponse(response, elapsed);
+            this.response = response;
 		}
 
 		#region implemented abstract members of OpenSearchRequest
-		public override OpenSearchResponse GetResponse() {
+		public override IOpenSearchResponse GetResponse() {
 			return response;
 		}
 		#endregion
@@ -135,47 +134,61 @@ namespace Terradue.OpenSearch.Filters {
     /// <summary>
     /// Cached open search response.
     /// </summary>
-    public class CachedOpenSearchResponse : OpenSearchResponse {
+    /*public class CachedOpenSearchResponse : IOpenSearchResponse {
 
-        private byte[] cachedResponse;
+        private object cachedResponse;
         TimeSpan requestTime;
         string contentType;
+        readonly Type objectType;
+        IOpenSearchable entity;
 
-        public CachedOpenSearchResponse(OpenSearchResponse response) : this(response, response.RequestTime) {
+        public CachedOpenSearchResponse(IOpenSearchResponse response) : this(response, response.RequestTime) {
         }
+            
+        public CachedOpenSearchResponse(IOpenSearchResponse response, TimeSpan elapsed) {
 
-
-
-        public CachedOpenSearchResponse(OpenSearchResponse response, TimeSpan elapsed) {
-            using(var ms = new MemoryStream()) {
-                response.GetResponseStream().CopyTo(ms);
-                cachedResponse = ms.ToArray();
-            }
+            cachedResponse = response.GetResponseObject();
             requestTime = elapsed;
             contentType = response.ContentType;
+            objectType = response.ObjectType;
+            entity = response.Entity;
 
         }
 
         #region implemented abstract members of OpenSearchResponse
 
-        public override Stream GetResponseStream() {
-            return new MemoryStream(cachedResponse);
+        public object GetResponseObject() {
+            return cachedResponse;
         }
 
-        public override string ContentType {
+        public string ContentType {
             get {
                 return contentType;
             }
         }
 
-        public override TimeSpan RequestTime {
+        public TimeSpan RequestTime {
             get {
                 return requestTime;
             }
         }
 
+        public Type ObjectType {
+            get {
+                return objectType;
+            }
+        }
+
+        public IOpenSearchable Entity {
+            get {
+                return entity;
+            }
+            set {
+                entity = value;
+            }
+        }
         #endregion
-    }
+    }*/
 
 }
 
