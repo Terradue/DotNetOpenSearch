@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>Terradue.OpenSearch</id>
-    <version>1.8.3</version>
+    <version>1.8.5</version>
     <title>Terradue.OpenSearch</title>
     <authors>Terradue</authors>
     <projectUrl>https://github.com/Terradue/DotNetOpenSearch</projectUrl>
@@ -13,6 +13,7 @@
     <dependencies>
       <dependency id="Terradue.ServiceModel.Syndication" version="1.0.0" />
     </dependencies>
+	<tags>OpenSearch OGC</tags>
   </metadata>
   <files>
     <file src="Terradue.OpenSearch/bin/Terradue.OpenSearch.dll" target="lib/net40/Terradue.OpenSearch.dll" />
