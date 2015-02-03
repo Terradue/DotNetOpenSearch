@@ -312,39 +312,53 @@ namespace Terradue.OpenSearch {
         /// </summary>
         /// <returns>The open search description.</returns>
         /// <param name="baseUrl">Base URL.</param>
-        public static IOpenSearchable FindOpenSearchable(OpenSearchEngine ose, Uri baseUrl) {
+        public static IOpenSearchable FindOpenSearchable(OpenSearchEngine ose, Uri baseUrl, string mimeType = null) {
 
-            OpenSearchUrl tryUrl = new OpenSearchUrl(baseUrl);
-            OpenSearchDescription osd = null;
-            UrlBasedOpenSearchableFactory factory;
-
+            OpenSearchUrl url = new OpenSearchUrl(baseUrl);
+            OpenSearchDescription openSearchDescription = null;
+            UrlBasedOpenSearchableFactory urlBasedOpenSearchableFactory;
+            IOpenSearchable result;
             try {
-                osd = LoadOpenSearchDescriptionDocument(tryUrl);
-            } catch (InvalidOperationException e) {
-                if (e.InnerException is FileNotFoundException || e.InnerException is SecurityException || e.InnerException is UriFormatException) {
-                    try {
-                        tryUrl = new OpenSearchUrl(new Uri(baseUrl, "/description"));
-                        osd = LoadOpenSearchDescriptionDocument(tryUrl);
-                    } catch {
-                        try {
-                            tryUrl = new OpenSearchUrl(new Uri(baseUrl, "/OSDD"));
-                            osd = LoadOpenSearchDescriptionDocument(tryUrl);
-                        } catch {
-                            throw new EntryPointNotFoundException(string.Format("No OpenSearch description found around {0}", baseUrl));
-                        }
-                    }
+                openSearchDescription = OpenSearchFactory.LoadOpenSearchDescriptionDocument(url);
+                OpenSearchDescriptionUrl openSearchDescriptionUrl;
+                if (mimeType == null) {
+                    openSearchDescriptionUrl = openSearchDescription.Url.First<OpenSearchDescriptionUrl>();
                 }
                 else {
-                    osd = ose.AutoDiscoverFromQueryUrl(new OpenSearchUrl(baseUrl));
-                    factory = new UrlBasedOpenSearchableFactory(ose);
-                    return factory.Create(tryUrl);
+                    openSearchDescriptionUrl = openSearchDescription.Url.FirstOrDefault((OpenSearchDescriptionUrl u) => u.Type == mimeType);
+                }
+                if (openSearchDescriptionUrl == null) {
+                    throw new InvalidOperationException("Impossible to find an OpenSearchable link for the type " + mimeType);
+                }
+                openSearchDescription.DefaultUrl = openSearchDescriptionUrl;
+            }
+            catch (InvalidOperationException ex) {
+                if (!(ex.InnerException is FileNotFoundException) && !(ex.InnerException is SecurityException) && !(ex.InnerException is UriFormatException)) {
+                    openSearchDescription = ose.AutoDiscoverFromQueryUrl(new OpenSearchUrl(baseUrl));
+                    urlBasedOpenSearchableFactory = new UrlBasedOpenSearchableFactory(ose);
+                    result = urlBasedOpenSearchableFactory.Create(url);
+                    return result;
+                }
+                try {
+                    url = new OpenSearchUrl(new Uri(baseUrl, "/description"));
+                    openSearchDescription = OpenSearchFactory.LoadOpenSearchDescriptionDocument(url);
+                }
+                catch {
+                    try {
+                        url = new OpenSearchUrl(new Uri(baseUrl, "/OSDD"));
+                        openSearchDescription = OpenSearchFactory.LoadOpenSearchDescriptionDocument(url);
+                    }
+                    catch {
+                        throw new EntryPointNotFoundException(string.Format("No OpenSearch description found around {0}", baseUrl));
+                    }
                 }
             }
-            if (osd != null) {
-                factory = new UrlBasedOpenSearchableFactory(ose);
-                return factory.Create(osd);
-            } else
+            if (openSearchDescription == null) {
                 throw new EntryPointNotFoundException(string.Format("No OpenSearch description found around {0}", baseUrl));
+            }
+            urlBasedOpenSearchableFactory = new UrlBasedOpenSearchableFactory(ose);
+            result = urlBasedOpenSearchableFactory.Create(openSearchDescription);
+            return result;
         }
 
         /// <summary>
