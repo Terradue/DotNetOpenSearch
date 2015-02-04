@@ -43,9 +43,6 @@
     <Reference Include="Terradue.GeoJson">
       <HintPath>..\packages\Terradue.GeoJson.1.4.0\lib\net40\Terradue.GeoJson.dll</HintPath>
     </Reference>
-    <Reference Include="Terradue.OpenSearch.RdfEO">
-      <HintPath>..\packages\Terradue.OpenSearch.RdfEO.1.0.2\lib\net40\Terradue.OpenSearch.RdfEO.dll</HintPath>
-    </Reference>
     <Reference Include="Terradue.Util">
       <HintPath>..\packages\Terradue.Util.1.4.0\lib\net40\Terradue.Util.dll</HintPath>
     </Reference>
@@ -53,12 +50,6 @@
     <Reference Include="System.Xml.Serialization" />
     <Reference Include="System.Net" />
     <Reference Include="System.Web" />
-    <Reference Include="Terradue.OpenSearch.GeoJson">
-      <HintPath>..\packages\Terradue.OpenSearch.GeoJson.1.1.0\lib\net40\Terradue.OpenSearch.GeoJson.dll</HintPath>
-    </Reference>
-    <Reference Include="Terradue.OpenSearch">
-      <HintPath>..\packages\Terradue.OpenSearch.1.7.10\lib\net40\Terradue.OpenSearch.dll</HintPath>
-    </Reference>
     <Reference Include="Mono.Addins">
       <HintPath>..\packages\Mono.Addins.1.2\lib\net40\Mono.Addins.dll</HintPath>
     </Reference>
@@ -72,5 +63,11 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Terradue.OpenSearch\Terradue.OpenSearch.csproj">
+      <Project>{997A44FD-EE4A-490A-855B-88305E0CD269}</Project>
+      <Name>Terradue.OpenSearch</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>

@@ -94,6 +94,10 @@ namespace Terradue.OpenSearch.Test {
                 return "application/atom+xml";
             }
         }
+
+        public ParametersResult DescribeParameters() {
+            return OpenSearchFactory.GetDefaultParametersResult();
+        }
         #endregion
 
         private void GenerateSyndicationFeed(Stream stream, NameValueCollection parameters) {
