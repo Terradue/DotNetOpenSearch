@@ -337,6 +337,12 @@ namespace Terradue.OpenSearch {
                     openSearchDescription = ose.AutoDiscoverFromQueryUrl(new OpenSearchUrl(baseUrl));
                     urlBasedOpenSearchableFactory = new UrlBasedOpenSearchableFactory(ose);
                     result = urlBasedOpenSearchableFactory.Create(url);
+                    if ( string.IsNullOrEmpty (mimeType))
+                        return result;
+                    var murl = openSearchDescription.Url.FirstOrDefault((OpenSearchDescriptionUrl u) => u.Type == mimeType);
+                    if (murl != null)
+                        result.GetOpenSearchDescription().DefaultUrl = murl;
+
                     return result;
                 }
                 try {

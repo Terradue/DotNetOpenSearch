@@ -464,6 +464,8 @@ namespace Terradue.OpenSearch.Engine {
             newResults.ElementExtensions.Add("itemsPerPage", "http://a9.com/-/spec/opensearch/1.1/", request.OpenSearchUrl.Count);
             XElement query = new XElement(XName.Get("Query", "http://a9.com/-/spec/opensearch/1.1/"));
             foreach (var key in request.Parameters.AllKeys) {
+                if (string.IsNullOrEmpty(key))
+                    continue;
                 query.SetAttributeValue(XName.Get(key), request.Parameters[key]);
             }
             newResults.ElementExtensions.Add(query.CreateReader());
