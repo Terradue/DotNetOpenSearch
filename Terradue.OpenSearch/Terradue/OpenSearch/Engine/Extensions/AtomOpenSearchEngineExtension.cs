@@ -51,6 +51,9 @@ namespace Terradue.OpenSearch.Engine.Extensions {
                     return TransformAtomResponseToAtomFeed((OpenSearchResponse<byte[]>)response);
                 throw new InvalidOperationException("Atom extension does not transform OpenSearch response with content type " + response.ContentType);
             }
+            if (response.ObjectType == typeof(AtomFeed)) {
+                return (AtomFeed)response.GetResponseObject();
+            }
             throw new InvalidOperationException("Atom extension does not transform OpenSearch response of type " + response.ObjectType);
         }
 
@@ -63,7 +66,8 @@ namespace Terradue.OpenSearch.Engine.Extensions {
         public override OpenSearchUrl FindOpenSearchDescriptionUrlFromResponse(IOpenSearchResponse response) {
             AtomFeed feed = (AtomFeed)ReadNative(response);
             SyndicationLink link = feed.Links.FirstOrDefault(l => l.RelationshipType == "search" && l.MediaType.Contains("opensearch"));
-            if (link == null) return null;
+            if (link == null)
+                return null;
             return new OpenSearchUrl(link.Uri);
         }
 

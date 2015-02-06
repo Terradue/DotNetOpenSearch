@@ -18,28 +18,14 @@ using Terradue.OpenSearch.Result;
 
 namespace Terradue.OpenSearch.Response
 {
-    public class AtomOpenSearchResponse : MemoryOpenSearchResponse
+    public class AtomOpenSearchResponse : OpenSearchResponse<AtomFeed>
 	{
 
-        AtomFeed result;
+        protected TimeSpan timeSpan;
 
-        public AtomOpenSearchResponse(AtomFeed result, TimeSpan timeSpan) : base("application/atom+xml") {
+        public AtomOpenSearchResponse(AtomFeed result, TimeSpan timeSpan) : base(result) {
 
             this.timeSpan = timeSpan;
-            this.result = result;
-
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
-            MemoryStream responseStream = new MemoryStream();
-            var writer = XmlWriter.Create(responseStream);
-            Atom10FeedFormatter atomFormatter = new Atom10FeedFormatter(result.Feed);
-            atomFormatter.WriteTo(writer);
-            writer.Flush();
-            writer.Close();
-            responseStream.Seek(0, SeekOrigin.Begin);
-            response = responseStream.ToArray();
-            sw.Start();
-            this.timeSpan += sw.Elapsed;
 
 		}
 
@@ -47,7 +33,7 @@ namespace Terradue.OpenSearch.Response
 
         public override object GetResponseObject() {
 
-            return response;
+            return payload;
 		}
 
 		public override TimeSpan RequestTime {
@@ -55,6 +41,12 @@ namespace Terradue.OpenSearch.Response
                 return this.timeSpan;
 			}
 		}
+
+        public override string ContentType {
+            get {
+                return "application/atom+xml";
+            }
+        }
 
 		#endregion
 	}
