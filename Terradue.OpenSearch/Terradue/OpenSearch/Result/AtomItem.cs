@@ -20,7 +20,7 @@ namespace Terradue.OpenSearch.Result {
         public AtomItem(string title, SyndicationContent content, Uri feedAlternateLink, string id, DateTimeOffset date) : base (title,content,feedAlternateLink,id,date){}
 
         public AtomItem(AtomItem si) : base(si) {
-
+            this.ReferenceData = si.ReferenceData;
         }
 
         public AtomItem(SyndicationItem si) : base(si) {
@@ -30,6 +30,8 @@ namespace Terradue.OpenSearch.Result {
         public SyndicationItem ToSyndicationItem() {
             return this;
         }
+
+        public object ReferenceData { get; set; }
 
         #region IOpenSearchResultItem implementation
 
@@ -100,6 +102,9 @@ namespace Terradue.OpenSearch.Result {
         public static AtomItem FromOpenSearchResultItem(IOpenSearchResultItem result) {
             if (result == null)
                 throw new ArgumentNullException("result");
+
+            if (result is AtomItem)
+                return (AtomItem)result;
 
             AtomItem item = new AtomItem();
 

@@ -13,6 +13,7 @@
     <dependencies>
       <dependency id="Terradue.ServiceModel.Syndication" version="1.0.0" />
     </dependencies>
+	<tags>OpenSearch OGC</tags>
   </metadata>
   <files>
     <file src="Terradue.OpenSearch/bin/Terradue.OpenSearch.dll" target="lib/net40/Terradue.OpenSearch.dll" />
