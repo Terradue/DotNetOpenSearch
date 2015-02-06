@@ -106,7 +106,7 @@ namespace Terradue.OpenSearch.Request {
             }
         }
 
-        public abstract OpenSearchResponse GetResponse();
+        public abstract IOpenSearchResponse GetResponse();
     }
 }
 

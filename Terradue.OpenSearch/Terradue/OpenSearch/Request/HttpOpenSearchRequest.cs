@@ -52,7 +52,7 @@ namespace Terradue.OpenSearch.Request {
         /// Gets the HTTP response.
         /// </summary>
         /// <returns>The response.</returns>
-        public override OpenSearchResponse GetResponse() {
+        public override IOpenSearchResponse GetResponse() {
 
             int retry = 2;
 

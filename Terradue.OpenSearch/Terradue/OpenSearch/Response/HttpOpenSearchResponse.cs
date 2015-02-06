@@ -13,12 +13,14 @@ using System.Net;
 using System.Xml;
 using System.Diagnostics;
 using Terradue.OpenSearch.Result;
+using System.IO;
 
 namespace Terradue.OpenSearch.Response {
     /// <summary>
     /// OpenSearchResponse from a HTTP request
     /// </summary>
-    public class HttpOpenSearchResponse : OpenSearchResponse {
+    public class HttpOpenSearchResponse : OpenSearchResponse<byte[]> {
+
         HttpWebResponse webResponse;
         TimeSpan requestTime;
 
@@ -27,7 +29,7 @@ namespace Terradue.OpenSearch.Response {
         /// </summary>
         /// <param name="resp">Resp.</param>
         /// <param name="time">Time.</param>
-        internal HttpOpenSearchResponse(HttpWebResponse resp, TimeSpan time) {
+        internal HttpOpenSearchResponse(HttpWebResponse resp, TimeSpan time){
             webResponse = resp;
             requestTime = time;
         }
@@ -47,8 +49,13 @@ namespace Terradue.OpenSearch.Response {
             }
         }
 
-        public override System.IO.Stream GetResponseStream() {
-            return webResponse.GetResponseStream();
+        public override object GetResponseObject() {
+            byte[] obj;
+            using(var ms = new MemoryStream()) {
+                webResponse.GetResponseStream().CopyTo(ms);
+                obj = ms.ToArray();
+            }
+            return obj;
         }
 
         #endregion

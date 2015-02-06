@@ -22,7 +22,7 @@ namespace Terradue.OpenSearch {
     /// <remarks>Instances of this delegate are used to transform an OpenSearchResponse into a an IOpenSearchResultCollection, which correspond to an output format.</remarks>
     /// <param name="osr">The OpenSearch response object to be transformed.</param>
     /// <returns>The result collection, i.e, an object that can be serialized to the desired output format.</returns> 
-    public delegate IOpenSearchResultCollection ReadNativeFunction(OpenSearchResponse osr);
+    public delegate IOpenSearchResultCollection ReadNativeFunction(IOpenSearchResponse osr);
 
     /// <summary>Helper class that encapsulates the settings for an OpenSearch query and its result generation.</summary>
     /// <remarks>Instances of this object are returned by classes implementing IOpenSearchable. It is used by OpenSearch engines to control the query process from the OpenSearch request to the initial result generation.</remarks>

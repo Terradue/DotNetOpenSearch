@@ -40,12 +40,15 @@ namespace Terradue.OpenSearch.Request {
         /// Gets the HTTP response.
         /// </summary>
         /// <returns>The response.</returns>
-        public override OpenSearchResponse GetResponse() {
+        public override IOpenSearchResponse GetResponse() {
 
             try {
                 Stopwatch sw = Stopwatch.StartNew();
-                FileStream fs = new FileStream(this.OpenSearchUrl.ToString().Replace("file://",""),FileMode.Open); 
-                MemoryOpenSearchResponse response = new MemoryOpenSearchResponse(fs,mimeType);
+                FileStream fs = new FileStream(this.OpenSearchUrl.ToString().Replace("file://",""),FileMode.Open);
+                byte[] fileBytes= new byte[fs.Length];
+                fs.Read(fileBytes, 0, fileBytes.Length);
+                fs.Close();
+                MemoryOpenSearchResponse response = new MemoryOpenSearchResponse(fileBytes,mimeType);
                 sw.Stop();
 
                 return response;
