@@ -24,7 +24,7 @@ using Terradue.OpenSearch.Result;
 
 namespace Terradue.OpenSearch.Response {
 
-    public class ParametersOpenSearchResponse : OpenSearchResponse {
+    public class ParametersOpenSearchResponse : OpenSearchResponse<ParametersResult> {
 
         ParametersResult parameters;
 
@@ -39,7 +39,7 @@ namespace Terradue.OpenSearch.Response {
         }
 
         #region implemented abstract members of OpenSearchResponse
-        public override System.IO.Stream GetResponseStream() {
+        public override object GetResponseObject() {
             throw new NotImplementedException();
         }
         public override string ContentType {

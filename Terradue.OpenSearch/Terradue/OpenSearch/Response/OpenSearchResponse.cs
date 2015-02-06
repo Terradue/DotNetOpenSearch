@@ -16,8 +16,18 @@ namespace Terradue.OpenSearch.Response
     /// <summary>
     /// Provides a base class for OpenSearch response
     /// </summary>
-	public abstract class OpenSearchResponse
+    public abstract class OpenSearchResponse<T> : IOpenSearchResponse
 	{
+
+        protected T payload;
+
+        public OpenSearchResponse(){
+        }
+
+        public OpenSearchResponse(T obj){
+            payload = obj;
+        }
+
         /// <summary>
         /// Get the MIME type of the response.
         /// </summary>
@@ -27,10 +37,22 @@ namespace Terradue.OpenSearch.Response
 		}
 
         /// <summary>
-        /// Gets the stream that is used to read the body of the response.
+        /// Get the MIME type of the response.
         /// </summary>
-        /// <returns>A Stream containing the body of the response.</returns>
-		public abstract Stream GetResponseStream();
+        /// <value>The type of the content.</value>
+        public virtual Type ObjectType {
+            get {
+                return typeof(T);
+            }
+        }
+
+        /// <summary>
+        /// Gets the object that represents the response.
+        /// </summary>
+        /// <returns>A object of type containing the response.</returns>
+        public virtual object GetResponseObject() {
+            return payload;
+        }
 
         /// <summary>
         /// Gets the time interval spent for getting the response
@@ -48,6 +70,7 @@ namespace Terradue.OpenSearch.Response
 			get;
 			set;
 		}
+
 	}
 }
 

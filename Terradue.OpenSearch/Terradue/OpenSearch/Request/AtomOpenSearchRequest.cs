@@ -11,6 +11,8 @@ using System.Collections.Specialized;
 using System.IO;
 using System.Web;
 using Terradue.OpenSearch.Response;
+using Terradue.OpenSearch.Result;
+using System.Diagnostics;
 
 namespace Terradue.OpenSearch.Request
 {
@@ -18,40 +20,30 @@ namespace Terradue.OpenSearch.Request
     /// OpenSearchRequest in memory that doesnot actually performs a request but is a container
     /// for the response
     /// </summary>
-    public class MemoryOpenSearchRequest : OpenSearchRequest
+    public class AtomOpenSearchRequest : OpenSearchRequest
 	{
 
 		NameValueCollection parameters;
-		MemoryStream memStream;
+        Func<NameValueCollection, AtomFeed> feedGenerator;
 
-		string contentType;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Terradue.OpenSearch.Request.MemoryOpenSearchRequest"/> class.
         /// </summary>
         /// <param name="url">URL.</param>
         /// <param name="contentType">Content type.</param>
-        public MemoryOpenSearchRequest(OpenSearchUrl url, string contentType) : base(url){
-			this.contentType = contentType;
+        public AtomOpenSearchRequest(OpenSearchUrl url, Func<NameValueCollection, AtomFeed> FeedGenerator) : base(url){
+            this.feedGenerator = FeedGenerator;
             this.parameters = HttpUtility.ParseQueryString(url.Query);
-			memStream = new MemoryStream();
-		}
-
-        /// <summary>
-        /// Gets the MemoryInputStream to write the result into.
-        /// </summary>
-        /// <value>The memory input stream.</value>
-		public Stream MemoryInputStream {
-			get {
-				return memStream;
-			}
 		}
 
 		#region implemented abstract members of OpenSearchRequest
 
 		public override IOpenSearchResponse GetResponse() {
-			memStream.Seek(0, SeekOrigin.Begin);
-            return new MemoryOpenSearchResponse(memStream.ToArray(), contentType);
+            Stopwatch sw = Stopwatch.StartNew();
+            var feed = feedGenerator(parameters);
+            sw.Stop();
+            return new AtomOpenSearchResponse(feed, sw.Elapsed);
 		}
 
         public override OpenSearchUrl OpenSearchUrl {

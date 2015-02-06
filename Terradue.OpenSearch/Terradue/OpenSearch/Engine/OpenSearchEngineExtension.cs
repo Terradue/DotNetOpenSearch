@@ -24,11 +24,11 @@ namespace Terradue.OpenSearch.Engine {
             return typeof(T);
         }
 
-        public abstract IOpenSearchResultCollection ReadNative(OpenSearchResponse response);
+        public abstract IOpenSearchResultCollection ReadNative(IOpenSearchResponse response);
 
         public abstract IOpenSearchResultCollection CreateOpenSearchResultFromOpenSearchResult(IOpenSearchResultCollection results);
 
-        public abstract OpenSearchUrl FindOpenSearchDescriptionUrlFromResponse(OpenSearchResponse response);
+        public abstract OpenSearchUrl FindOpenSearchDescriptionUrlFromResponse(IOpenSearchResponse response);
 
         public abstract string DiscoveryContentType { get; }
 

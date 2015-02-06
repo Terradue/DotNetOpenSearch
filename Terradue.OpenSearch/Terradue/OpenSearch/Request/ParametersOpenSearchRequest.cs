@@ -26,7 +26,7 @@ namespace Terradue.OpenSearch.Request
         }
 
         #region implemented abstract members of OpenSearchRequest
-        public override OpenSearchResponse GetResponse() {
+        public override IOpenSearchResponse GetResponse() {
            
             ParametersResult parameters = entity.DescribeParameters();
 

@@ -17,10 +17,10 @@ namespace Terradue.OpenSearch.Response
     /// <summary>
     /// A memory buffer for storing an OpenSearch response
     /// </summary>
-	public class MemoryOpenSearchResponse : OpenSearchResponse
+    public class MemoryOpenSearchResponse : OpenSearchResponse<byte[]>
 	{
 
-        protected MemoryStream response;
+        protected byte[] response;
 
         protected string contentType;
 
@@ -31,22 +31,27 @@ namespace Terradue.OpenSearch.Response
         /// </summary>
         /// <param name="input">Input Stream to be copied in memory</param>
         /// <param name="contentType">Content type of the stream to be put in memory</param>
-		public MemoryOpenSearchResponse(Stream input, string contentType){
+        public MemoryOpenSearchResponse(byte[] input, string contentType){
 			Stopwatch sw = new Stopwatch();
 			sw.Start();
-			response = new MemoryStream();
-			input.CopyTo(response);
+            response = input;
 			this.contentType = contentType;
 			sw.Start();
 			timeSpan = sw.Elapsed;
 		}
 
+        protected MemoryOpenSearchResponse(string contentType){
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            this.contentType = contentType;
+            sw.Start();
+            timeSpan = sw.Elapsed;
+        }
+
         public MemoryOpenSearchResponse(string input, string contentType){
             Stopwatch sw = new Stopwatch();
             sw.Start();
-            response = new MemoryStream();
-            var bytes = Encoding.Default.GetBytes( input );
-            response.Write(bytes, 0, bytes.Length);
+            response = System.Text.Encoding.Default.GetBytes(input);
             this.contentType = contentType;
             sw.Start();
             timeSpan = sw.Elapsed;
@@ -58,8 +63,7 @@ namespace Terradue.OpenSearch.Response
         /// Gets the stream that is used to read the body of the response.
         /// </summary>
         /// <returns>A Stream containing the body of the response.</returns>
-		public override Stream GetResponseStream() {
-			response.Seek(0, SeekOrigin.Begin);
+        public override object GetResponseObject() {
 			return response;
 		}
 
