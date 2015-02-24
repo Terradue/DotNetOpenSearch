@@ -14,6 +14,8 @@ namespace Terradue.OpenSearch.Schema
         OpenSearchDescriptionUrl defaultUrl = null;
         public OpenSearchDescriptionUrl DefaultUrl {
             get {
+                if (defaultUrl == null && Url.Count() > 0)
+                    return Url[0];
                 return defaultUrl;
             }
             set {
