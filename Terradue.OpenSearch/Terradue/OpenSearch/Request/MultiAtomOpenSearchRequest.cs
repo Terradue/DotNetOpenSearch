@@ -298,7 +298,7 @@ namespace Terradue.OpenSearch.Request {
             // if no such state, create new one with the entity pagination parameter unset (=1)
             if (states.Count <= 0) {
                 foreach (IOpenSearchable entity in entities)
-                    entities2.Add(entity, entity.GetOpenSearchDescription().Url.FirstOrDefault(p => p.Type == type).IndexOffset);
+                    entities2.Add(entity, entity.GetOpenSearchDescription().DefaultUrl.IndexOffset);
                 parameters2 = RemovePaginationParameters(parameters);
                 return false;
             }
