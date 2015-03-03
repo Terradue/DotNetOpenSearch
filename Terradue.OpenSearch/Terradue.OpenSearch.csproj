@@ -91,6 +91,8 @@
     <Compile Include="Terradue\OpenSearch\Result\ParameterDescription.cs" />
     <Compile Include="Terradue\OpenSearch\Response\IOpenSearchResponse.cs" />
     <Compile Include="Terradue\OpenSearch\Request\AtomOpenSearchRequest.cs" />
+    <Compile Include="Terradue\OpenSearch\Request\MultiAtomGroupedOpenSearchRequest.cs" />
+    <Compile Include="Terradue\OpenSearch\Request\PaginatedList.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
