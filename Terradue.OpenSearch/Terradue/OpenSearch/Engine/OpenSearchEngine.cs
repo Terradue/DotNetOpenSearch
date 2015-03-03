@@ -475,6 +475,12 @@ namespace Terradue.OpenSearch.Engine {
             }
             newResults.ElementExtensions.Add(query.CreateReader());
 
+            if (totalResults == false) {
+                XElement tr = new XElement(XName.Get("totalResults", "http://a9.com/-/spec/opensearch/1.1/"));
+                tr.SetValue(response.Entity.TotalResults);
+                newResults.ElementExtensions.Add(tr);
+            }
+
             OpenSearchResult osr = new OpenSearchResult(newResults, request.Parameters);
 
             return osr;
