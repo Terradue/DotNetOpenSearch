@@ -116,7 +116,6 @@ namespace Terradue.OpenSearch.Result {
                 item.Date = result.Date;
             item.Links = result.Links;
             item.Title = result.Title;
-            item.LastUpdatedTime = DateTime.UtcNow;
             item.Summary = result.Summary;
             item.Authors.Clear();
             result.Authors.FirstOrDefault(a => {
