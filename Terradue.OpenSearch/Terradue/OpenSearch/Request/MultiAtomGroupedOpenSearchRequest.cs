@@ -137,6 +137,7 @@ namespace Terradue.OpenSearch.Request {
         void MergeResults() {
 
             feed = new AtomFeed();
+            List<AtomItem> items = new List<AtomItem>();
 
             foreach (var key in results.Keys) {
 
@@ -171,11 +172,10 @@ namespace Terradue.OpenSearch.Request {
                     item.PublishDate = result.Result.Date;
                     item.SourceFeed = (SyndicationFeed)AtomFeed.CreateFromOpenSearchResultCollection(result.Result);
                 }
-				
+                items.Add(item);				
             }
+            feed.Items = items;
         }
-
-
     }
 }
 
