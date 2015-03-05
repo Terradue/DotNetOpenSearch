@@ -52,6 +52,11 @@ namespace Terradue.OpenSearch.Response {
                 return new TimeSpan(0);
             }
         }
+
+        public override object Clone() {
+            return new ParametersOpenSearchResponse(parameters);
+        }
+
         #endregion
     }
 }

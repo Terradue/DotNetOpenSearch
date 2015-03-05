@@ -87,6 +87,10 @@ namespace Terradue.OpenSearch.Response
 			}
 		}
 
+        public override object Clone() {
+            return new MemoryOpenSearchResponse((byte[])response.Clone(), contentType);
+        }
+
 		#endregion
 	}
 }

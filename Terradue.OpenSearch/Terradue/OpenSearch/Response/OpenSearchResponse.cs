@@ -71,6 +71,7 @@ namespace Terradue.OpenSearch.Response
 			set;
 		}
 
+        public abstract object Clone();
 	}
 }
 
