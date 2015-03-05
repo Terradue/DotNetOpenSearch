@@ -58,6 +58,10 @@ namespace Terradue.OpenSearch.Response {
             return obj;
         }
 
+        public override object Clone() {
+            return new HttpOpenSearchResponse(webResponse, requestTime);
+        }
+
         #endregion
     }
 }

@@ -48,7 +48,11 @@ namespace Terradue.OpenSearch.Response
             }
         }
 
-		#endregion
+        public override object Clone() {
+            return new AtomOpenSearchResponse(new AtomFeed(payload.Clone(true)), RequestTime);
+        }
+
+        #endregion
 	}
 }
 

@@ -5,7 +5,6 @@ using System.Collections.Specialized;
 using System.IO;
 using Terradue.OpenSearch.Result;
 using System.Collections.Generic;
-using Terradue.Util;
 using Terradue.ServiceModel.Syndication;
 using System.Xml;
 using System.Web;

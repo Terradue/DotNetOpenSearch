@@ -16,22 +16,27 @@ namespace Terradue.OpenSearch.Result {
 
         public AtomFeed() : base()  {
             items = new List<AtomItem>();
+            base.LastUpdatedTime = DateTime.UtcNow;
         }
 
         public AtomFeed(IEnumerable<AtomItem> items) : base()  {
             items = new List<AtomItem>(items);
+            base.LastUpdatedTime = DateTime.UtcNow;
         }
 
         public AtomFeed(string title, string description, Uri feedAlternateLink, string id, DateTimeOffset date) : base (title,description,feedAlternateLink,id,date){
             items = new List<AtomItem>();
+            base.LastUpdatedTime = DateTime.UtcNow;
         }
 
         public AtomFeed(AtomFeed feed) : base(feed, false) {
             items = feed.items.Select(i => new AtomItem(i)).ToList();
+            base.LastUpdatedTime = DateTime.UtcNow;
         }
 
         public AtomFeed(SyndicationFeed feed) : base(feed, false) {
             items = feed.Items.Select(i => new AtomItem(i)).ToList();
+            base.LastUpdatedTime = DateTime.UtcNow;
         }
 
         public AtomFeed(AtomFeed feed, bool cloneItems) : base(feed, false) {
@@ -39,6 +44,7 @@ namespace Terradue.OpenSearch.Result {
                 items = feed.items.Select(i => new AtomItem(i)).ToList();
             } else
                 items = feed.items;
+            base.LastUpdatedTime = DateTime.UtcNow;
 
         }
 

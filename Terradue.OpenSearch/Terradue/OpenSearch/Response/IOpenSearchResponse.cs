@@ -13,7 +13,7 @@ using System.IO;
 namespace Terradue.OpenSearch.Response
 {
 
-	public interface IOpenSearchResponse
+    public interface IOpenSearchResponse : ICloneable
 	{
 
         string ContentType { get; }

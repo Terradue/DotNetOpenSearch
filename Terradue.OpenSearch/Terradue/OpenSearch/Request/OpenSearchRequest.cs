@@ -67,7 +67,7 @@ namespace Terradue.OpenSearch.Request {
             switch (queryUrl.Scheme) {
                 case "http":
                 case "https":
-                    request = new HttpOpenSearchRequest(queryUrl);
+                    request = new HttpOpenSearchRequest(queryUrl, mimeType);
                     break;
                 case "file":
                     request = new FileOpenSearchRequest(queryUrl, mimeType);
