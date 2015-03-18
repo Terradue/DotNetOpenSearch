@@ -477,7 +477,7 @@ namespace Terradue.OpenSearch.Engine {
 
             if (totalResults == false) {
                 XElement tr = new XElement(XName.Get("totalResults", "http://a9.com/-/spec/opensearch/1.1/"));
-                tr.SetValue(response.Entity.TotalResults);
+                tr.SetValue(newResults.TotalResults);
                 newResults.ElementExtensions.Add(tr.CreateReader());
             }
 

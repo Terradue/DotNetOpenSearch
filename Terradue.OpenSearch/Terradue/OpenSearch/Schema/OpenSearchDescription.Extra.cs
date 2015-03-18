@@ -3,15 +3,17 @@ using Terradue.OpenSearch.Schema;
 using System.Collections.Specialized;
 using System.Web;
 using System.Linq;
+using System.Runtime.Serialization;
+using System.Xml.Serialization;
 
 
 namespace Terradue.OpenSearch.Schema
 {
-	public partial class OpenSearchDescription
+    public partial class OpenSearchDescription
 	{
-		
-        [System.Xml.Serialization.XmlIgnore]
         OpenSearchDescriptionUrl defaultUrl = null;
+
+        [System.Xml.Serialization.XmlIgnore]
         public OpenSearchDescriptionUrl DefaultUrl {
             get {
                 if (defaultUrl == null && Url.Count() > 0)
