@@ -24,7 +24,7 @@ namespace Terradue.OpenSearch.Schema {
     [XmlRootAttribute(Namespace = "http://a9.com/-/spec/opensearch/1.1/", IsNullable = false)]
     public partial class OpenSearchDescription {
 
-        const int ShortNameMaxLength = 5;
+        const int ShortNameMaxLength = 16;
 		
         private string shortNameField;
 		
