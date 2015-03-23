@@ -85,7 +85,7 @@ namespace Terradue.OpenSearch.Response
 			}
 		}
 
-        public override object Clone() {
+        public override IOpenSearchResponse CloneForCache() {
             return new MemoryOpenSearchResponse((byte[])payload.Clone(), contentType);
         }
 

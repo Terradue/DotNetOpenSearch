@@ -53,7 +53,7 @@ namespace Terradue.OpenSearch.Response {
             }
         }
 
-        public override object Clone() {
+        public override IOpenSearchResponse CloneForCache() {
             return new ParametersOpenSearchResponse(parameters);
         }
 

@@ -71,7 +71,7 @@ namespace Terradue.OpenSearch.Response
 			set;
 		}
 
-        public abstract object Clone();
+        public abstract IOpenSearchResponse CloneForCache();
 	}
 }
 

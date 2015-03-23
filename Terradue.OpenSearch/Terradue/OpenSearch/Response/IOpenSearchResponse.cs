@@ -13,7 +13,7 @@ using System.IO;
 namespace Terradue.OpenSearch.Response
 {
 
-    public interface IOpenSearchResponse : ICloneable
+    public interface IOpenSearchResponse
 	{
 
         string ContentType { get; }
@@ -25,6 +25,8 @@ namespace Terradue.OpenSearch.Response
         IOpenSearchable Entity { get; set; }
 
         TimeSpan RequestTime { get; }
+
+        IOpenSearchResponse CloneForCache();
 
 	}
 

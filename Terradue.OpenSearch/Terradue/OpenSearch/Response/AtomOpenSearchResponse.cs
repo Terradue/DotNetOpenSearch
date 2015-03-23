@@ -48,7 +48,7 @@ namespace Terradue.OpenSearch.Response
             }
         }
 
-        public override object Clone() {
+        public override IOpenSearchResponse CloneForCache() {
             return new AtomOpenSearchResponse(new AtomFeed(payload.Clone(true)), RequestTime);
         }
 
