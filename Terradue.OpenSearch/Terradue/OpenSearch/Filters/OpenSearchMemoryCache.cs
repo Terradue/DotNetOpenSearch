@@ -90,7 +90,7 @@ namespace Terradue.OpenSearch.Filters {
     /// </summary>
 	public class OpenSearchResponseCacheItem : CacheItem {
 
-        public OpenSearchResponseCacheItem(OpenSearchUrl url, IOpenSearchResponse response): base(url.ToString(), response.Clone()){
+        public OpenSearchResponseCacheItem(OpenSearchUrl url, IOpenSearchResponse response): base(url.ToString(), response.CloneForCache()){
 
 		}
 

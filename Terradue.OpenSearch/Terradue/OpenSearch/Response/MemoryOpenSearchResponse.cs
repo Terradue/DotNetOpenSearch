@@ -20,8 +20,6 @@ namespace Terradue.OpenSearch.Response
     public class MemoryOpenSearchResponse : OpenSearchResponse<byte[]>
 	{
 
-        protected byte[] response;
-
         protected string contentType;
 
         protected TimeSpan timeSpan;
@@ -34,7 +32,7 @@ namespace Terradue.OpenSearch.Response
         public MemoryOpenSearchResponse(byte[] input, string contentType){
 			Stopwatch sw = new Stopwatch();
 			sw.Start();
-            response = input;
+            payload = input;
 			this.contentType = contentType;
 			sw.Start();
 			timeSpan = sw.Elapsed;
@@ -51,7 +49,7 @@ namespace Terradue.OpenSearch.Response
         public MemoryOpenSearchResponse(string input, string contentType){
             Stopwatch sw = new Stopwatch();
             sw.Start();
-            response = System.Text.Encoding.Default.GetBytes(input);
+            payload = System.Text.Encoding.Default.GetBytes(input);
             this.contentType = contentType;
             sw.Start();
             timeSpan = sw.Elapsed;
@@ -64,7 +62,7 @@ namespace Terradue.OpenSearch.Response
         /// </summary>
         /// <returns>A Stream containing the body of the response.</returns>
         public override object GetResponseObject() {
-			return response;
+            return payload;
 		}
 
         /// <summary>
@@ -87,8 +85,8 @@ namespace Terradue.OpenSearch.Response
 			}
 		}
 
-        public override object Clone() {
-            return new MemoryOpenSearchResponse((byte[])response.Clone(), contentType);
+        public override IOpenSearchResponse CloneForCache() {
+            return new MemoryOpenSearchResponse((byte[])payload.Clone(), contentType);
         }
 
 		#endregion
