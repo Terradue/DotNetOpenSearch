@@ -52,7 +52,6 @@ namespace Terradue.OpenSearch.Response {
         public override object GetResponseObject() {
             if (payload == null) {
                 using (var ms = new MemoryStream()) {
-                    webResponse.GetResponseStream().Seek(0, SeekOrigin.Begin);
                     webResponse.GetResponseStream().CopyTo(ms);
                     payload = ms.ToArray();
                 }
@@ -61,7 +60,7 @@ namespace Terradue.OpenSearch.Response {
         }
 
         public override object Clone() {
-            return new HttpOpenSearchResponse(webResponse, requestTime);
+            return new MemoryOpenSearchResponse(payload, ContentType);
         }
 
         #endregion
