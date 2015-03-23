@@ -50,12 +50,13 @@ namespace Terradue.OpenSearch.Response {
         }
 
         public override object GetResponseObject() {
-            byte[] obj;
-            using(var ms = new MemoryStream()) {
-                webResponse.GetResponseStream().CopyTo(ms);
-                obj = ms.ToArray();
+            if (payload == null) {
+                using (var ms = new MemoryStream()) {
+                    webResponse.GetResponseStream().CopyTo(ms);
+                    payload = ms.ToArray();
+                }
             }
-            return obj;
+            return payload;
         }
 
         public override object Clone() {
