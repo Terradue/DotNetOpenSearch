@@ -49,7 +49,7 @@ namespace Terradue.OpenSearch.Response
         }
 
         public override IOpenSearchResponse CloneForCache() {
-            return new AtomOpenSearchResponse(new AtomFeed(payload.Clone(true)), RequestTime);
+            return new AtomOpenSearchResponse(new AtomFeed(payload, true), RequestTime);
         }
 
         #endregion
