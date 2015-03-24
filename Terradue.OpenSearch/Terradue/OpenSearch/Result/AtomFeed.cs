@@ -29,17 +29,12 @@ namespace Terradue.OpenSearch.Result {
             base.LastUpdatedTime = DateTime.UtcNow;
         }
 
-        public AtomFeed(AtomFeed feed) : base(feed, false) {
-            items = feed.items.Select(i => new AtomItem(i)).ToList();
-            base.LastUpdatedTime = DateTime.UtcNow;
-        }
-
         public AtomFeed(SyndicationFeed feed) : base(feed, false) {
             items = feed.Items.Select(i => new AtomItem(i)).ToList();
             base.LastUpdatedTime = DateTime.UtcNow;
         }
 
-        public AtomFeed(AtomFeed feed, bool cloneItems) : base(feed, false) {
+        public AtomFeed(AtomFeed feed, bool cloneItems = false) : base(feed, false) {
             if (cloneItems == true) {
                 items = feed.items.Select(i => new AtomItem(i)).ToList();
             } else
