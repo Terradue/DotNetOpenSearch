@@ -16,6 +16,21 @@ using Terradue.OpenSearch.Response;
 using Terradue.OpenSearch.Result;
 using Terradue.OpenSearch.Schema;
 
+/*!
+
+\defgroup OpenSearchable OpenSearchable
+@{
+This is the internal interface for any real world entity to be processed in OpenSearch Engine
+
+\xrefitem cptype_int "Interfaces" "Interfaces"
+\xrefitem cpgroup_os "OpenSearch" "OpenSearch"
+
+\xrefitem norm "Normative References" "Normative References" [OpenSearch 1.1](http://www.opensearch.org/Specifications/OpenSearch/1.1)
+
+@}
+
+*/
+
 namespace Terradue.OpenSearch {
 
     /// <summary>Delegate type for generating a specific OpenSearchResult from an OpenSearch response.</summary>

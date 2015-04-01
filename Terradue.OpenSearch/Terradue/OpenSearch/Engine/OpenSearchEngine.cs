@@ -25,6 +25,21 @@ using Terradue.OpenSearch.Schema;
 using System.Xml.Linq;
 using System.IO;
 
+/*!
+
+\defgroup OpenSearchEngine OpenSearch Engine
+@{
+This is the core of the OpenSearch mechanism
+
+\xrefitem cpgroup_os "OpenSearch" "OpenSearch"
+
+\xrefitem int "Interfaces" "Interfaces" process \ref OpenSearchable entities to expose them in OpenSearch interface.
+\xrefitem norm "Normative References" "Normative References" [OpenSearch 1.1](http://www.opensearch.org/Specifications/OpenSearch/1.1)
+
+@}
+
+*/
+
 namespace Terradue.OpenSearch.Engine {
 
     /// <summary>

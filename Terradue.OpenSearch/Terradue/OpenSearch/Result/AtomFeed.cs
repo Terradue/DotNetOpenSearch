@@ -1,4 +1,12 @@
-﻿using System;
+﻿//
+//  AtomFeed.cs
+//
+//  Author:
+//       Emmanuel Mathot <emmanuel.mathot@terradue.com>
+//
+//  Copyright (c) 2014 Terradue
+
+using System;
 using System.Linq;
 using Terradue.ServiceModel.Syndication;
 using System.Xml;
@@ -8,6 +16,23 @@ using System.IO;
 using System.Collections.Specialized;
 using System.Xml.Linq;
 using System.Web;
+
+/*!
+
+\defgroup Atom Atom Feed
+@{
+This is the representation in Atom of OpenSearch query results
+
+\xrefitem cpgroup_os "OpenSearch" "OpenSearch"
+\xrefitem cptype_document "Document" "Documents" represents \ref Syndication
+
+\xrefitem int "Interfaces" "Interfaces" process \ref OpenSearchable entities to expose them in OpenSearch interface.
+\xrefitem norm "Normative References" "Normative References" [OpenSearch 1.1](http://www.opensearch.org/Specifications/OpenSearch/1.1)
+\xrefitem norm "Normative References" "Normative References" [The Atom Syndication Format RFC4287](https://tools.ietf.org/html/rfc4287)
+
+@}
+
+*/
 
 namespace Terradue.OpenSearch.Result {
     public class AtomFeed : SyndicationFeed, IOpenSearchResultCollection {
