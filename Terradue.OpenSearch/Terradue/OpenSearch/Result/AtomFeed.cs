@@ -23,11 +23,12 @@ using System.Web;
 @{
 This is the representation in Atom of OpenSearch query results
 
-\xrefitem cpgroup_os "OpenSearch" "OpenSearch"
+\xrefitem cpgroup_model "Model" "Models"
+
 \xrefitem cptype_document "Document" "Documents" represents \ref Syndication
 
-\xrefitem int "Interfaces" "Interfaces" process \ref OpenSearchable entities to expose them in OpenSearch interface.
 \xrefitem norm "Normative References" "Normative References" [OpenSearch 1.1](http://www.opensearch.org/Specifications/OpenSearch/1.1)
+
 \xrefitem norm "Normative References" "Normative References" [The Atom Syndication Format RFC4287](https://tools.ietf.org/html/rfc4287)
 
 @}

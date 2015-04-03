@@ -34,6 +34,9 @@ This is the core of the OpenSearch mechanism
 \xrefitem cpgroup_os "OpenSearch" "OpenSearch"
 
 \xrefitem int "Interfaces" "Interfaces" process \ref OpenSearchable entities to expose them in OpenSearch interface.
+
+\xrefitem dep "Dependencies" "Dependencies" uses \ref Syndication model to represent \ref OpenSearchable entities.
+
 \xrefitem norm "Normative References" "Normative References" [OpenSearch 1.1](http://www.opensearch.org/Specifications/OpenSearch/1.1)
 
 @}
