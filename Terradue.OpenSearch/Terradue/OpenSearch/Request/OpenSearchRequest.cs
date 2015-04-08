@@ -20,6 +20,8 @@ namespace Terradue.OpenSearch.Request {
     public abstract class OpenSearchRequest {
         OpenSearchUrl url;
 
+        NameValueCollection originalParameters;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Terradue.OpenSearch.OpenSearchRequest"/> class.
         /// </summary>
@@ -35,6 +37,12 @@ namespace Terradue.OpenSearch.Request {
         public NameValueCollection Parameters {
             get {
                 return url.SearchAttributes;
+            }
+        }
+
+        public NameValueCollection OriginalParameters {
+            get {
+                return originalParameters;
             }
         }
 
@@ -73,6 +81,8 @@ namespace Terradue.OpenSearch.Request {
                     request = new FileOpenSearchRequest(queryUrl, mimeType);
                     break;
             }
+
+            request.originalParameters = parameters;
 
             return request;
 
