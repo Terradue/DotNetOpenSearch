@@ -53,13 +53,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Test.cs" />
-    <Compile Include="GenericTest.cs" />
     <Compile Include="MultiGenericOpenSearchable.Test.cs" />
     <Compile Include="TestOpenSearchable.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="GenericTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Terradue.OpenSearch\Terradue.OpenSearch.csproj">
