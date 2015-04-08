@@ -1,4 +1,12 @@
-﻿using System;
+﻿//
+//  AtomFeed.cs
+//
+//  Author:
+//       Emmanuel Mathot <emmanuel.mathot@terradue.com>
+//
+//  Copyright (c) 2014 Terradue
+
+using System;
 using System.Linq;
 using Terradue.ServiceModel.Syndication;
 using System.Xml;
@@ -8,6 +16,24 @@ using System.IO;
 using System.Collections.Specialized;
 using System.Xml.Linq;
 using System.Web;
+
+/*!
+
+\defgroup Atom Atom Feed
+@{
+This is the representation in Atom of OpenSearch query results
+
+\xrefitem cpgroup_model "Model" "Models"
+
+\xrefitem cptype_document "Document" "Documents" represents \ref Syndication
+
+\xrefitem norm "Normative References" "Normative References" [OpenSearch 1.1](http://www.opensearch.org/Specifications/OpenSearch/1.1)
+
+\xrefitem norm "Normative References" "Normative References" [The Atom Syndication Format RFC4287](https://tools.ietf.org/html/rfc4287)
+
+@}
+
+*/
 
 namespace Terradue.OpenSearch.Result {
     public class AtomFeed : SyndicationFeed, IOpenSearchResultCollection {
@@ -29,17 +55,12 @@ namespace Terradue.OpenSearch.Result {
             base.LastUpdatedTime = DateTime.UtcNow;
         }
 
-        public AtomFeed(AtomFeed feed) : base(feed, false) {
-            items = feed.items.Select(i => new AtomItem(i)).ToList();
-            base.LastUpdatedTime = DateTime.UtcNow;
-        }
-
         public AtomFeed(SyndicationFeed feed) : base(feed, false) {
             items = feed.Items.Select(i => new AtomItem(i)).ToList();
             base.LastUpdatedTime = DateTime.UtcNow;
         }
 
-        public AtomFeed(AtomFeed feed, bool cloneItems) : base(feed, false) {
+        public AtomFeed(AtomFeed feed, bool cloneItems = false) : base(feed, false) {
             if (cloneItems == true) {
                 items = feed.items.Select(i => new AtomItem(i)).ToList();
             } else

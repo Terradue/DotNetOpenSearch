@@ -32,7 +32,7 @@ namespace Terradue.OpenSearch.Test {
                 .ToArray();
             url.Query = string.Join("&", array);
 
-            MemoryOpenSearchRequest request = new MemoryOpenSearchRequest(new OpenSearchUrl(url.ToString()), type);
+            MemoryOpenSearchRequest request = new MemoryOpenSearchRequest(new OpenSearchUrl(url.Uri), type);
 
             Stream input = request.MemoryInputStream;
 
