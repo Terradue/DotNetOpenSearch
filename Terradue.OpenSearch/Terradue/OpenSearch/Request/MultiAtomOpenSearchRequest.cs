@@ -100,8 +100,6 @@ namespace Terradue.OpenSearch.Request {
 
             }
 
-            PrepareTotalResults();
-
             int originalStartIndex = 1;
 
             try {
@@ -112,6 +110,7 @@ namespace Terradue.OpenSearch.Request {
 
             // new page -> new feed
             feed = new AtomFeed();
+            totalResults = 0;
 
             // While we do not have the count needed for our results
             // and that all the sources have are not empty
@@ -132,6 +131,7 @@ namespace Terradue.OpenSearch.Request {
 
                 // new page -> new feed
                 feed = new AtomFeed();
+                totalResults = 0;
 
                 // count=0 case for totalResults
                 if (count == 0) {
@@ -228,6 +228,8 @@ namespace Terradue.OpenSearch.Request {
                 if (f1.Items.Count() == 0)
                     continue;
                 feed = Merge(feed, f1);
+
+                totalResults += f1.TotalResults;
 				
             }
         }
@@ -263,18 +265,6 @@ namespace Terradue.OpenSearch.Request {
 
 
             return new AtomFeed(feed);
-        }
-
-        /// <summary>
-        /// Prepares the total results.
-        /// </summary>
-        void PrepareTotalResults() {
-            totalResults = 0;
-            foreach (IOpenSearchable entity in currentEntities.Keys) {
-
-                totalResults += entity.TotalResults;
-
-            }
         }
 
         /// <summary>
