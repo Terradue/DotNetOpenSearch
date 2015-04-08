@@ -44,6 +44,9 @@ namespace Terradue.OpenSearch.Request {
             get {
                 return originalParameters;
             }
+			protected set {
+				originalParameters = value;
+			}
         }
 
         /// <summary>

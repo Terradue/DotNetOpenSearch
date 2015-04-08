@@ -52,7 +52,7 @@ namespace Terradue.OpenSearch.Filters {
             OpenSearchResponseCacheItem item = new OpenSearchResponseCacheItem(it);
             watch.Stop();
 
-            request = new CachedOpenSearchRequest(item.OpenSearchUrl,item.OpenSearchResponse, watch.Elapsed);
+			request = new CachedOpenSearchRequest(item.OpenSearchUrl,item.OpenSearchResponse, request.OriginalParameters, watch.Elapsed);
 
 		}
 
@@ -119,9 +119,10 @@ namespace Terradue.OpenSearch.Filters {
 
         private IOpenSearchResponse response;
 
-        public CachedOpenSearchRequest(OpenSearchUrl url, IOpenSearchResponse response, TimeSpan elapsed) :base(url) {
+		public CachedOpenSearchRequest(OpenSearchUrl url, IOpenSearchResponse response, NameValueCollection originalParameters, TimeSpan elapsed) :base(url) {
 			base.OpenSearchUrl = url;
             this.response = response;
+			base.OriginalParameters = originalParameters;
 		}
 
 		#region implemented abstract members of OpenSearchRequest
