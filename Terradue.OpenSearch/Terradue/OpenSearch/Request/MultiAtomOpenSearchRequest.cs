@@ -100,7 +100,14 @@ namespace Terradue.OpenSearch.Request {
 
             }
 
+
+            int currentStartIndex = 1;
             int originalStartIndex = 1;
+            try {
+                currentStartIndex = int.Parse(currentParameters[OpenSearchFactory.ReverseTemplateOpenSearchParameters(OpenSearchFactory.GetBaseOpenSearchParameter())["startIndex"]]);
+            } catch (Exception) {
+                currentParameters[OpenSearchFactory.ReverseTemplateOpenSearchParameters(OpenSearchFactory.GetBaseOpenSearchParameter())["startIndex"]] = currentStartIndex.ToString();
+            }
 
             try {
                 originalStartIndex = int.Parse(originalParameters[OpenSearchFactory.ReverseTemplateOpenSearchParameters(OpenSearchFactory.GetBaseOpenSearchParameter())["startIndex"]]);
@@ -110,28 +117,44 @@ namespace Terradue.OpenSearch.Request {
 
             // new page -> new feed
             feed = new AtomFeed();
-            totalResults = 0;
+
 
             // While we do not have the count needed for our results
             // and that all the sources have are not empty
-            while (feed.Items.Count() < originalStartIndex-1 && emptySources == false) {
+            while (feed.Items.Count() < originalStartIndex-currentStartIndex && emptySources == false) {
 
                 //
                 ExecuteConcurrentRequest();
 
                 MergeResults();
 
-                feed.Items = feed.Items.Take(originalStartIndex-1);
+                feed.Items = feed.Items.Take(originalStartIndex-currentStartIndex);
 
                 SetCurrentEntitiesOffset();
 
+                var r1 = results.Values.FirstOrDefault(r => {
+                    AtomFeed result = (AtomFeed)r.Result;
+                    if (result.Items.Count() > 0)
+                        return true;
+                    return false;
+                });
+
+                emptySources = (r1 == null);
+
+                currentStartIndex += feed.Items.Count();
+
+                currentParameters[OpenSearchFactory.ReverseTemplateOpenSearchParameters(OpenSearchFactory.GetBaseOpenSearchParameter())["startIndex"]] = currentStartIndex.ToString();
+
+                CacheCurrentState();
+
             }
+
+
 
             while (currentStartPage <= originalStartPage) {
 
                 // new page -> new feed
                 feed = new AtomFeed();
-                totalResults = 0;
 
                 // count=0 case for totalResults
                 if (count == 0) {
@@ -160,6 +183,16 @@ namespace Terradue.OpenSearch.Request {
 
                     emptySources = (r1 == null);
 
+                }
+
+                if (currentStartPage == 1) {
+                    // nest startIndex
+                    currentStartIndex += feed.Items.Count();
+                    currentParameters[OpenSearchFactory.ReverseTemplateOpenSearchParameters(OpenSearchFactory.GetBaseOpenSearchParameter())["startIndex"]] = currentStartIndex.ToString();
+                    // lets cache and then reset
+                    CacheCurrentState();
+                    currentStartIndex -= feed.Items.Count();
+                    currentParameters[OpenSearchFactory.ReverseTemplateOpenSearchParameters(OpenSearchFactory.GetBaseOpenSearchParameter())["startIndex"]] = currentStartIndex.ToString();
                 }
 
                 // next page
@@ -221,15 +254,17 @@ namespace Terradue.OpenSearch.Request {
         /// </summary>
         void MergeResults() {
 
+            totalResults = 0;
+
             foreach (IOpenSearchResult result in results.Values) {
 
                 AtomFeed f1 = (AtomFeed)result.Result;
 
+                totalResults += f1.TotalResults;
+
                 if (f1.Items.Count() == 0)
                     continue;
                 feed = Merge(feed, f1);
-
-                totalResults += f1.TotalResults;
 				
             }
         }
@@ -300,10 +335,20 @@ namespace Terradue.OpenSearch.Request {
             } catch (Exception) {
             }
 
+            int startIndex = 1;
+            try {
+                startIndex = int.Parse(parameters["startIndex"]);
+            } catch (Exception) {
+            }
+
             // Lets try the find the latest startPage regarding the requested startPage (closest) in the cached states
             List<MultiAtomOpenSearchRequestState> temp = states.Where(m => int.Parse(m.Parameters["startPage"]) <= startPage).ToList();
             temp = temp.OrderByDescending(m => int.Parse(m.Parameters["startPage"])).ToList();
-            MultiAtomOpenSearchRequestState state = temp.FirstOrDefault();
+
+            List<MultiAtomOpenSearchRequestState> temp2 = temp.Where(m => int.Parse(m.Parameters["startIndex"]) <= startIndex).ToList();
+            temp2 = temp2.OrderByDescending(m => int.Parse(m.Parameters["startIndex"])).ToList();
+
+            MultiAtomOpenSearchRequestState state = temp2.FirstOrDefault();
 
             // If not, useless and create new one with the entity pagination parameter unset (=1)
             if (state.Entities == null) {

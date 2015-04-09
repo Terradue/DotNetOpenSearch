@@ -63,6 +63,7 @@ namespace Terradue.OpenSearch.Request {
                 try {
                     Stopwatch sw = Stopwatch.StartNew();
                     httpWebRequest = (HttpWebRequest)WebRequest.Create(this.OpenSearchUrl);
+                    Console.WriteLine(this.OpenSearchUrl.ToString());
                     if ( contentType != null )
                         httpWebRequest.Accept = contentType;
                     httpWebRequest.Timeout = TimeOut;

@@ -46,6 +46,26 @@ namespace Terradue.OpenSearch.Test {
 
             nvc.Set("count", "5");
             nvc.Set("startIndex", "5");
+            nvc.Set("startPage", "1");
+
+            osr = ose.Query(multiEntity, nvc, "atom");
+
+            Assert.AreEqual(5, osr.Result.Count);
+            Assert.AreEqual("A5", osr.Result.Items.First().Identifier);
+            Assert.AreEqual("A9", osr.Result.Items.Last().Identifier);
+
+            nvc.Set("count", "5");
+            nvc.Set("startIndex", "5");
+            nvc.Set("startPage", "2");
+
+            osr = ose.Query(multiEntity, nvc, "atom");
+
+            Assert.AreEqual(5, osr.Result.Count);
+            Assert.AreEqual("A10", osr.Result.Items.First().Identifier);
+            Assert.AreEqual("A14", osr.Result.Items.Last().Identifier);
+
+            nvc.Set("count", "5");
+            nvc.Set("startIndex", "5");
             nvc.Set("startPage", "4");
 
             osr = ose.Query(multiEntity, nvc, "atom");

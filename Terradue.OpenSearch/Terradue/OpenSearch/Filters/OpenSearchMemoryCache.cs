@@ -22,7 +22,7 @@ namespace Terradue.OpenSearch.Filters {
     /// </summary>
     public class OpenSearchMemoryCache {
 
-		private MemoryCache cache;
+        private MemoryCache cache;
         private NameValueCollection config;
 
         /// <summary>
@@ -30,10 +30,10 @@ namespace Terradue.OpenSearch.Filters {
         /// </summary>
         /// <param name="name">Name.</param>
         /// <param name="config">Config.</param>
-		public OpenSearchMemoryCache(string name, NameValueCollection config) {
+        public OpenSearchMemoryCache(string name, NameValueCollection config) {
 
             this.config = config;
-			cache = new MemoryCache(name,config);
+            cache = new MemoryCache(name, config);
 
         }
 
@@ -41,7 +41,7 @@ namespace Terradue.OpenSearch.Filters {
         /// Tries the replace with cache request.
         /// </summary>
         /// <param name="request">Request.</param>
-        public void TryReplaceWithCacheRequest(ref OpenSearchRequest request){
+        public void TryReplaceWithCacheRequest(ref OpenSearchRequest request) {
 
             Stopwatch watch = new Stopwatch();
             watch.Start();
@@ -52,16 +52,16 @@ namespace Terradue.OpenSearch.Filters {
             OpenSearchResponseCacheItem item = new OpenSearchResponseCacheItem(it);
             watch.Stop();
 
-			request = new CachedOpenSearchRequest(item.OpenSearchUrl,item.OpenSearchResponse, request.OriginalParameters, watch.Elapsed);
+            request = new CachedOpenSearchRequest(item.OpenSearchUrl, item.OpenSearchResponse, request.OriginalParameters, watch.Elapsed);
 
-		}
+        }
 
         /// <summary>
         /// Caches the response.
         /// </summary>
         /// <param name="request">Request.</param>
         /// <param name="response">Response.</param>
-        public void CacheResponse(OpenSearchRequest request, ref IOpenSearchResponse response){
+        public void CacheResponse(OpenSearchRequest request, ref IOpenSearchResponse response) {
 
             /*if (response.GetType() != typeof(CachedOpenSearchResponse)) {
                 response = new CachedOpenSearchResponse(response);
@@ -71,16 +71,20 @@ namespace Terradue.OpenSearch.Filters {
             CacheItemPolicy policy = this.CreatePolicy(item);
             cache.Set(item, policy);
 
-		}
+        }
 
         /// <summary>
         /// Creates the policy.
         /// </summary>
         /// <returns>The policy.</returns>
         /// <param name="item">Item.</param>
-        protected CacheItemPolicy CreatePolicy (OpenSearchResponseCacheItem item) {
+        protected CacheItemPolicy CreatePolicy(OpenSearchResponseCacheItem item) {
             CacheItemPolicy policy = new CacheItemPolicy();
             policy.SlidingExpiration = TimeSpan.FromSeconds(double.Parse(config["SlidingExpiration"]));
+            if (item.OpenSearchResponse.Entity is IMonitoredOpenSearchable) {
+                IMonitoredOpenSearchable mos = (IMonitoredOpenSearchable)item.OpenSearchResponse.Entity;
+                policy.ChangeMonitors.Add(new OpenSearchableChangeMonitor(mos));
+            }
             return policy;
         }
     }
@@ -88,108 +92,112 @@ namespace Terradue.OpenSearch.Filters {
     /// <summary>
     /// Open search response cache item.
     /// </summary>
-	public class OpenSearchResponseCacheItem : CacheItem {
+    public class OpenSearchResponseCacheItem : CacheItem {
 
-        public OpenSearchResponseCacheItem(OpenSearchUrl url, IOpenSearchResponse response): base(url.ToString(), response.CloneForCache()){
-
-		}
-
-        internal OpenSearchResponseCacheItem(CacheItem item): base(item.Key, item.Value){
+        public OpenSearchResponseCacheItem(OpenSearchUrl url, IOpenSearchResponse response) : base(url.ToString(), response.CloneForCache()) {
 
         }
 
-		public OpenSearchUrl OpenSearchUrl{
-			get {
-				return new OpenSearchUrl(base.Key);
-			}
-		}
+        internal OpenSearchResponseCacheItem(CacheItem item) : base(item.Key, item.Value) {
 
-		public IOpenSearchResponse OpenSearchResponse{
-			get {
-				return (IOpenSearchResponse)base.Value;
-			}
-		}
+        }
 
-	}
+        public OpenSearchUrl OpenSearchUrl {
+            get {
+                return new OpenSearchUrl(base.Key);
+            }
+        }
+
+        public IOpenSearchResponse OpenSearchResponse {
+            get {
+                return (IOpenSearchResponse)base.Value;
+            }
+        }
+
+    }
 
     /// <summary>
     /// Cached open search request.
     /// </summary>
-	public class CachedOpenSearchRequest : OpenSearchRequest {
+    public class CachedOpenSearchRequest : OpenSearchRequest {
 
         private IOpenSearchResponse response;
 
-		public CachedOpenSearchRequest(OpenSearchUrl url, IOpenSearchResponse response, NameValueCollection originalParameters, TimeSpan elapsed) :base(url) {
-			base.OpenSearchUrl = url;
+        public CachedOpenSearchRequest(OpenSearchUrl url, IOpenSearchResponse response, NameValueCollection originalParameters, TimeSpan elapsed) : base(url) {
+            base.OpenSearchUrl = url;
             this.response = response;
-			base.OriginalParameters = originalParameters;
-		}
-
-		#region implemented abstract members of OpenSearchRequest
-		public override IOpenSearchResponse GetResponse() {
-			return response;
-		}
-		#endregion
-	}
-
-    /// <summary>
-    /// Cached open search response.
-    /// </summary>
-    /*public class CachedOpenSearchResponse : IOpenSearchResponse {
-
-        private object cachedResponse;
-        TimeSpan requestTime;
-        string contentType;
-        readonly Type objectType;
-        IOpenSearchable entity;
-
-        public CachedOpenSearchResponse(IOpenSearchResponse response) : this(response, response.RequestTime) {
-        }
-            
-        public CachedOpenSearchResponse(IOpenSearchResponse response, TimeSpan elapsed) {
-
-            cachedResponse = response.GetResponseObject();
-            requestTime = elapsed;
-            contentType = response.ContentType;
-            objectType = response.ObjectType;
-            entity = response.Entity;
-
+            base.OriginalParameters = originalParameters;
         }
 
-        #region implemented abstract members of OpenSearchResponse
+        #region implemented abstract members of OpenSearchRequest
 
-        public object GetResponseObject() {
-            return cachedResponse;
+        public override IOpenSearchResponse GetResponse() {
+            return response;
         }
 
-        public string ContentType {
-            get {
-                return contentType;
+        #endregion
+    }
+
+    public class OpenSearchableChangeMonitor : ChangeMonitor {
+
+        private String _uniqueId;
+        private IMonitoredOpenSearchable entity;
+
+        public OpenSearchableChangeMonitor(IMonitoredOpenSearchable entity) {
+            this.entity = entity;
+            InitDisposableMembers();
+        }
+
+        private void InitDisposableMembers() {
+            bool dispose = true;
+            try {
+                string uniqueId = null;
+                    
+                uniqueId = entity.GetOpenSearchDescription().Url.FirstOrDefault(u => u.Relation == "self").Template;
+                entity.OpenSearchableChange += new OpenSearchableChangeEventHandler(OnOpenSearchableChanged);
+
+                _uniqueId = uniqueId;
+                dispose = false;
+            } finally {
+                InitializationComplete();
+                if (dispose) {
+                    Dispose();
+                }
             }
         }
 
-        public TimeSpan RequestTime {
-            get {
-                return requestTime;
-            }
+        private void OnOpenSearchableChanged(Object sender, OnOpenSearchableChangeEventArgs e) {
+            OnChanged(e.State);
         }
 
-        public Type ObjectType {
-            get {
-                return objectType;
-            }
-        }
+        #region implemented abstract members of ChangeMonitor
+        protected override void Dispose(bool disposing) {}
 
-        public IOpenSearchable Entity {
+        public override string UniqueId {
             get {
-                return entity;
-            }
-            set {
-                entity = value;
+                return _uniqueId;
             }
         }
         #endregion
-    }*/
+    }
+
+    public delegate void OpenSearchableChangeEventHandler(object sender, OnOpenSearchableChangeEventArgs e);
+
+    public interface IMonitoredOpenSearchable : IOpenSearchable {
+
+        void OnOpenSearchableChange (object sender,  OnOpenSearchableChangeEventArgs data);
+
+        event OpenSearchableChangeEventHandler OpenSearchableChange;
+
+    }
+
+    public class OnOpenSearchableChangeEventArgs: EventArgs {
+        public object State { get; internal set; }
+
+        public OnOpenSearchableChangeEventArgs(object state) {
+            this.State = state;
+        }
+    }
 
 }
 
