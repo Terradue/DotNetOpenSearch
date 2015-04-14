@@ -42,6 +42,7 @@ This is the core of the OpenSearch mechanism
 @}
 
 */
+using log4net;
 
 namespace Terradue.OpenSearch.Engine {
 
@@ -51,7 +52,10 @@ namespace Terradue.OpenSearch.Engine {
     public sealed partial class OpenSearchEngine : IOpenSearchableFactory {
 
         public const int DEFAULT_COUNT = 20;
+        public const int DEFAULT_VALIDITY = 600;
 
+        private log4net.ILog log = log4net.LogManager.GetLogger
+            (System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         Dictionary<int, IOpenSearchEngineExtension> extensions;
         List<PreFilterAction> preFilters;
@@ -97,6 +101,7 @@ namespace Terradue.OpenSearch.Engine {
         /// <param name="extension">Extension associated with the type</param>
         /// <exception cref="ArgumentException">An extension with the same typoe already registered.</exception>
         public void RegisterExtension(IOpenSearchEngineExtension extension) {
+            log.Debug("Registering extension: " + extension.Identifier);
             extensions.Add(extension.GetHashCode(), extension);
         }
 

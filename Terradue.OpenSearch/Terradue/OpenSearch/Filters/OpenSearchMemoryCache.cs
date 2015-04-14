@@ -22,6 +22,9 @@ namespace Terradue.OpenSearch.Filters {
     /// </summary>
     public class OpenSearchMemoryCache {
 
+        private log4net.ILog log = log4net.LogManager.GetLogger
+            (System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         private MemoryCache cache;
         private NameValueCollection config;
 
@@ -52,6 +55,7 @@ namespace Terradue.OpenSearch.Filters {
             OpenSearchResponseCacheItem item = new OpenSearchResponseCacheItem(it);
             watch.Stop();
 
+            log.DebugFormat("OpenSearch Cache {0} [load]", request.OpenSearchUrl);
             request = new CachedOpenSearchRequest(item.OpenSearchUrl, item.OpenSearchResponse, request.OriginalParameters, watch.Elapsed);
 
         }
@@ -63,13 +67,13 @@ namespace Terradue.OpenSearch.Filters {
         /// <param name="response">Response.</param>
         public void CacheResponse(OpenSearchRequest request, ref IOpenSearchResponse response) {
 
-            /*if (response.GetType() != typeof(CachedOpenSearchResponse)) {
-                response = new CachedOpenSearchResponse(response);
-            }*/
-
             OpenSearchResponseCacheItem item = new OpenSearchResponseCacheItem(request.OpenSearchUrl, response);
             CacheItemPolicy policy = this.CreatePolicy(item);
+            log.DebugFormat("OpenSearch Cache {0} [store]", request.OpenSearchUrl);
+
             cache.Set(item, policy);
+
+            log.DebugFormat("OpenSearch Cache [count] : {0}", cache.GetCount());
 
         }
 
@@ -80,12 +84,23 @@ namespace Terradue.OpenSearch.Filters {
         /// <param name="item">Item.</param>
         protected CacheItemPolicy CreatePolicy(OpenSearchResponseCacheItem item) {
             CacheItemPolicy policy = new CacheItemPolicy();
-            policy.SlidingExpiration = TimeSpan.FromSeconds(double.Parse(config["SlidingExpiration"]));
+            policy.AbsoluteExpiration = DateTime.UtcNow.Add(item.OpenSearchResponse.Validity);
+            log.DebugFormat("OpenSearch Cache {0} [prepare to store] AbsoluteExpiration : {1} ", item.OpenSearchUrl, policy.AbsoluteExpiration);
+            policy.RemovedCallback = new CacheEntryRemovedCallback(this.EntryRemovedCallBack);
             if (item.OpenSearchResponse.Entity is IMonitoredOpenSearchable) {
                 IMonitoredOpenSearchable mos = (IMonitoredOpenSearchable)item.OpenSearchResponse.Entity;
-                policy.ChangeMonitors.Add(new OpenSearchableChangeMonitor(mos));
+                var monitor = new OpenSearchableChangeMonitor(mos);
+                log.DebugFormat("OpenSearch Cache {0} [prepare to store] Monitor : {1} ", item.OpenSearchUrl, monitor.UniqueId);
+                policy.ChangeMonitors.Add(monitor);
             }
             return policy;
+        }
+
+        public void EntryRemovedCallBack(CacheEntryRemovedArguments arguments){
+            if ( arguments.CacheItem is OpenSearchResponseCacheItem ){
+                OpenSearchResponseCacheItem item = new OpenSearchResponseCacheItem(arguments.CacheItem);
+                log.DebugFormat("OpenSearch Cache {0} [remove] reason : {1}", item.OpenSearchUrl, arguments.RemovedReason);
+            }
         }
     }
 

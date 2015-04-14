@@ -5,11 +5,19 @@ using Terradue.OpenSearch.Engine;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
+using log4net.Config;
+using System.IO;
 
 namespace Terradue.OpenSearch.Test {
 
     [TestFixture]
     public class MultiGenericOpenSearchableTest {
+
+        [SetUp]
+        public void RunBeforeTests()
+        {
+            XmlConfigurator.Configure(new FileInfo("../Log4Net.config"));
+        }
 
         [Test()]
         public void GenericProxiedOpenSearchableTest() {

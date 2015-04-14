@@ -10,10 +10,11 @@ using System.Xml;
 using System.Web;
 using System.Linq;
 using Terradue.OpenSearch.Schema;
+using Terradue.OpenSearch.Filters;
 
 namespace Terradue.OpenSearch.Test {
 
-    public class TestOpenSearchable : IOpenSearchable {
+    public class TestOpenSearchable : IMonitoredOpenSearchable {
 
         public TestOpenSearchable() {
         }
@@ -24,8 +25,8 @@ namespace Terradue.OpenSearch.Test {
             return new QuerySettings(osee.DiscoveryContentType, osee.ReadNative);
         }
         public OpenSearchRequest Create(string type, NameValueCollection parameters) {
-            UriBuilder url = new UriBuilder("file://");
-            url.Path += "/test";
+            UriBuilder url = new UriBuilder("dummy://localhost");
+            url.Path += "test/search";
             var array = (from key in parameters.AllKeys
                          from value in parameters.GetValues(key)
                          select string.Format("{0}={1}", HttpUtility.UrlEncode(key), HttpUtility.UrlEncode(value)))
@@ -33,6 +34,7 @@ namespace Terradue.OpenSearch.Test {
             url.Query = string.Join("&", array);
 
             MemoryOpenSearchRequest request = new MemoryOpenSearchRequest(new OpenSearchUrl(url.Uri), type);
+            request.ResponseValidity = TimeSpan.FromSeconds(50);
 
             Stream input = request.MemoryInputStream;
 
@@ -54,12 +56,12 @@ namespace Terradue.OpenSearch.Test {
 
             List<OpenSearchDescriptionUrl> urls = new List<OpenSearchDescriptionUrl>();
 
-            UriBuilder urlb = new UriBuilder("file:///test/description");
+            UriBuilder urlb = new UriBuilder("dummy://localhost/test/description");
 
             OpenSearchDescriptionUrl url = new OpenSearchDescriptionUrl("application/opensearchdescription+xml", urlb.ToString(), "self");
             urls.Add(url);
 
-            urlb = new UriBuilder("file:///test/search");
+            urlb = new UriBuilder("dummy://localhost/test/search");
             NameValueCollection query = GetOpenSearchParameters("application/atom+xml");
 
             string[] queryString = Array.ConvertAll(query.AllKeys, key => string.Format("{0}={1}", key, query[key]));
@@ -98,6 +100,12 @@ namespace Terradue.OpenSearch.Test {
             return OpenSearchFactory.GetDefaultParametersResult();
         }
         #endregion
+
+        public event OpenSearchableChangeEventHandler OpenSearchableChange;
+
+        public void OnOpenSearchableChange(object sender, OnOpenSearchableChangeEventArgs data) {
+            OpenSearchableChange(sender, data);
+        }
 
         private void GenerateSyndicationFeed(Stream stream, NameValueCollection parameters) {
             UriBuilder myUrl = new UriBuilder("file:///test");
@@ -173,7 +181,7 @@ namespace Terradue.OpenSearch.Test {
             sw.Close();
         }
 
-        IEnumerable<TestItem> Items {
+        public IEnumerable<TestItem> Items {
             get;
             set;
         }
@@ -200,7 +208,7 @@ namespace Terradue.OpenSearch.Test {
 
         }
 
-        class TestItem {
+        public class TestItem {
             int i;
 
             public TestItem(int i) {

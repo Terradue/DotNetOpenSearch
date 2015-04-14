@@ -28,6 +28,8 @@ namespace Terradue.OpenSearch.Response
 
         IOpenSearchResponse CloneForCache();
 
+        TimeSpan Validity { get; set; }
+
 	}
 
 }

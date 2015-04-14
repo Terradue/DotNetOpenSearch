@@ -9,6 +9,7 @@
 
 using System;
 using System.IO;
+using Terradue.OpenSearch.Engine;
 
 namespace Terradue.OpenSearch.Response
 {
@@ -72,6 +73,16 @@ namespace Terradue.OpenSearch.Response
 		}
 
         public abstract IOpenSearchResponse CloneForCache();
+
+        TimeSpan validity = TimeSpan.FromSeconds(OpenSearchEngine.DEFAULT_VALIDITY);
+        public virtual TimeSpan Validity {
+            get {
+                return validity;
+            }
+            set {
+                validity = value;
+            }
+        }
 	}
 }
 

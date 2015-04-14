@@ -47,11 +47,19 @@ namespace Terradue.OpenSearch.Request
 			}
 		}
 
+        public TimeSpan ResponseValidity {
+            get ;
+            set ;
+        }
+
 		#region implemented abstract members of OpenSearchRequest
 
 		public override IOpenSearchResponse GetResponse() {
 			memStream.Seek(0, SeekOrigin.Begin);
-            return new MemoryOpenSearchResponse(memStream.ToArray(), contentType);
+            MemoryOpenSearchResponse mosr = new MemoryOpenSearchResponse(memStream.ToArray(), contentType);
+            mosr.Validity = this.ResponseValidity.Ticks == 0 ? mosr.Validity : this.ResponseValidity;
+            return mosr;
+
 		}
 
         public override OpenSearchUrl OpenSearchUrl {
