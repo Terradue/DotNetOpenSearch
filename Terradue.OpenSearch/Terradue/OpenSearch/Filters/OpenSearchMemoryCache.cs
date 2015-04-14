@@ -69,6 +69,9 @@ namespace Terradue.OpenSearch.Filters {
         /// <param name="response">Response.</param>
         public void CacheResponse(OpenSearchRequest request, ref IOpenSearchResponse response) {
 
+            if (!response.Entity.CanCache)
+                return;
+
             OpenSearchResponseCacheItem item = new OpenSearchResponseCacheItem(request.OpenSearchUrl, response);
             CacheItemPolicy policy = this.CreatePolicy(item, request);
             log.DebugFormat("OpenSearch Cache {0} [store]", request.OpenSearchUrl);
@@ -211,6 +214,8 @@ namespace Terradue.OpenSearch.Filters {
         void OnOpenSearchableChange (object sender,  OnOpenSearchableChangeEventArgs data);
 
         event OpenSearchableChangeEventHandler OpenSearchableChange;
+
+        
 
     }
 

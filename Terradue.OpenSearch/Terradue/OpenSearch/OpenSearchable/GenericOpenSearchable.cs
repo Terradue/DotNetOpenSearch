@@ -118,6 +118,12 @@ namespace Terradue.OpenSearch {
         public ParametersResult DescribeParameters() {
             throw new NotImplementedException();
         }
+
+        public bool CanCache {
+            get {
+                return true;
+            }
+        }
         #endregion
     }
 }

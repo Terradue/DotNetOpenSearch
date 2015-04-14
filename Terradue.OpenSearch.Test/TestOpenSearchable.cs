@@ -99,6 +99,12 @@ namespace Terradue.OpenSearch.Test {
         public ParametersResult DescribeParameters() {
             return OpenSearchFactory.GetDefaultParametersResult();
         }
+
+        public bool CanCache {
+            get {
+                return true;
+            }
+        }
         #endregion
 
         public event OpenSearchableChangeEventHandler OpenSearchableChange;
