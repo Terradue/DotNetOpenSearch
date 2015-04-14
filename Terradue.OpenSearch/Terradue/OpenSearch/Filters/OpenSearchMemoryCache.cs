@@ -36,7 +36,7 @@ namespace Terradue.OpenSearch.Filters {
         public OpenSearchMemoryCache(string name, NameValueCollection config) {
 
             this.config = config;
-            cache = new MemoryCache(name, config);
+            cache = new MemoryCache(name, this.config);
 
         }
 
@@ -45,6 +45,8 @@ namespace Terradue.OpenSearch.Filters {
         /// </summary>
         /// <param name="request">Request.</param>
         public void TryReplaceWithCacheRequest(ref OpenSearchRequest request) {
+
+            log.DebugFormat("OpenSearch Cache [count] : {0}", cache.GetCount());
 
             Stopwatch watch = new Stopwatch();
             watch.Start();
@@ -68,7 +70,7 @@ namespace Terradue.OpenSearch.Filters {
         public void CacheResponse(OpenSearchRequest request, ref IOpenSearchResponse response) {
 
             OpenSearchResponseCacheItem item = new OpenSearchResponseCacheItem(request.OpenSearchUrl, response);
-            CacheItemPolicy policy = this.CreatePolicy(item);
+            CacheItemPolicy policy = this.CreatePolicy(item, request);
             log.DebugFormat("OpenSearch Cache {0} [store]", request.OpenSearchUrl);
 
             cache.Set(item, policy);
@@ -82,14 +84,14 @@ namespace Terradue.OpenSearch.Filters {
         /// </summary>
         /// <returns>The policy.</returns>
         /// <param name="item">Item.</param>
-        protected CacheItemPolicy CreatePolicy(OpenSearchResponseCacheItem item) {
+        protected CacheItemPolicy CreatePolicy(OpenSearchResponseCacheItem item, OpenSearchRequest request) {
             CacheItemPolicy policy = new CacheItemPolicy();
             policy.AbsoluteExpiration = DateTime.UtcNow.Add(item.OpenSearchResponse.Validity);
             log.DebugFormat("OpenSearch Cache {0} [prepare to store] AbsoluteExpiration : {1} ", item.OpenSearchUrl, policy.AbsoluteExpiration);
             policy.RemovedCallback = new CacheEntryRemovedCallback(this.EntryRemovedCallBack);
             if (item.OpenSearchResponse.Entity is IMonitoredOpenSearchable) {
                 IMonitoredOpenSearchable mos = (IMonitoredOpenSearchable)item.OpenSearchResponse.Entity;
-                var monitor = new OpenSearchableChangeMonitor(mos);
+                var monitor = new OpenSearchableChangeMonitor(mos, request);
                 log.DebugFormat("OpenSearch Cache {0} [prepare to store] Monitor : {1} ", item.OpenSearchUrl, monitor.UniqueId);
                 policy.ChangeMonitors.Add(monitor);
             }
@@ -138,7 +140,7 @@ namespace Terradue.OpenSearch.Filters {
 
         private IOpenSearchResponse response;
 
-        public CachedOpenSearchRequest(OpenSearchUrl url, IOpenSearchResponse response, NameValueCollection originalParameters, TimeSpan elapsed) : base(url) {
+        public CachedOpenSearchRequest(OpenSearchUrl url, IOpenSearchResponse response, NameValueCollection originalParameters, TimeSpan elapsed) : base(url, response.ContentType) {
             base.OpenSearchUrl = url;
             this.response = response;
             base.OriginalParameters = originalParameters;
@@ -158,7 +160,13 @@ namespace Terradue.OpenSearch.Filters {
         private String _uniqueId;
         private IMonitoredOpenSearchable entity;
 
-        public OpenSearchableChangeMonitor(IMonitoredOpenSearchable entity) {
+        NameValueCollection parameters;
+
+        string contentType;
+
+        public OpenSearchableChangeMonitor(IMonitoredOpenSearchable entity, OpenSearchRequest request) {
+            this.contentType = request.ContentType;
+            this.parameters = request.OriginalParameters;
             this.entity = entity;
             InitDisposableMembers();
         }

@@ -21,14 +21,12 @@ namespace Terradue.OpenSearch.Request {
     /// Implements an OpenSearch request over HTTP
     /// </summary>
     public class FileOpenSearchRequest : OpenSearchRequest {
-        string mimeType;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Terradue.OpenSearch.HttpOpenSearchRequest"/> class.
         /// </summary>
         /// <param name="url">the HTTP URL.</param>
-        internal FileOpenSearchRequest(OpenSearchUrl url, string mimeType) : base(url) {
-            this.mimeType = mimeType;
+        internal FileOpenSearchRequest(OpenSearchUrl url, string mimeType) : base(url, mimeType) {
             if (!url.Scheme.StartsWith("file")) throw new InvalidOperationException("A file scheme is expected for this kind of request");
             this.OpenSearchUrl = url;
 
@@ -48,7 +46,7 @@ namespace Terradue.OpenSearch.Request {
                 byte[] fileBytes= new byte[fs.Length];
                 fs.Read(fileBytes, 0, fileBytes.Length);
                 fs.Close();
-                MemoryOpenSearchResponse response = new MemoryOpenSearchResponse(fileBytes,mimeType);
+                MemoryOpenSearchResponse response = new MemoryOpenSearchResponse(fileBytes, ContentType);
                 sw.Stop();
 
                 return response;

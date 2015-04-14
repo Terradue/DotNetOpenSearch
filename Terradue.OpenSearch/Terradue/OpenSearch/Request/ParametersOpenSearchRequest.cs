@@ -20,7 +20,7 @@ namespace Terradue.OpenSearch.Request
 	{
         IOpenSearchable entity;
 
-        public ParametersOpenSearchRequest(IOpenSearchable entity) : base(new OpenSearchUrl("http://localhost/params")){
+        public ParametersOpenSearchRequest(IOpenSearchable entity) : base(new OpenSearchUrl("http://localhost/params"), "application/json+parameters"){
             this.entity = entity;
 
         }

@@ -22,12 +22,15 @@ namespace Terradue.OpenSearch.Request {
 
         NameValueCollection originalParameters;
 
+        string contentType;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Terradue.OpenSearch.OpenSearchRequest"/> class.
         /// </summary>
         /// <param name="url">URL.</param>
-        protected OpenSearchRequest(OpenSearchUrl url) {
+        protected OpenSearchRequest(OpenSearchUrl url, string contentType) {
             this.url = url;
+            this.contentType = contentType;
         }
 
         /// <summary>
@@ -47,6 +50,12 @@ namespace Terradue.OpenSearch.Request {
 			protected set {
 				originalParameters = value;
 			}
+        }
+
+        public string ContentType {
+            get {
+                return contentType;
+            }
         }
 
         /// <summary>

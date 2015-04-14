@@ -47,7 +47,7 @@ namespace Terradue.OpenSearch.Request {
         /// <param name="entities">IOpenSearchable entities to be searched.</param>
         /// <param name="type">contentType of the .</param>
         /// <param name="url">URL.</param>
-        public MultiAtomOpenSearchRequest(OpenSearchEngine ose, IOpenSearchable[] entities, string type, OpenSearchUrl url, bool concurrent) : base(url) {
+        public MultiAtomOpenSearchRequest(OpenSearchEngine ose, IOpenSearchable[] entities, string type, OpenSearchUrl url, bool concurrent) : base(url, type) {
             this.concurrent = concurrent;
 
             this.ose = ose;
