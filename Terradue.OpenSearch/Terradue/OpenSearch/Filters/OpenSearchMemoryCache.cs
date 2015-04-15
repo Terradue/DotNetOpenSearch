@@ -69,7 +69,7 @@ namespace Terradue.OpenSearch.Filters {
         /// <param name="response">Response.</param>
         public void CacheResponse(OpenSearchRequest request, ref IOpenSearchResponse response) {
 
-            if (!response.Entity.CanCache)
+            if (response.Entity != null && !response.Entity.CanCache)
                 return;
 
             OpenSearchResponseCacheItem item = new OpenSearchResponseCacheItem(request.OpenSearchUrl, response);
