@@ -61,7 +61,9 @@ namespace Terradue.OpenSearch.Response {
 
         public override IOpenSearchResponse CloneForCache() {
             GetResponseObject();
-            return new MemoryOpenSearchResponse((byte[])payload.Clone(), ContentType);
+            MemoryOpenSearchResponse mosr = new MemoryOpenSearchResponse((byte[])payload.Clone(), ContentType);
+            mosr.Entity = this.Entity;
+            return mosr;
         }
 
         #endregion

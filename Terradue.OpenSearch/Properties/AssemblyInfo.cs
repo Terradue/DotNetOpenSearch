@@ -28,5 +28,5 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyVersion ("1.9.10.*")]
 [assembly: AssemblyInformationalVersion ("1.9.10")]
 
-[assembly: log4net.Config.XmlConfigurator(Watch = true)]
+[assembly: log4net.Config.XmlConfigurator(ConfigFile="Log4Net.config", Watch = true)]
 
