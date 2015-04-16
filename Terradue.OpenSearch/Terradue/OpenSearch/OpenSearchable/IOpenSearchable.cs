@@ -119,6 +119,8 @@ namespace Terradue.OpenSearch {
 
         ParametersResult DescribeParameters ();
 
+        bool CanCache { get; }
+
     }
 
     /// <summary>

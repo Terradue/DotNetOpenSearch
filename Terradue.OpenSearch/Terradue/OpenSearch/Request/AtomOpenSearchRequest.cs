@@ -32,7 +32,7 @@ namespace Terradue.OpenSearch.Request
         /// </summary>
         /// <param name="url">URL.</param>
         /// <param name="contentType">Content type.</param>
-        public AtomOpenSearchRequest(OpenSearchUrl url, Func<NameValueCollection, AtomFeed> FeedGenerator) : base(url){
+        public AtomOpenSearchRequest(OpenSearchUrl url, Func<NameValueCollection, AtomFeed> FeedGenerator) : base(url, "application/atom+xml"){
             this.feedGenerator = FeedGenerator;
             this.parameters = HttpUtility.ParseQueryString(url.Query);
 		}

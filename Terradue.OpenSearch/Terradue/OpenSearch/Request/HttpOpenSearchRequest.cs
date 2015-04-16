@@ -29,7 +29,7 @@ namespace Terradue.OpenSearch.Request {
         /// Initializes a new instance of the <see cref="Terradue.OpenSearch.HttpOpenSearchRequest"/> class.
         /// </summary>
         /// <param name="url">the HTTP URL.</param>
-        internal HttpOpenSearchRequest(OpenSearchUrl url, string contentType = null) : base(url) {
+        internal HttpOpenSearchRequest(OpenSearchUrl url, string contentType = null) : base(url, contentType) {
             this.contentType = contentType;
             if (!url.Scheme.StartsWith("http")) throw new InvalidOperationException("A http scheme is expected for this kind of request");
             this.OpenSearchUrl = url;
@@ -63,13 +63,15 @@ namespace Terradue.OpenSearch.Request {
                 try {
                     Stopwatch sw = Stopwatch.StartNew();
                     httpWebRequest = (HttpWebRequest)WebRequest.Create(this.OpenSearchUrl);
+                    Console.WriteLine(this.OpenSearchUrl.ToString());
                     if ( contentType != null )
                         httpWebRequest.Accept = contentType;
                     httpWebRequest.Timeout = TimeOut;
                     HttpWebResponse webResponse = (HttpWebResponse)httpWebRequest.GetResponse();
                     sw.Stop();
 
-                    return new HttpOpenSearchResponse(webResponse, sw.Elapsed);
+                    HttpOpenSearchResponse response = new HttpOpenSearchResponse(webResponse, sw.Elapsed);
+                    return response;
 
                 } catch (WebException e) {
                     if (e.Status == WebExceptionStatus.Timeout) throw new TimeoutException(String.Format("Search Request {0} has timed out", httpWebRequest.RequestUri.AbsoluteUri), e);

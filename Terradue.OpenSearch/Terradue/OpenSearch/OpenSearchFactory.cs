@@ -264,6 +264,9 @@ namespace Terradue.OpenSearch {
             nvc1.Remove(ReverseTemplateOpenSearchParameters(GetBaseOpenSearchParameter())["startPage"]);
             nvc2.Remove(ReverseTemplateOpenSearchParameters(GetBaseOpenSearchParameter())["startPage"]);
 
+            nvc1.Remove(ReverseTemplateOpenSearchParameters(GetBaseOpenSearchParameter())["startIndex"]);
+            nvc2.Remove(ReverseTemplateOpenSearchParameters(GetBaseOpenSearchParameter())["startIndex"]);
+
             return nvc1.AllKeys.OrderBy(key => key)
 					.SequenceEqual(nvc2.AllKeys.OrderBy(key => key))
             && nvc1.AllKeys.All(key => nvc1[key] == nvc2[key]);

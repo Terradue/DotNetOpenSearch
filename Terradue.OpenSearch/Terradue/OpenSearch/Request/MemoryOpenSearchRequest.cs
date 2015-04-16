@@ -24,15 +24,14 @@ namespace Terradue.OpenSearch.Request
 		NameValueCollection parameters;
 		MemoryStream memStream;
 
-		string contentType;
+		
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Terradue.OpenSearch.Request.MemoryOpenSearchRequest"/> class.
         /// </summary>
         /// <param name="url">URL.</param>
         /// <param name="contentType">Content type.</param>
-        public MemoryOpenSearchRequest(OpenSearchUrl url, string contentType) : base(url){
-			this.contentType = contentType;
+        public MemoryOpenSearchRequest(OpenSearchUrl url, string contentType) : base(url, contentType){
             this.parameters = HttpUtility.ParseQueryString(url.Query);
 			memStream = new MemoryStream();
 		}
@@ -47,11 +46,19 @@ namespace Terradue.OpenSearch.Request
 			}
 		}
 
+        public TimeSpan ResponseValidity {
+            get ;
+            set ;
+        }
+
 		#region implemented abstract members of OpenSearchRequest
 
 		public override IOpenSearchResponse GetResponse() {
 			memStream.Seek(0, SeekOrigin.Begin);
-            return new MemoryOpenSearchResponse(memStream.ToArray(), contentType);
+            MemoryOpenSearchResponse mosr = new MemoryOpenSearchResponse(memStream.ToArray(), ContentType);
+            mosr.Validity = this.ResponseValidity.Ticks == 0 ? mosr.Validity : this.ResponseValidity;
+            return mosr;
+
 		}
 
         public override OpenSearchUrl OpenSearchUrl {
