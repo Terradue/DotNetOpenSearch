@@ -63,7 +63,6 @@
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="Log4Net.config" />
-    <None Include="app.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Terradue.OpenSearch\Terradue.OpenSearch.csproj">
