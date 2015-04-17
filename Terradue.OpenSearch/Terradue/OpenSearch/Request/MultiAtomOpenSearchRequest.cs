@@ -38,7 +38,7 @@ namespace Terradue.OpenSearch.Request {
         bool usingCache = false;
         long totalResults = 0;
 
-        bool concurrent = false;
+        bool concurrent = true;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Terradue.OpenSearch.Request.MultiAtomOpenSearchRequest"/> class.
