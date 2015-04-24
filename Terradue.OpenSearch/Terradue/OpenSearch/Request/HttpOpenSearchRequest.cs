@@ -33,7 +33,7 @@ namespace Terradue.OpenSearch.Request {
             this.contentType = contentType;
             if (!url.Scheme.StartsWith("http")) throw new InvalidOperationException("A http scheme is expected for this kind of request");
             this.OpenSearchUrl = url;
-
+            this.originalParameters = HttpUtility.ParseQueryString(url.Query);
         }
 
         /// <summary>
@@ -63,7 +63,6 @@ namespace Terradue.OpenSearch.Request {
                 try {
                     Stopwatch sw = Stopwatch.StartNew();
                     httpWebRequest = (HttpWebRequest)WebRequest.Create(this.OpenSearchUrl);
-                    Console.WriteLine(this.OpenSearchUrl.ToString());
                     if ( contentType != null )
                         httpWebRequest.Accept = contentType;
                     httpWebRequest.Timeout = TimeOut;
@@ -87,6 +86,16 @@ namespace Terradue.OpenSearch.Request {
             }
 
             throw new Exception("Unknown error during query at " + httpWebRequest.RequestUri.AbsoluteUri);
+        }
+
+        NameValueCollection originalParameters= new NameValueCollection();
+        public override NameValueCollection OriginalParameters {
+            get {
+                return originalParameters;
+            }
+            set {
+                originalParameters = value;
+            }
         }
 
         #endregion

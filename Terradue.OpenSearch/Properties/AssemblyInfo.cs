@@ -15,6 +15,23 @@
 * If not, see http://www.gnu.org/licenses/.
 */
 
+/*!
+
+\namespace Terradue.OpenSearch
+@{
+    DotNetOpenSearch Software Package
+
+    \xrefitem sw_version "Versions" "Software Package Version" 1.9.11
+
+    \xrefitem sw_link "Link" "Software Package Link" [DotNetOpenSearch](https://github.com/Terradue/DotNetOpenSearch)
+
+    \xrefitem sw_license "License" "Software License" [GPLv3](https://github.com/DotNetOpenSearch/Terradue.OpenSearch/blob/master/LICENSE.txt)
+
+    \ingroup OpenSearch
+@}
+
+*/
+
 using System.Reflection;
 using System.Runtime.CompilerServices;
 [assembly: AssemblyTitle ("Terradue.OpenSearch")]

@@ -33,6 +33,16 @@ namespace Terradue.OpenSearch.Request
             return new ParametersOpenSearchResponse(parameters);
 
         }
+
+        NameValueCollection originalParameters= new NameValueCollection();
+        public override NameValueCollection OriginalParameters {
+            get {
+                return originalParameters;
+            }
+            set {
+                originalParameters = value;
+            }
+        }
         #endregion
 	}
 

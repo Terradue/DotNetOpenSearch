@@ -23,7 +23,7 @@ using System.Web;
 @{
 This is the representation in Atom of OpenSearch query results
 
-\xrefitem cpgroup_model "Model" "Models"
+\ingroup Model
 
 \xrefitem cptype_document "Document" "Documents" represents \ref Syndication
 

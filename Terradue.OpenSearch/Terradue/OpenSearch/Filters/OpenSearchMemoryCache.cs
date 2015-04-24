@@ -146,13 +146,23 @@ namespace Terradue.OpenSearch.Filters {
         public CachedOpenSearchRequest(OpenSearchUrl url, IOpenSearchResponse response, NameValueCollection originalParameters, TimeSpan elapsed) : base(url, response.ContentType) {
             base.OpenSearchUrl = url;
             this.response = response;
-            base.OriginalParameters = originalParameters;
+            this.OriginalParameters = originalParameters;
         }
 
         #region implemented abstract members of OpenSearchRequest
 
         public override IOpenSearchResponse GetResponse() {
             return response;
+        }
+
+        NameValueCollection originalParameters;
+        public override NameValueCollection OriginalParameters {
+            get {
+                return originalParameters;
+            }
+            set {
+                originalParameters = value;
+            }
         }
 
         #endregion

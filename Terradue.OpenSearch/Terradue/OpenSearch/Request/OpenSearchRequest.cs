@@ -20,8 +20,6 @@ namespace Terradue.OpenSearch.Request {
     public abstract class OpenSearchRequest {
         OpenSearchUrl url;
 
-        NameValueCollection originalParameters;
-
         string contentType;
 
         /// <summary>
@@ -43,14 +41,7 @@ namespace Terradue.OpenSearch.Request {
             }
         }
 
-        public NameValueCollection OriginalParameters {
-            get {
-                return originalParameters;
-            }
-			protected set {
-				originalParameters = value;
-			}
-        }
+        public abstract NameValueCollection OriginalParameters { get; set;  }
 
         public string ContentType {
             get {
@@ -94,7 +85,7 @@ namespace Terradue.OpenSearch.Request {
                     break;
             }
 
-            request.originalParameters = parameters;
+            request.OriginalParameters = parameters;
 
             return request;
 

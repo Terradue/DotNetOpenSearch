@@ -31,13 +31,13 @@ using System.IO;
 @{
 This is the core of the OpenSearch mechanism
 
-\xrefitem cpgroup_os "OpenSearch" "OpenSearch"
-
 \xrefitem int "Interfaces" "Interfaces" process \ref OpenSearchable entities to expose them in OpenSearch interface.
 
 \xrefitem dep "Dependencies" "Dependencies" uses \ref Syndication model to represent \ref OpenSearchable entities.
 
 \xrefitem norm "Normative References" "Normative References" [OpenSearch 1.1](http://www.opensearch.org/Specifications/OpenSearch/1.1)
+
+\ingroup OpenSearch
 
 @}
 
@@ -52,7 +52,7 @@ namespace Terradue.OpenSearch.Engine {
     public sealed partial class OpenSearchEngine : IOpenSearchableFactory {
 
         public const int DEFAULT_COUNT = 20;
-        public const int DEFAULT_VALIDITY = 600;
+        public const int DEFAULT_VALIDITY = 3600;
 
         private log4net.ILog log = log4net.LogManager.GetLogger
             (System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);

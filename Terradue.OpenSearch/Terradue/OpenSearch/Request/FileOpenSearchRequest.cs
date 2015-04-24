@@ -56,6 +56,16 @@ namespace Terradue.OpenSearch.Request {
             }
         }
 
+        NameValueCollection originalParameters= new NameValueCollection();
+        public override NameValueCollection OriginalParameters {
+            get {
+                return originalParameters;
+            }
+            set {
+                originalParameters = value;
+            }
+        }
+
         #endregion
     }
 }

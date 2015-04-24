@@ -18,6 +18,15 @@ using System.Text;
 using Terradue.OpenSearch.Schema;
 using Terradue.OpenSearch.Engine;
 
+/*!
+
+\defgroup OpenSearch OpenSearch
+@{
+
+@}
+
+*/
+
 namespace Terradue.OpenSearch
 {
     /// <summary>
