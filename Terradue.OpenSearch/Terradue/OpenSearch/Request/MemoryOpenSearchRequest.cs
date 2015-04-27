@@ -34,6 +34,7 @@ namespace Terradue.OpenSearch.Request
         public MemoryOpenSearchRequest(OpenSearchUrl url, string contentType) : base(url, contentType){
             this.parameters = HttpUtility.ParseQueryString(url.Query);
 			memStream = new MemoryStream();
+            originalParameters = HttpUtility.ParseQueryString(url.Query);
 		}
 
         /// <summary>
@@ -64,6 +65,16 @@ namespace Terradue.OpenSearch.Request
         public override OpenSearchUrl OpenSearchUrl {
             get {
                 return base.OpenSearchUrl;
+            }
+        }
+
+        NameValueCollection originalParameters= new NameValueCollection();
+        public override NameValueCollection OriginalParameters {
+            get {
+                return originalParameters;
+            }
+            set {
+                originalParameters = value;
             }
         }
 

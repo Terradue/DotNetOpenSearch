@@ -538,21 +538,6 @@ namespace Terradue.OpenSearch {
             }
         }
 
-
-        /*public static void ReplaceId(IOpenSearchResult osr) {
-            IOpenSearchResultCollection feed = osr.Result;
-
-            var matchLinks = feed.Links.Where(l => l.RelationshipType == "self").ToArray();
-            if (matchLinks.Count() > 0)
-                feed.Id = matchLinks[0].Uri.ToString();
-
-            foreach (IOpenSearchResultItem item in feed.Items) {
-                matchLinks = item.Links.Where(l => l.RelationshipType == "self").ToArray();
-                if (matchLinks.Count() > 0)
-                    item.Id = matchLinks[0].Uri.ToString();
-            }
-        }*/
-
         public static void ReplaceOpenSearchDescriptionLinks(IOpenSearchable entity, IOpenSearchResultCollection osr) {
             IOpenSearchResultCollection feed = osr;
 

@@ -57,6 +57,8 @@ namespace Terradue.OpenSearch.Request {
             // Ask the cache if a previous page request is present to save some requests
             usingCache = GetClosestState(entities, type, this.originalParameters, out this.currentEntities, out this.currentParameters);
 
+
+
         }
 
         #region implemented abstract members of OpenSearchRequest
@@ -69,6 +71,15 @@ namespace Terradue.OpenSearch.Request {
             return new AtomOpenSearchResponse(feed, sw.Elapsed);
 
 
+        }
+
+        public override NameValueCollection OriginalParameters {
+            get {
+                return originalParameters;
+            }
+            set {
+                originalParameters = value;
+            }
         }
 
         #endregion
