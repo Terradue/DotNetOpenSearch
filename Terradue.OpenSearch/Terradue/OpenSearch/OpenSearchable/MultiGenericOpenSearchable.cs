@@ -59,20 +59,23 @@ namespace Terradue.OpenSearch {
         /// <param name="parameters">Parameters.</param>
         protected OpenSearchUrl GetInternalOpenSearchUrl(NameValueCollection parameters) {
             int hash = 0;
-            entities.SingleOrDefault(e => {hash += e.Identifier.GetHashCode(); return false;});
+            entities.SingleOrDefault(e => {
+                hash += e.Identifier.GetHashCode();
+                return false;
+            });
             UriBuilder url = new UriBuilder(string.Format("http://{0}", System.Environment.MachineName));
             url.Path += "/multi/" + hash;
             var array = (from key in parameters.AllKeys
-                         from value in parameters.GetValues(key)
-                         select string.Format("{0}={1}", HttpUtility.UrlEncode(key), HttpUtility.UrlEncode(value)))
+                                  from value in parameters.GetValues(key)
+                                  select string.Format("{0}={1}", HttpUtility.UrlEncode(key), HttpUtility.UrlEncode(value)))
                 .ToArray();
             url.Query = string.Join("&", array);
             return new OpenSearchUrl(url.ToString());
         }
-          
+
         #region IOpenSearchable implementation
 
-        public OpenSearchDescription GetOpenSearchDescription () {
+        public OpenSearchDescription GetOpenSearchDescription() {
 
             OpenSearchDescription osd = new OpenSearchDescription();
             osd.ShortName = this.Identifier;
@@ -86,7 +89,7 @@ namespace Terradue.OpenSearch {
 
             // Create the union Link
 
-            OpenSearchDescriptionUrl url = new OpenSearchDescriptionUrl("application/atom+xml", "dummy://dummy" , "results");
+            OpenSearchDescriptionUrl url = new OpenSearchDescriptionUrl("application/atom+xml", "dummy://dummy", "results");
 
             osd.Url = new OpenSearchDescriptionUrl[1];
             osd.Url[0] = url;
@@ -95,7 +98,8 @@ namespace Terradue.OpenSearch {
         }
 
         public NameValueCollection GetOpenSearchParameters(string mimeType) {
-            if (mimeType != "application/atom+xml") return null;
+            if (mimeType != "application/atom+xml")
+                return null;
             return OpenSearchFactory.MergeOpenSearchParameters(entities.ToArray(), "application/atom+xml");
         }
 
@@ -107,16 +111,14 @@ namespace Terradue.OpenSearch {
 
         }
 
-        public long TotalResults {
-            get {
+        public long GetTotalResults(string type, NameValueCollection parameters) {
 
-                long count = 0;
+            long count = 0;
 
-                foreach (IOpenSearchable entity in entities) {
-                    count = count + entity.TotalResults;
-                }
-                return count;
+            foreach (IOpenSearchable entity in entities) {
+                count = count + entity.GetTotalResults(type, parameters);
             }
+            return count;
         }
 
         public void ApplyResultFilters(OpenSearchRequest request, ref IOpenSearchResultCollection osr) {
@@ -145,6 +147,7 @@ namespace Terradue.OpenSearch {
                 return true;
             }
         }
+
         #endregion
 
     }

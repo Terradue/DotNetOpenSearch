@@ -10,6 +10,7 @@
 using System;
 using System.IO;
 using Terradue.OpenSearch.Engine;
+using Terradue.OpenSearch.Result;
 
 namespace Terradue.OpenSearch.Response
 {
@@ -17,7 +18,7 @@ namespace Terradue.OpenSearch.Response
     /// <summary>
     /// Provides a base class for OpenSearch response
     /// </summary>
-    public abstract class OpenSearchResponse<T> : IOpenSearchResponse
+    public class OpenSearchResponse<T> : IOpenSearchResponse
 	{
 
         protected T payload;
@@ -29,13 +30,22 @@ namespace Terradue.OpenSearch.Response
             payload = obj;
         }
 
+        public OpenSearchResponse(T obj, string contentType, TimeSpan requestTime){
+            payload = obj;
+            this.contentType = contentType;
+            this.requestTime = requestTime;
+        }
+
+        readonly string contentType;
         /// <summary>
         /// Get the MIME type of the response.
         /// </summary>
         /// <value>The type of the content.</value>
-		public abstract string ContentType {
-			get;
-		}
+        public virtual string ContentType {
+            get {
+                return contentType;
+            }
+        }
 
         /// <summary>
         /// Get the MIME type of the response.
@@ -55,13 +65,16 @@ namespace Terradue.OpenSearch.Response
             return payload;
         }
 
+        readonly TimeSpan requestTime;
         /// <summary>
         /// Gets the time interval spent for getting the response
         /// </summary>
         /// <value>A TimeSpan with the time interval</value>
-		public abstract TimeSpan RequestTime {
-			get;
-		}
+        public virtual TimeSpan RequestTime {
+            get {
+                return requestTime;
+            }
+        }
 
         /// <summary>
         /// Gets or sets the IOpenSearchable entity from which the response comes from.
@@ -72,7 +85,9 @@ namespace Terradue.OpenSearch.Response
 			set;
 		}
 
-        public abstract IOpenSearchResponse CloneForCache();
+        public virtual IOpenSearchResponse CloneForCache(){
+            return null;
+        }
 
         TimeSpan validity = TimeSpan.FromSeconds(OpenSearchEngine.DEFAULT_VALIDITY);
         public virtual TimeSpan Validity {

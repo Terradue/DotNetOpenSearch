@@ -69,10 +69,17 @@ namespace Terradue.OpenSearch.Filters {
         /// <param name="response">Response.</param>
         public void CacheResponse(OpenSearchRequest request, ref IOpenSearchResponse response) {
 
+
             if (response.Entity != null && !response.Entity.CanCache)
                 return;
 
-            OpenSearchResponseCacheItem item = new OpenSearchResponseCacheItem(request.OpenSearchUrl, response);
+               
+            var clonedResponse = response.CloneForCache();
+
+            if (clonedResponse == null)
+                throw new InvalidOperationException(string.Format("Response cannot be cached because it is null. Check the CloneForCache of the response [{0}] or the CanCache() method of the Opensearchable [{1}] requested", response.GetType(), response.Entity.GetType()));
+            
+            OpenSearchResponseCacheItem item = new OpenSearchResponseCacheItem(request.OpenSearchUrl, clonedResponse);
             CacheItemPolicy policy = this.CreatePolicy(item, request);
             log.DebugFormat("OpenSearch Cache {0} [store]", request.OpenSearchUrl);
 
@@ -114,7 +121,7 @@ namespace Terradue.OpenSearch.Filters {
     /// </summary>
     public class OpenSearchResponseCacheItem : CacheItem {
 
-        public OpenSearchResponseCacheItem(OpenSearchUrl url, IOpenSearchResponse response) : base(url.ToString(), response.CloneForCache()) {
+        public OpenSearchResponseCacheItem(OpenSearchUrl url, IOpenSearchResponse clonedResponse) : base(url.ToString(),clonedResponse) {
 
         }
 

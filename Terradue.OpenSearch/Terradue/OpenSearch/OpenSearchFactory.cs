@@ -507,16 +507,16 @@ namespace Terradue.OpenSearch {
                 return;
 
             NameValueCollection newNvc = new NameValueCollection(parameters);
-            NameValueCollection nvc = OpenSearchFactory.GetOpenSearchParameters(OpenSearchFactory.GetOpenSearchUrlByType(osd, contentType));
+            NameValueCollection osparams = OpenSearchFactory.GetOpenSearchParameters(OpenSearchFactory.GetOpenSearchUrlByType(osd, contentType));
             newNvc.AllKeys.FirstOrDefault(k => {
-                if (nvc[k] == null)
+                if (string.IsNullOrEmpty(OpenSearchFactory.GetParamNameFromId(osparams, k)))
                     newNvc.Remove(k);
                 return false;
             });
-            nvc.AllKeys.FirstOrDefault(k => {
-                Match matchParamDef = Regex.Match(nvc[k], @"^{([^?]+)\??}$");
+            osparams.AllKeys.FirstOrDefault(k => {
+                Match matchParamDef = Regex.Match(osparams[k], @"^{([^?]+)\??}$");
                 if (!matchParamDef.Success)
-                    newNvc.Set(k, nvc[k]);
+                    newNvc.Set(k, osparams[k]);
                 return false;
             });
 

@@ -9,8 +9,6 @@
     <AssemblyName>Terradue.OpenSearch</AssemblyName>
     <ReleaseVersion>1.5</ReleaseVersion>
     <SynchReleaseVersion>false</SynchReleaseVersion>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -96,11 +94,11 @@
     <Compile Include="Terradue\OpenSearch\Request\AtomOpenSearchRequest.cs" />
     <Compile Include="Terradue\OpenSearch\Request\MultiAtomGroupedOpenSearchRequest.cs" />
     <Compile Include="Terradue\OpenSearch\Request\PaginatedList.cs" />
+    <Compile Include="Terradue\OpenSearch\Request\MultiOpenSearchRequest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <None Include="Terradue.OpenSearch.csproj" />
     <None Include="packages.config" />
-    <None Include="Terradue\OpenSearch\Request\MultiOpenSearchRequest.cs" />
   </ItemGroup>
 </Project>

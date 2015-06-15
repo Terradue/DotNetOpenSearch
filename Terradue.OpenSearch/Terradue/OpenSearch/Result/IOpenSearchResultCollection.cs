@@ -59,6 +59,7 @@ namespace Terradue.OpenSearch.Result {
         string ContentType { get; }
 
         bool ShowNamespaces { get; set; }
+
     }
 
 
