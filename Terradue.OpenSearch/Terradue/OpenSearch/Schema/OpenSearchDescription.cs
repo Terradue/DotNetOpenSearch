@@ -64,7 +64,7 @@ namespace Terradue.OpenSearch.Schema {
             }
             set {
 
-                if (value.Length > ShortNameMaxLength)
+                if (value != null && value.Length > ShortNameMaxLength)
                     this.shortNameField = value.Substring(0, ShortNameMaxLength);
                 else
                     this.shortNameField = value;
