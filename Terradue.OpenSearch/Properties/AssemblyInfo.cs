@@ -21,7 +21,7 @@
 @{
     DotNetOpenSearch Software Package
 
-    \xrefitem sw_version "Versions" "Software Package Version" 1.9.11
+    \xrefitem sw_version "Versions" "Software Package Version" 1.10.3
 
     \xrefitem sw_link "Link" "Software Package Link" [DotNetOpenSearch](https://github.com/Terradue/DotNetOpenSearch)
 
@@ -42,8 +42,8 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyCopyright ("Terradue")]
 [assembly: AssemblyTrademark ("")]
 [assembly: AssemblyCulture ("")]
-[assembly: AssemblyVersion ("1.10.2.*")]
-[assembly: AssemblyInformationalVersion ("1.10.2")]
+[assembly: AssemblyVersion ("1.10.3.*")]
+[assembly: AssemblyInformationalVersion ("1.10.3")]
 
 [assembly: log4net.Config.XmlConfigurator(ConfigFile="Log4Net.config", Watch = true)]
 
