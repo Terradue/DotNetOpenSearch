@@ -494,7 +494,7 @@ namespace Terradue.OpenSearch.Engine {
            
             XElement query = new XElement(XName.Get("Query", "http://a9.com/-/spec/opensearch/1.1/"));
             OpenSearchDescription osd = null;
-            if ( response.Entity is IProxiedOpenSearchable )
+            if (response.Entity is IProxiedOpenSearchable)
                 osd = ((IProxiedOpenSearchable)response.Entity).GetProxyOpenSearchDescription();
             else
                 osd = response.Entity.GetOpenSearchDescription();
@@ -506,13 +506,16 @@ namespace Terradue.OpenSearch.Engine {
             var osparams = OpenSearchFactory.GetOpenSearchParameters(OpenSearchFactory.GetOpenSearchUrlByType(osd, response.ContentType));
             foreach (var key in request.Parameters.AllKeys) {
                 string osparam = OpenSearchFactory.GetParamNameFromId(osparams, key);
-                if ( !string.IsNullOrEmpty(osparam) ){
-                    if ( osparam.Contains(":") )
-                        query.Add(new XAttribute(XName.Get(osparam.Split(':')[1], osd.ExtraNamespace.ToArray().First(n => n.Name == osparam.Split(':')[0]).Namespace), request.Parameters[key]));
-                              else {
-                        query.Add(new XAttribute(XName.Get(osparam, osd.ExtraNamespace.ToArray().First(n => n.Name == "os").Namespace), request.Parameters[key]));
+                if (!string.IsNullOrEmpty(osparam)) {
+                    try {
+                        if (osparam.Contains(":"))
+                            query.Add(new XAttribute(XName.Get(osparam.Split(':')[1], osd.ExtraNamespace.ToArray().First(n => n.Name == osparam.Split(':')[0]).Namespace), request.Parameters[key]));
+                        else {
+                            query.Add(new XAttribute(XName.Get(osparam, osd.ExtraNamespace.ToArray().First(n => n.Name == "os").Namespace), request.Parameters[key]));
                         }
-                              }
+                    } catch {
+                    }
+                }
             }
             newResults.ElementExtensions.Add(query.CreateReader());
 
