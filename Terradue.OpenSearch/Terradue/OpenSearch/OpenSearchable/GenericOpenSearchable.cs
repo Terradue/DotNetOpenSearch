@@ -53,15 +53,18 @@ namespace Terradue.OpenSearch {
 
         public QuerySettings GetQuerySettings(OpenSearchEngine ose) {
             IOpenSearchEngineExtension osee = ose.GetExtensionByContentTypeAbility(this.DefaultMimeType);
-            if (osee == null) return null;
+            if (osee == null)
+                return null;
 
             return new QuerySettings(osee.DiscoveryContentType, osee.ReadNative);
         }
 
         public OpenSearchRequest Create(string type, NameValueCollection parameters) {
             NameValueCollection nvc;
-            if (url != null) nvc = HttpUtility.ParseQueryString(url.Query);
-            else nvc = new NameValueCollection();
+            if (url != null)
+                nvc = HttpUtility.ParseQueryString(url.Query);
+            else
+                nvc = new NameValueCollection();
             parameters.AllKeys.SingleOrDefault(k => {
                 nvc.Set(k, parameters[k]);
                 return false;
@@ -76,7 +79,8 @@ namespace Terradue.OpenSearch {
         }
 
         public OpenSearchDescription GetOpenSearchDescription() {
-            if (osd == null) this.osd = ose.AutoDiscoverFromQueryUrl(url);
+            if (osd == null)
+                this.osd = ose.AutoDiscoverFromQueryUrl(url);
             return osd;
         }
 
@@ -91,13 +95,21 @@ namespace Terradue.OpenSearch {
         }
 
         long totalResults = -1;
-        public long GetTotalResults (string type, NameValueCollection nvc){
-                if (totalResults < 0) {
-                    nvc.Set("count", "0");
-                    var osr = ose.Query(this, nvc, "atom");
-                    totalResults = osr.Result.TotalResults;
+
+        public long GetTotalResults(string type, NameValueCollection nvc) {
+            if (totalResults < 0) {
+                var request = this.Create(type, nvc);
+                var iosr = request.GetResponse();
+                var querySettings = this.GetQuerySettings(ose);
+                var results = querySettings.ReadNative.Invoke(iosr);
+                try { 
+                    totalResults = long.Parse(results.ElementExtensions.ReadElementExtensions<string>("totalResults", "http://a9.com/-/spec/opensearch/1.1/")[0]);
                 }
-                return totalResults;
+                catch {
+                    totalResults = 0;
+                }
+            }
+            return totalResults;
         }
 
         public void ApplyResultFilters(OpenSearchRequest request, ref IOpenSearchResultCollection osr) {
@@ -121,6 +133,7 @@ namespace Terradue.OpenSearch {
                 return true;
             }
         }
+
         #endregion
     }
 }
