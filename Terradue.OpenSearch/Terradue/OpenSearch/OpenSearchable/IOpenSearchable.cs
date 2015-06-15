@@ -104,7 +104,7 @@ namespace Terradue.OpenSearch {
         /// Get the total of possible results for the OpenSearchable entity
         /// </summary>
         /// <returns>a unsigned long number representing the number of items searchable</returns>
-        long TotalResults { get; }
+        long GetTotalResults(string mimetype, NameValueCollection parameters);
 
         /// <summary>
         /// Optional function that apply to the result after the search and before the result is returned by OpenSearchEngine.

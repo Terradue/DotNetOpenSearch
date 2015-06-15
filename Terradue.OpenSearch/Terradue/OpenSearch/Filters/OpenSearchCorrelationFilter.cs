@@ -53,7 +53,7 @@ namespace Terradue.OpenSearch.Filters {
         /// <param name="searchParameters">Search parameters.</param>
         public static OpenSearchUrl GetCorrelatedUrl (NameValueCollection searchParameters){
 
-            string corWith = searchParameters[GetCorrelationOpenSearchParameters()["cor:with"]];
+            string corWith = searchParameters["correlatedTo"];
             if (corWith == null) return null;
 
             OpenSearchUrl urlCor = new OpenSearchUrl(corWith);
@@ -69,7 +69,7 @@ namespace Terradue.OpenSearch.Filters {
         /// <param name="searchParameters">Search parameters.</param>
         public static string GetFunction (NameValueCollection searchParameters){
 
-            return searchParameters[OpenSearchCorrelationFilter.GetCorrelationOpenSearchParameters()["cor:function"]];
+            return searchParameters["corFunction"];
 
         }
 
@@ -80,7 +80,7 @@ namespace Terradue.OpenSearch.Filters {
         /// <param name="searchParameters">Search parameters.</param>
         public static int GetMinimum (NameValueCollection searchParameters){
 
-            string value = searchParameters[OpenSearchCorrelationFilter.GetCorrelationOpenSearchParameters()["cor:minimum"]];
+            string value = searchParameters["minimumCor"];
             try {
                 return int.Parse(value);
             } catch (Exception){
@@ -96,12 +96,12 @@ namespace Terradue.OpenSearch.Filters {
         public static UniqueValueDictionary<string,string> GetCorrelationOpenSearchParameters (){
             UniqueValueDictionary<string,string> osdic = new UniqueValueDictionary<string, string>();
 
-            osdic.Add("cor:with", "correlatedTo");
-            osdic.Add("cor:time", "timeCover");
-            osdic.Add("cor:spatial", "spatialCover");
-            osdic.Add("cor:minimum", "minimumCor");
-            osdic.Add("cor:function", "corFunction");
-            osdic.Add("cor:parameters", "corParams");
+            osdic.Add("correlatedTo", "{cor:with?}" );
+            osdic.Add("timeCover", "{cor:time?}" );
+            osdic.Add("spatialCover", "{cor:spatial?}");
+            osdic.Add("minimumCor", "{cor:minimum?}" );
+            osdic.Add("corFunction", "{cor:function?}");
+            osdic.Add("corParams", "{cor:parameters?}" );
 
             return osdic;
         }

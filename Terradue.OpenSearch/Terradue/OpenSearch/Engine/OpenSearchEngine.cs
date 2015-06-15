@@ -490,17 +490,35 @@ namespace Terradue.OpenSearch.Engine {
             }
             newResults.ElementExtensions.Add("startIndex", "http://a9.com/-/spec/opensearch/1.1/", request.OpenSearchUrl.IndexOffset);
             newResults.ElementExtensions.Add("itemsPerPage", "http://a9.com/-/spec/opensearch/1.1/", request.OpenSearchUrl.Count);
+
+           
             XElement query = new XElement(XName.Get("Query", "http://a9.com/-/spec/opensearch/1.1/"));
-            foreach (var key in request.Parameters.AllKeys) {
-                if (string.IsNullOrEmpty(key))
+            OpenSearchDescription osd = null;
+            if ( response.Entity is IProxiedOpenSearchable )
+                osd = ((IProxiedOpenSearchable)response.Entity).GetProxyOpenSearchDescription();
+            else
+                osd = response.Entity.GetOpenSearchDescription();
+            foreach (var ns in osd.ExtraNamespace.ToArray()) {
+                if (string.IsNullOrEmpty(ns.Name) || ns.Namespace == "http://www.w3.org/2001/XMLSchema" || ns.Namespace == "http://www.w3.org/2001/XMLSchema-instance" || ns.Namespace == XNamespace.Xmlns.NamespaceName)
                     continue;
-                query.SetAttributeValue(XName.Get(key), request.Parameters[key]);
+                query.Add(new XAttribute(XNamespace.Xmlns + ns.Name, ns.Namespace));
+            }
+            var osparams = OpenSearchFactory.GetOpenSearchParameters(OpenSearchFactory.GetOpenSearchUrlByType(osd, response.ContentType));
+            foreach (var key in request.Parameters.AllKeys) {
+                string osparam = OpenSearchFactory.GetParamNameFromId(osparams, key);
+                if ( !string.IsNullOrEmpty(osparam) ){
+                    if ( osparam.Contains(":") )
+                        query.Add(new XAttribute(XName.Get(osparam.Split(':')[1], osd.ExtraNamespace.ToArray().First(n => n.Name == osparam.Split(':')[0]).Namespace), request.Parameters[key]));
+                              else {
+                        query.Add(new XAttribute(XName.Get(osparam, osd.ExtraNamespace.ToArray().First(n => n.Name == "os").Namespace), request.Parameters[key]));
+                        }
+                              }
             }
             newResults.ElementExtensions.Add(query.CreateReader());
 
             if (totalResults == false) {
                 XElement tr = new XElement(XName.Get("totalResults", "http://a9.com/-/spec/opensearch/1.1/"));
-                tr.SetValue(newResults.TotalResults);
+                tr.SetValue(response.Entity.GetTotalResults(response.ContentType, request.OriginalParameters));
                 newResults.ElementExtensions.Add(tr.CreateReader());
             }
 

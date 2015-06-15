@@ -20,16 +20,18 @@ namespace Terradue.OpenSearch.Test {
         }
 
         #region IOpenSearchable implementation
+
         public QuerySettings GetQuerySettings(Terradue.OpenSearch.Engine.OpenSearchEngine ose) {
             IOpenSearchEngineExtension osee = new AtomOpenSearchEngineExtension();
             return new QuerySettings(osee.DiscoveryContentType, osee.ReadNative);
         }
+
         public OpenSearchRequest Create(string type, NameValueCollection parameters) {
             UriBuilder url = new UriBuilder("dummy://localhost");
             url.Path += "test/search";
             var array = (from key in parameters.AllKeys
-                         from value in parameters.GetValues(key)
-                         select string.Format("{0}={1}", HttpUtility.UrlEncode(key), HttpUtility.UrlEncode(value)))
+                                  from value in parameters.GetValues(key)
+                                  select string.Format("{0}={1}", HttpUtility.UrlEncode(key), HttpUtility.UrlEncode(value)))
                 .ToArray();
             url.Query = string.Join("&", array);
 
@@ -42,6 +44,7 @@ namespace Terradue.OpenSearch.Test {
 
             return request;
         }
+
         public Terradue.OpenSearch.Schema.OpenSearchDescription GetOpenSearchDescription() {
             OpenSearchDescription osd = new OpenSearchDescription();
             osd.ShortName = "test";
@@ -74,22 +77,25 @@ namespace Terradue.OpenSearch.Test {
 
             return osd;
         }
+
         public System.Collections.Specialized.NameValueCollection GetOpenSearchParameters(string mimeType) {
             return OpenSearchFactory.GetBaseOpenSearchParameter();
         }
+
         public void ApplyResultFilters(Terradue.OpenSearch.Request.OpenSearchRequest request, ref Terradue.OpenSearch.Result.IOpenSearchResultCollection osr) {
 
         }
+
         public string Identifier {
             get {
                 return "test";
             }
         }
-        public long TotalResults {
-            get {
-                return Items.Count();
-            }
+
+        public long GetTotalResults(string type, NameValueCollection parameters) {
+            return Items.Count();
         }
+
         public string DefaultMimeType {
             get {
                 return "application/atom+xml";
@@ -105,6 +111,7 @@ namespace Terradue.OpenSearch.Test {
                 return true;
             }
         }
+
         #endregion
 
         public event OpenSearchableChangeEventHandler OpenSearchableChange;
@@ -118,8 +125,8 @@ namespace Terradue.OpenSearch.Test {
             string[] queryString = Array.ConvertAll(parameters.AllKeys, key => String.Format("{0}={1}", key, parameters[key]));
             myUrl.Query = string.Join("&", queryString);
 
-            AtomFeed feed = new AtomFeed("Discovery feed for "+this.Identifier,
-                                         "This OpenSearch Service allows the discovery of the different items which are part of the "+this.Identifier+" collection" +
+            AtomFeed feed = new AtomFeed("Discovery feed for " + this.Identifier,
+                                         "This OpenSearch Service allows the discovery of the different items which are part of the " + this.Identifier + " collection" +
                                          "This search service is in accordance with the OGC 10-032r3 specification.",
                                          myUrl.Uri, myUrl.ToString(), DateTimeOffset.UtcNow);
 
@@ -132,25 +139,30 @@ namespace Terradue.OpenSearch.Test {
             PaginatedList<TestItem> pds = new PaginatedList<TestItem>();
 
             int startIndex = 1;
-            if (parameters["startIndex"] != null) startIndex = int.Parse(parameters["startIndex"]);
+            if (parameters["startIndex"] != null)
+                startIndex = int.Parse(parameters["startIndex"]);
 
             pds.AddRange(Items);
 
             pds.PageNo = 1;
-            if (parameters["startPage"] != null) pds.PageNo = int.Parse(parameters["startPage"]);
+            if (parameters["startPage"] != null)
+                pds.PageNo = int.Parse(parameters["startPage"]);
 
             pds.PageSize = 20;
-            if (parameters["count"] != null) pds.PageSize = int.Parse(parameters["count"]);
+            if (parameters["count"] != null)
+                pds.PageSize = int.Parse(parameters["count"]);
 
-            pds.StartIndex = startIndex-1;
+            pds.StartIndex = startIndex - 1;
 
-            if(this.Identifier != null) feed.ElementExtensions.Add("identifier", "http://purl.org/dc/elements/1.1/", this.Identifier);
+            if (this.Identifier != null)
+                feed.ElementExtensions.Add("identifier", "http://purl.org/dc/elements/1.1/", this.Identifier);
 
             foreach (TestItem s in pds.GetCurrentPage()) {
 
                 if (s is IAtomizable) {
                     AtomItem item = (s as IAtomizable).ToAtomItem(parameters);
-                    if(item != null) items.Add(item);
+                    if (item != null)
+                        items.Add(item);
                 } else {
 
                     string fIdentifier = s.Identifier;
@@ -192,7 +204,7 @@ namespace Terradue.OpenSearch.Test {
             set;
         }
 
-        public static TestOpenSearchable GenerateNumberedItomFeed(string lid, int n){
+        public static TestOpenSearchable GenerateNumberedItomFeed(string lid, int n) {
 
             TestOpenSearchable test = new TestOpenSearchable();
             List<TestItem> items = new List<TestItem>();
@@ -200,9 +212,9 @@ namespace Terradue.OpenSearch.Test {
             for (int i = 1; i <= n; i++) {
 
                 TestItem item = new TestItem(i);
-                item.Identifier = lid+i;
-                item.Name = "Item" + lid+i;
-                item.TextContent = "This is the text for item " + lid+i;
+                item.Identifier = lid + i;
+                item.Name = "Item" + lid + i;
+                item.TextContent = "This is the text for item " + lid + i;
 
                 items.Add(item);
 
@@ -246,7 +258,7 @@ namespace Terradue.OpenSearch.Test {
 
             public DateTimeOffset Date {
                 get {
-                    return new DateTime(1900, 01, 01, 01, 01, 01).AddYears(100-i);
+                    return new DateTime(1900, 01, 01, 01, 01, 01).AddYears(100 - i);
                 }
             }
         }

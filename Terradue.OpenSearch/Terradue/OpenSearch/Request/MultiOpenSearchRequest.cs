@@ -24,9 +24,9 @@ namespace Terradue.OpenSearch.Request {
     /// </summary>
     /// <description>
     /// This request will return an atom response and thus the entities requested must be able to return 
-    /// Atom response.
+    /// Opensearch Collection response.
     /// </description>
-    public class MultiOpenSearchRequest : OpenSearchRequest {
+    public class MultiOpenSearchRequest<TFeed, TItem> : OpenSearchRequest where TFeed: class, IOpenSearchResultCollection, ICloneable, new() where TItem: class, IOpenSearchResultItem  {
         static List<MultiOpenSearchRequestState> requestStatesCache = new List<MultiOpenSearchRequestState>();
         string type;
         NameValueCollection originalParameters, entitiesParameters, currentParameters;
@@ -34,20 +34,20 @@ namespace Terradue.OpenSearch.Request {
         CountdownEvent countdown;
         Dictionary<IOpenSearchable, int> currentEntities;
         Dictionary<IOpenSearchable,IOpenSearchResult> results;
-        AtomFeed feed;
+        TFeed feed;
         bool usingCache = false;
-        long totalResults = 0;
 
-        bool concurrent = false;
+
+        bool concurrent = true;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Terradue.OpenSearch.Request.MultiAtomOpenSearchRequest"/> class.
+        /// Initializes a new instance of the <see cref="Terradue.OpenSearch.Request.MultiOpenSearchRequest"/> class.
         /// </summary>
         /// <param name="ose">Instance of OpenSearchEngine, preferably with the AtomOpenSearchEngineExtension registered</param>
         /// <param name="entities">IOpenSearchable entities to be searched.</param>
         /// <param name="type">contentType of the .</param>
         /// <param name="url">URL.</param>
-        public MultiOpenSearchRequest(OpenSearchEngine ose, IOpenSearchable[] entities, string type, OpenSearchUrl url, bool concurrent) : base(url) {
+        public MultiOpenSearchRequest(OpenSearchEngine ose, IOpenSearchable[] entities, string type, OpenSearchUrl url, bool concurrent) : base(url, type) {
             this.concurrent = concurrent;
 
             this.ose = ose;
@@ -57,18 +57,29 @@ namespace Terradue.OpenSearch.Request {
             // Ask the cache if a previous page request is present to save some requests
             usingCache = GetClosestState(entities, type, this.originalParameters, out this.currentEntities, out this.currentParameters);
 
+
+
         }
 
         #region implemented abstract members of OpenSearchRequest
 
-        public override OpenSearchResponse GetResponse() {
+        public override IOpenSearchResponse GetResponse() {
 
             Stopwatch sw = Stopwatch.StartNew();
             RequestCurrentPage();
             sw.Stop();
-            return new AtomOpenSearchResponse(feed, sw.Elapsed);
+            return new OpenSearchResponse<TFeed>(feed, type, sw.Elapsed);
 
 
+        }
+
+        public override NameValueCollection OriginalParameters {
+            get {
+                return originalParameters;
+            }
+            set {
+                originalParameters = value;
+            }
         }
 
         #endregion
@@ -100,18 +111,67 @@ namespace Terradue.OpenSearch.Request {
 
             }
 
-            PrepareTotalResults();
+
+            int currentStartIndex = 1;
+            int originalStartIndex = 1;
+            try {
+                currentStartIndex = int.Parse(currentParameters[OpenSearchFactory.ReverseTemplateOpenSearchParameters(OpenSearchFactory.GetBaseOpenSearchParameter())["startIndex"]]);
+            } catch (Exception) {
+                currentParameters[OpenSearchFactory.ReverseTemplateOpenSearchParameters(OpenSearchFactory.GetBaseOpenSearchParameter())["startIndex"]] = currentStartIndex.ToString();
+            }
+
+            try {
+                originalStartIndex = int.Parse(originalParameters[OpenSearchFactory.ReverseTemplateOpenSearchParameters(OpenSearchFactory.GetBaseOpenSearchParameter())["startIndex"]]);
+            } catch (Exception) {
+            }
+
+
+            // new page -> new feed
+            feed = new TFeed();
+
+
+            // While we do not have the count needed for our results
+            // and that all the sources have are not empty
+            while (feed.Items.Count() < originalStartIndex-currentStartIndex && emptySources == false) {
+
+                //
+                ExecuteConcurrentRequest();
+
+                MergeResults();
+
+                feed.Items = feed.Items.Take(originalStartIndex-currentStartIndex);
+
+                SetCurrentEntitiesOffset();
+
+                var r1 = results.Values.FirstOrDefault(r => {
+                    TFeed result = (TFeed)r.Result;
+                    if (result.Items.Count() > 0)
+                        return true;
+                    return false;
+                });
+
+                emptySources = (r1 == null);
+
+                currentStartIndex += feed.Items.Count();
+
+                currentParameters[OpenSearchFactory.ReverseTemplateOpenSearchParameters(OpenSearchFactory.GetBaseOpenSearchParameter())["startIndex"]] = currentStartIndex.ToString();
+
+                CacheCurrentState();
+
+            }
+
+
 
             while (currentStartPage <= originalStartPage) {
 
                 // new page -> new feed
-                feed = new AtomFeed();
+                feed = new TFeed();
 
                 // count=0 case for totalResults
                 if (count == 0) {
                     ExecuteConcurrentRequest();
                     MergeResults();
-                    feed = new AtomFeed();
+                    feed = new TFeed();
                 }
 
                 // While we do not have the count needed for our results
@@ -126,7 +186,7 @@ namespace Terradue.OpenSearch.Request {
                     SetCurrentEntitiesOffset();
 
                     var r1 = results.Values.FirstOrDefault(r => {
-                        AtomFeed result = (AtomFeed)r.Result;
+                        TFeed result = (TFeed)r.Result;
                         if (result.Items.Count() > 0)
                             return true;
                         return false;
@@ -136,13 +196,28 @@ namespace Terradue.OpenSearch.Request {
 
                 }
 
+                if (currentStartPage == 1) {
+                    // nest startIndex
+                    currentStartIndex += feed.Items.Count();
+                    currentParameters[OpenSearchFactory.ReverseTemplateOpenSearchParameters(OpenSearchFactory.GetBaseOpenSearchParameter())["startIndex"]] = currentStartIndex.ToString();
+                    // lets cache and then reset
+                    CacheCurrentState();
+                    currentStartIndex -= feed.Items.Count();
+                    currentParameters[OpenSearchFactory.ReverseTemplateOpenSearchParameters(OpenSearchFactory.GetBaseOpenSearchParameter())["startIndex"]] = currentStartIndex.ToString();
+                }
+
                 // next page
                 currentStartPage++;
                 currentParameters[OpenSearchFactory.ReverseTemplateOpenSearchParameters(OpenSearchFactory.GetBaseOpenSearchParameter())["startPage"]] = currentStartPage.ToString();
                 CacheCurrentState();
 
             }
-                
+
+            long totalResults = 0;
+            foreach (var osEntity in currentEntities.Keys) {
+                totalResults += osEntity.GetTotalResults(feed.ContentType, OriginalParameters);
+            }
+
             feed.ElementExtensions.Add("totalResults", "http://a9.com/-/spec/opensearch/1.1/", totalResults);
         }
 
@@ -166,8 +241,6 @@ namespace Terradue.OpenSearch.Request {
 
             countdown.Wait();
 
-
-
         }
 
         /// <summary>
@@ -182,7 +255,7 @@ namespace Terradue.OpenSearch.Request {
 
             entityParameters["startIndex"] = offset.ToString();
 
-            IOpenSearchResult result = ose.Query((IOpenSearchable)entity, entityParameters, typeof(AtomFeed));
+            IOpenSearchResult result = ose.Query((IOpenSearchable)entity, entityParameters);
             results.Add((IOpenSearchable)entity, result);
             countdown.Signal();
 
@@ -193,14 +266,16 @@ namespace Terradue.OpenSearch.Request {
         /// </summary>
         void MergeResults() {
 
+            //totalResults = 0;
+
             foreach (IOpenSearchResult result in results.Values) {
 
-                AtomFeed f1 = (AtomFeed)result.Result;
+                TFeed f1 = (TFeed)result.Result;
 
                 if (f1.Items.Count() == 0)
                     continue;
                 feed = Merge(feed, f1);
-				
+
             }
         }
 
@@ -209,9 +284,9 @@ namespace Terradue.OpenSearch.Request {
         /// </summary>
         /// <param name="f1">F1.</param>
         /// <param name="f2">F2.</param>
-        AtomFeed Merge(AtomFeed f1, AtomFeed f2) {
+        TFeed Merge(TFeed f1, TFeed f2) {
 
-            AtomFeed feed = new AtomFeed(f1, false);
+            TFeed feed = (TFeed)f1.Clone();
 
             int originalCount;
             try {
@@ -229,24 +304,12 @@ namespace Terradue.OpenSearch.Request {
 
             }
 
-            feed.Items = f1.Items.Union(f2.Items).OrderByDescending(u => u.Date);
+            feed.Items = f1.Items.Union(f2.Items).OrderBy(u => u.Id).OrderByDescending(u => u.Date);
 
             feed.Items = feed.Items.Take(originalCount);
 
 
-            return new AtomFeed(feed);
-        }
-
-        /// <summary>
-        /// Prepares the total results.
-        /// </summary>
-        void PrepareTotalResults() {
-            totalResults = 0;
-            foreach (IOpenSearchable entity in currentEntities.Keys) {
-
-                totalResults += entity.TotalResults;
-
-            }
+            return (TFeed)feed.Clone();
         }
 
         /// <summary>
@@ -263,14 +326,14 @@ namespace Terradue.OpenSearch.Request {
             entities2 = new Dictionary<IOpenSearchable, int>(entities.Length);
 
             // Find the request states with the same combination of opensearchable items
-            List<MultiAtomOpenSearchRequestState> states = requestStatesCache.FindAll(s => s.Entities.Keys.ToArray().SequenceEqual(entities, new OpenSearchableComparer()));
+            List<MultiOpenSearchRequestState> states = requestStatesCache.FindAll(s => s.Entities.Keys.ToArray().SequenceEqual(entities, new OpenSearchableComparer()));
             // and with the same opensearch parameters
             states = states.FindAll(s => OpenSearchFactory.PaginationFreeEqual(s.Parameters, parameters) == true);
 
             // if no such state, create new one with the entity pagination parameter unset (=1)
             if (states.Count <= 0) {
                 foreach (IOpenSearchable entity in entities)
-                    entities2.Add(entity, 1);
+                    entities2.Add(entity, entity.GetOpenSearchDescription().DefaultUrl.IndexOffset);
                 parameters2 = RemovePaginationParameters(parameters);
                 return false;
             }
@@ -282,15 +345,30 @@ namespace Terradue.OpenSearch.Request {
             } catch (Exception) {
             }
 
+            int startIndex = 1;
+            try {
+                startIndex = int.Parse(parameters["startIndex"]);
+            } catch (Exception) {
+            }
+
             // Lets try the find the latest startPage regarding the requested startPage (closest) in the cached states
-            List<MultiAtomOpenSearchRequestState> temp = states.Where(m => int.Parse(m.Parameters["startPage"]) <= startPage).ToList();
+            List<MultiOpenSearchRequestState> temp = states.Where(m => int.Parse(m.Parameters["startPage"]) <= startPage).ToList();
             temp = temp.OrderByDescending(m => int.Parse(m.Parameters["startPage"])).ToList();
-            MultiAtomOpenSearchRequestState state = temp.FirstOrDefault();
+
+            List<MultiOpenSearchRequestState> temp2 = temp.Where(m => int.Parse(m.Parameters["startIndex"]) <= startIndex).ToList();
+            temp2 = temp2.OrderByDescending(m => int.Parse(m.Parameters["startIndex"])).ToList();
+
+            MultiOpenSearchRequestState state = temp2.FirstOrDefault();
 
             // If not, useless and create new one with the entity pagination parameter unset (=1)
             if (state.Entities == null) {
-                foreach (IOpenSearchable entity in entities)
-                    entities2.Add(entity, 1);
+                foreach (IOpenSearchable entity in entities) {
+                    if (entity is IProxiedOpenSearchable) {
+                        entities2.Add(entity, ((IProxiedOpenSearchable)entity).GetProxyOpenSearchDescription().Url.FirstOrDefault(p => p.Type == type).IndexOffset);
+                    } else {
+                        entities2.Add(entity, entity.GetOpenSearchDescription().Url.FirstOrDefault(p => p.Type == type).IndexOffset);
+                    }
+                }
                 parameters2 = RemovePaginationParameters(parameters);
                 return false;
             }
@@ -314,7 +392,7 @@ namespace Terradue.OpenSearch.Request {
             foreach (IOpenSearchable entity in it) {
 
                 // the offset for this entity will be the number of items taken from its current result.
-                int offset = ((AtomFeed)results[entity].Result).Items.Cast<AtomItem>().Intersect(feed.Items.Cast<AtomItem>()).Count();
+                int offset = ((TFeed)results[entity].Result).Items.Cast<TItem>().Intersect(feed.Items.Cast<TItem>()).Count();
 
                 // Add this offset to the current state for this entity
                 currentEntities[entity] += offset;
@@ -327,7 +405,7 @@ namespace Terradue.OpenSearch.Request {
         /// </summary>
         void CacheCurrentState() {
 
-            MultiAtomOpenSearchRequestState state = new MultiAtomOpenSearchRequestState();
+            MultiOpenSearchRequestState state = new MultiOpenSearchRequestState();
             state.Entities = new Dictionary<IOpenSearchable, int>(currentEntities);
             state.Parameters = new NameValueCollection(currentParameters);
             state.Type = type;

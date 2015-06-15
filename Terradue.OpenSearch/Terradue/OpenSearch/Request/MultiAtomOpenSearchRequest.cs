@@ -36,8 +36,6 @@ namespace Terradue.OpenSearch.Request {
         Dictionary<IOpenSearchable,IOpenSearchResult> results;
         AtomFeed feed;
         bool usingCache = false;
-        long totalResults = 0;
-
         bool concurrent = true;
 
         /// <summary>
@@ -213,8 +211,11 @@ namespace Terradue.OpenSearch.Request {
 
             }
 
+            long totalResults = 0;
+            foreach (var osEntity in currentEntities.Keys) {
+                totalResults += osEntity.GetTotalResults(feed.ContentType, OriginalParameters);
+            }
 
-                
             feed.ElementExtensions.Add("totalResults", "http://a9.com/-/spec/opensearch/1.1/", totalResults);
         }
 
@@ -265,13 +266,11 @@ namespace Terradue.OpenSearch.Request {
         /// </summary>
         void MergeResults() {
 
-            totalResults = 0;
+
 
             foreach (IOpenSearchResult result in results.Values) {
 
                 AtomFeed f1 = (AtomFeed)result.Result;
-
-                totalResults += f1.TotalResults;
 
                 if (f1.Items.Count() == 0)
                     continue;
@@ -363,8 +362,13 @@ namespace Terradue.OpenSearch.Request {
 
             // If not, useless and create new one with the entity pagination parameter unset (=1)
             if (state.Entities == null) {
-                foreach (IOpenSearchable entity in entities)
-                    entities2.Add(entity, entity.GetOpenSearchDescription().Url.FirstOrDefault(p => p.Type == type).IndexOffset);
+                foreach (IOpenSearchable entity in entities) {
+                    if (entity is IProxiedOpenSearchable) {
+                        entities2.Add(entity, ((IProxiedOpenSearchable)entity).GetProxyOpenSearchDescription().Url.FirstOrDefault(p => p.Type == type).IndexOffset);
+                    } else {
+                        entities2.Add(entity, entity.GetOpenSearchDescription().Url.FirstOrDefault(p => p.Type == type).IndexOffset);
+                    }
+                }
                 parameters2 = RemovePaginationParameters(parameters);
                 return false;
             }
