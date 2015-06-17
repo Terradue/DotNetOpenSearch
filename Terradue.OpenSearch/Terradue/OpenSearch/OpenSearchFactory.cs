@@ -422,12 +422,6 @@ namespace Terradue.OpenSearch {
 
         }
 
-        public static void RemoveLinksByRel(ref IOpenSearchResult osr, string relType) {
-            IOpenSearchResultCollection results = (IOpenSearchResultCollection)osr.Result;
-
-            RemoveLinksByRel(ref results, relType);
-        }
-
         public static void RemoveLinksByRel(ref IOpenSearchResultCollection results, string relType) {
 
             var matchLinks = results.Links.Where(l => l.RelationshipType == relType).ToArray();

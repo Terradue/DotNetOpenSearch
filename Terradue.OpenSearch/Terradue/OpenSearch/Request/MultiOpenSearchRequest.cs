@@ -33,7 +33,7 @@ namespace Terradue.OpenSearch.Request {
         OpenSearchEngine ose;
         CountdownEvent countdown;
         Dictionary<IOpenSearchable, int> currentEntities;
-        Dictionary<IOpenSearchable,IOpenSearchResult> results;
+        Dictionary<IOpenSearchable,IOpenSearchResultCollection> results;
         TFeed feed;
         bool usingCache = false;
         long totalResults = 0;
@@ -145,7 +145,7 @@ namespace Terradue.OpenSearch.Request {
                 SetCurrentEntitiesOffset();
 
                 var r1 = results.Values.FirstOrDefault(r => {
-                    TFeed result = (TFeed)r.Result;
+                    TFeed result = (TFeed)r;
                     if (result.Items.Count() > 0)
                         return true;
                     return false;
@@ -187,7 +187,7 @@ namespace Terradue.OpenSearch.Request {
                     SetCurrentEntitiesOffset();
 
                     var r1 = results.Values.FirstOrDefault(r => {
-                        TFeed result = (TFeed)r.Result;
+                        TFeed result = (TFeed)r;
                         if (result.Items.Count() > 0)
                             return true;
                         return false;
@@ -224,7 +224,7 @@ namespace Terradue.OpenSearch.Request {
         private void ExecuteConcurrentRequest() {
 
             countdown = new CountdownEvent(currentEntities.Count);
-            results = new Dictionary<IOpenSearchable, IOpenSearchResult>();
+            results = new Dictionary<IOpenSearchable, IOpenSearchResultCollection>();
 
             foreach (IOpenSearchable entity in currentEntities.Keys) {
                 if (concurrent) {
@@ -252,7 +252,7 @@ namespace Terradue.OpenSearch.Request {
 
             entityParameters["startIndex"] = offset.ToString();
 
-            IOpenSearchResult result = ose.Query((IOpenSearchable)entity, entityParameters);
+            IOpenSearchResultCollection result = ose.Query((IOpenSearchable)entity, entityParameters);
             results.Add((IOpenSearchable)entity, result);
             countdown.Signal();
 
@@ -265,9 +265,9 @@ namespace Terradue.OpenSearch.Request {
 
             //totalResults = 0;
 
-            foreach (IOpenSearchResult result in results.Values) {
+            foreach (IOpenSearchResultCollection result in results.Values) {
 
-                TFeed f1 = (TFeed)result.Result;
+                TFeed f1 = (TFeed)result;
                 totalResults += f1.TotalResults;
 
                 if (f1.Items.Count() == 0)
@@ -390,7 +390,7 @@ namespace Terradue.OpenSearch.Request {
             foreach (IOpenSearchable entity in it) {
 
                 // the offset for this entity will be the number of items taken from its current result.
-                int offset = ((TFeed)results[entity].Result).Items.Cast<TItem>().Intersect(feed.Items.Cast<TItem>()).Count();
+                int offset = ((TFeed)results[entity]).Items.Cast<TItem>().Intersect(feed.Items.Cast<TItem>()).Count();
 
                 // Add this offset to the current state for this entity
                 currentEntities[entity] += offset;

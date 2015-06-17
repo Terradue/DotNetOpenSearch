@@ -10,6 +10,8 @@
     <ReleaseVersion>1.5</ReleaseVersion>
     <SynchReleaseVersion>false</SynchReleaseVersion>
     <UseMSBuildEngine>False</UseMSBuildEngine>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -71,9 +73,7 @@
     <Compile Include="Terradue\OpenSearch\Response\HttpOpenSearchResponse.cs" />
     <Compile Include="Terradue\OpenSearch\Response\MemoryOpenSearchResponse.cs" />
     <Compile Include="Terradue\OpenSearch\Response\OpenSearchResponse.cs" />
-    <Compile Include="Terradue\OpenSearch\Result\IOpenSearchResult.cs" />
     <Compile Include="Terradue\OpenSearch\Result\IOpenSearchResultCollection.cs" />
-    <Compile Include="Terradue\OpenSearch\Result\OpenSearchResult.cs" />
     <Compile Include="Terradue\OpenSearch\Schema\OpenSearchDescription.cs" />
     <Compile Include="Terradue\OpenSearch\OpenSearchFactory.cs" />
     <Compile Include="Terradue\OpenSearch\OpenSearchUrl.cs" />
@@ -101,5 +101,7 @@
   <ItemGroup>
     <None Include="Terradue.OpenSearch.csproj" />
     <None Include="packages.config" />
+    <None Include="Terradue\OpenSearch\Result\OpenSearchResult.cs" />
+    <None Include="Terradue\OpenSearch\Result\IOpenSearchResult.cs" />
   </ItemGroup>
 </Project>

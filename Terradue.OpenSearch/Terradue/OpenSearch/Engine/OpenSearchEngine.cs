@@ -127,12 +127,10 @@ namespace Terradue.OpenSearch.Engine {
         /// <param name="entity">Entity.</param>
         /// <param name="parameters">Parameters.</param>
         /// <param name="resultName">Result name.</param>
-        public IOpenSearchResult Query(IOpenSearchable entity, NameValueCollection parameters, string resultName) {
+        public IOpenSearchResultCollection Query(IOpenSearchable entity, NameValueCollection parameters, string resultName) {
 
             // Transform action to invoke
             QuerySettings querySettings;
-            // Results
-            IOpenSearchResult osr = null;
 
             // 1) Find the plugin to match with urlTemplates
             querySettings = entity.GetQuerySettings(this);
@@ -163,15 +161,9 @@ namespace Terradue.OpenSearch.Engine {
             IOpenSearchResultCollection newResults = osee.CreateOpenSearchResultFromOpenSearchResult(results);
 
             // 9) Create Result
-            osr = CreateOpenSearchResult(newResults, request, response);
+            ApplyOpenSearchElements(ref newResults, request, response);
 
-            // 10) Add the request duration to the IOpenSearchResult
-            osr.Duration = response.RequestTime;
-
-            // 11) Assign the original entity to the IOpenSearchResult
-            osr.OpenSearchableEntity = entity;
-
-            return osr;
+            return newResults;
 
         }
 
@@ -202,13 +194,10 @@ namespace Terradue.OpenSearch.Engine {
         /// <param name="entity">Entity.</param>
         /// <param name="parameters">Parameters.</param>
         /// <param name="resultType">Result type.</param>
-        public IOpenSearchResult Query(IOpenSearchable entity, NameValueCollection parameters, Type resultType) {
+        public IOpenSearchResultCollection Query(IOpenSearchable entity, NameValueCollection parameters, Type resultType) {
 
             // Transform action to invoke
             QuerySettings querySettings;
-
-            // Results
-            IOpenSearchResult osr = null;
 
             // 1) Find the best match between urlTemplates and result format
             querySettings = entity.GetQuerySettings(this);
@@ -239,15 +228,9 @@ namespace Terradue.OpenSearch.Engine {
             IOpenSearchResultCollection newResults = osee.CreateOpenSearchResultFromOpenSearchResult(results);
 
             // 9) Create Result container
-            osr = CreateOpenSearchResult(newResults, request, response);
+            ApplyOpenSearchElements(ref newResults, request, response);
 
-            // 10) Assign the original entity to the IOpenSearchResult
-            osr.OpenSearchableEntity = entity;
-
-            // 11) Add the request duration to the IOpenSearchResult
-            osr.Duration = response.RequestTime;
-
-            return osr;
+            return newResults;
         }
 
         /// <summary>
@@ -255,12 +238,10 @@ namespace Terradue.OpenSearch.Engine {
         /// </summary>
         /// <param name="entity">Entity.</param>
         /// <param name="parameters">Parameters.</param>
-        public IOpenSearchResult Query(IOpenSearchable entity, NameValueCollection parameters) {
+        public IOpenSearchResultCollection Query(IOpenSearchable entity, NameValueCollection parameters) {
 
             // Transform action to invoke
             QuerySettings querySettings;
-            // Results
-            IOpenSearchResult osr = null;
 
             // 1) Find the plugin to match with urlTemplates
             querySettings = entity.GetQuerySettings(this);
@@ -287,15 +268,9 @@ namespace Terradue.OpenSearch.Engine {
             entity.ApplyResultFilters(request, ref results);
 
             // 8 Create the container
-            osr = CreateOpenSearchResult(results, request, response);
+            ApplyOpenSearchElements(ref results, request, response);
 
-            // 9) Assign the original entity to the IOpenSearchResult
-            osr.OpenSearchableEntity = entity;
-
-            // 10) Add the request duration to the IOpenSearchResult
-            osr.Duration = response.RequestTime;
-
-            return osr;
+            return results;
         }
 
         /// <summary>
@@ -380,16 +355,16 @@ namespace Terradue.OpenSearch.Engine {
         /// </summary>
         /// <returns>The enclosures.</returns>
         /// <param name="result">Result.</param>
-        public SyndicationLink[] GetEnclosures(IOpenSearchResult result) {
+        public SyndicationLink[] GetEnclosures(IOpenSearchResultCollection result) {
 
-            Type type = result.Result.GetType();
+            Type type = result.GetType();
 
             IOpenSearchEngineExtension osee = GetFirstExtensionByTypeAbility(type);
 
             if (osee == null)
                 throw new InvalidOperationException("No registered extensions able to get media enclosures for " + type.ToString());
 
-            return OpenSearchFactory.GetEnclosures(result.Result);
+            return OpenSearchFactory.GetEnclosures(result);
 
         }
 
@@ -474,7 +449,7 @@ namespace Terradue.OpenSearch.Engine {
             }
         }
 
-        IOpenSearchResult CreateOpenSearchResult(IOpenSearchResultCollection newResults, OpenSearchRequest request, IOpenSearchResponse response) {
+        void ApplyOpenSearchElements(ref IOpenSearchResultCollection newResults, OpenSearchRequest request, IOpenSearchResponse response) {
 
             foreach (SyndicationElementExtension ext in newResults.ElementExtensions.ToArray()) {
                 if (ext.OuterName == "startIndex" && ext.OuterNamespace == "http://a9.com/-/spec/opensearch/1.1/")
@@ -520,10 +495,6 @@ namespace Terradue.OpenSearch.Engine {
             XElement tr = new XElement(XName.Get("totalResults", "http://a9.com/-/spec/opensearch/1.1/"));
             tr.SetValue(newResults.TotalResults);
             newResults.ElementExtensions.Add(tr.CreateReader());
-
-            OpenSearchResult osr = new OpenSearchResult(newResults, request.Parameters);
-
-            return osr;
      
         }
 

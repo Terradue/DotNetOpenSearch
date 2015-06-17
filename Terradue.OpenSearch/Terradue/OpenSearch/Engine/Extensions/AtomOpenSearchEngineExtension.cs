@@ -97,7 +97,8 @@ namespace Terradue.OpenSearch.Engine.Extensions {
                 reader = XmlReader.Create(new MemoryStream((byte[])response.GetResponseObject()));
 
                 result = AtomFeed.Load(reader);
-                result.ElementExtensions.Add("queryTime", "http://a9.com/-/spec/opensearch/1.1/", response.RequestTime.TotalMilliseconds.ToString());
+                result.Duration = response.RequestTime;
+                result.OpenSearchable = response.Entity;
 
             } catch (Exception e) {
                 throw new InvalidOperationException("Error during transformation : " + e.Message, e);

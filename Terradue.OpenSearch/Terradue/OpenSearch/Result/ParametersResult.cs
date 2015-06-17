@@ -193,6 +193,24 @@ namespace Terradue.OpenSearch.Result
                 throw new NotImplementedException();
             }
         }
+
+        public IOpenSearchable OpenSearchable {
+            get {
+                throw new NotImplementedException();
+            }
+        }
+
+        public Terradue.OpenSearch.Request.OpenSearchRequest Request {
+            get {
+                throw new NotImplementedException();
+            }
+        }
+
+        public TimeSpan Duration {
+            get {
+                throw new NotImplementedException();
+            }
+        }
         #endregion
 	}
 

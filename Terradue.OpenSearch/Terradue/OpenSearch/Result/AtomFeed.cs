@@ -164,12 +164,10 @@ namespace Terradue.OpenSearch.Result {
             }
         }
 
+        long totalResults;
         public long TotalResults {
             get {
-                var el = ElementExtensions.ReadElementExtensions<string>("totalResults", "http://a9.com/-/spec/opensearch/1.1/");
-                if (el.Count > 0)
-                    return long.Parse(el[0]);
-                return 0;
+                return totalResults;
             }
         }
 
@@ -190,6 +188,36 @@ namespace Terradue.OpenSearch.Result {
             }
         }
 
+
+        IOpenSearchable openSearchable;
+        public IOpenSearchable OpenSearchable {
+            get {
+                return openSearchable;
+            }
+            set {
+                openSearchable = value;
+            }
+        }
+
+        Terradue.OpenSearch.Request.OpenSearchRequest request;
+        public Terradue.OpenSearch.Request.OpenSearchRequest Request {
+            get {
+                return request;
+            }
+            set {
+                request = value;
+            }
+        }
+
+        TimeSpan duration;
+        public TimeSpan Duration {
+            get {
+                return duration;
+            }
+            set {
+                duration = value;
+            }
+        }
         #endregion
 
         public static IOpenSearchResultCollection CreateFromOpenSearchResultCollection(IOpenSearchResultCollection results) {
@@ -197,6 +225,9 @@ namespace Terradue.OpenSearch.Result {
                 throw new ArgumentNullException("results");
 
             AtomFeed feed = new AtomFeed(new SyndicationFeed());
+
+            feed.Duration = results.Duration;
+            feed.OpenSearchable = results.OpenSearchable;
 
             feed.Id = results.Id;
             feed.Identifier = results.Identifier;
