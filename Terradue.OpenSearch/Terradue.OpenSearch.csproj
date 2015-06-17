@@ -9,6 +9,7 @@
     <AssemblyName>Terradue.OpenSearch</AssemblyName>
     <ReleaseVersion>1.5</ReleaseVersion>
     <SynchReleaseVersion>false</SynchReleaseVersion>
+    <UseMSBuildEngine>False</UseMSBuildEngine>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>

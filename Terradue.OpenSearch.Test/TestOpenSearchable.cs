@@ -92,8 +92,10 @@ namespace Terradue.OpenSearch.Test {
             }
         }
 
-        public long GetTotalResults(string type, NameValueCollection parameters) {
-            return Items.Count();
+        public long TotalResults {
+            get {
+                return Items.Count();
+            }
         }
 
         public string DefaultMimeType {

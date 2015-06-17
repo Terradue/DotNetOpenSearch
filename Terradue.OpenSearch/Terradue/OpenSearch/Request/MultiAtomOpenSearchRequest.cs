@@ -37,6 +37,7 @@ namespace Terradue.OpenSearch.Request {
         AtomFeed feed;
         bool usingCache = false;
         bool concurrent = true;
+        long totalResults = 0;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Terradue.OpenSearch.Request.MultiAtomOpenSearchRequest"/> class.
@@ -127,6 +128,8 @@ namespace Terradue.OpenSearch.Request {
             // new page -> new feed
             feed = new AtomFeed();
 
+            totalResults = 0;
+
 
             // While we do not have the count needed for our results
             // and that all the sources have are not empty
@@ -210,13 +213,6 @@ namespace Terradue.OpenSearch.Request {
                 CacheCurrentState();
 
             }
-
-            long totalResults = 0;
-            foreach (var osEntity in currentEntities.Keys) {
-                totalResults += osEntity.GetTotalResults(feed.ContentType, OriginalParameters);
-            }
-
-            feed.ElementExtensions.Add("totalResults", "http://a9.com/-/spec/opensearch/1.1/", totalResults);
         }
 
         /// <summary>
@@ -271,6 +267,8 @@ namespace Terradue.OpenSearch.Request {
             foreach (IOpenSearchResult result in results.Values) {
 
                 AtomFeed f1 = (AtomFeed)result.Result;
+
+                totalResults += f1.TotalResults;
 
                 if (f1.Items.Count() == 0)
                     continue;

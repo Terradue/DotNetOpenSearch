@@ -476,8 +476,6 @@ namespace Terradue.OpenSearch.Engine {
 
         IOpenSearchResult CreateOpenSearchResult(IOpenSearchResultCollection newResults, OpenSearchRequest request, IOpenSearchResponse response) {
 
-            bool totalResults = false;
-
             foreach (SyndicationElementExtension ext in newResults.ElementExtensions.ToArray()) {
                 if (ext.OuterName == "startIndex" && ext.OuterNamespace == "http://a9.com/-/spec/opensearch/1.1/")
                     newResults.ElementExtensions.Remove(ext);
@@ -486,7 +484,7 @@ namespace Terradue.OpenSearch.Engine {
                 if (ext.OuterName == "Query" && ext.OuterNamespace == "http://a9.com/-/spec/opensearch/1.1/")
                     newResults.ElementExtensions.Remove(ext);
                 if (ext.OuterName == "totalResults" && ext.OuterNamespace == "http://a9.com/-/spec/opensearch/1.1/")
-                    totalResults = true;
+                    newResults.ElementExtensions.Remove(ext);
             }
             newResults.ElementExtensions.Add("startIndex", "http://a9.com/-/spec/opensearch/1.1/", request.OpenSearchUrl.IndexOffset);
             newResults.ElementExtensions.Add("itemsPerPage", "http://a9.com/-/spec/opensearch/1.1/", request.OpenSearchUrl.Count);
@@ -519,11 +517,9 @@ namespace Terradue.OpenSearch.Engine {
             }
             newResults.ElementExtensions.Add(query.CreateReader());
 
-            if (totalResults == false) {
-                XElement tr = new XElement(XName.Get("totalResults", "http://a9.com/-/spec/opensearch/1.1/"));
-                tr.SetValue(response.Entity.GetTotalResults(response.ContentType, request.OriginalParameters));
-                newResults.ElementExtensions.Add(tr.CreateReader());
-            }
+            XElement tr = new XElement(XName.Get("totalResults", "http://a9.com/-/spec/opensearch/1.1/"));
+            tr.SetValue(newResults.TotalResults);
+            newResults.ElementExtensions.Add(tr.CreateReader());
 
             OpenSearchResult osr = new OpenSearchResult(newResults, request.Parameters);
 
