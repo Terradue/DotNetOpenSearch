@@ -213,6 +213,9 @@ namespace Terradue.OpenSearch.Request {
                 CacheCurrentState();
 
             }
+
+            feed.TotalResults = totalResults;
+
         }
 
         /// <summary>

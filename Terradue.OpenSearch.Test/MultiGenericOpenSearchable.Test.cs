@@ -36,10 +36,19 @@ namespace Terradue.OpenSearch.Test {
             IOpenSearchable multiEntity = new MultiGenericOpenSearchable(entities, ose, true);
 
             NameValueCollection nvc = new NameValueCollection();
-            nvc.Set("count", "100");
 
             var osr = ose.Query(multiEntity, nvc, "atom");
 
+            Assert.AreEqual(100, osr.TotalResults);
+            Assert.AreEqual(OpenSearchEngine.DEFAULT_COUNT, osr.Count);
+            string totalResults = osr.ElementExtensions.ReadElementExtensions<string>("totalResults", "http://a9.com/-/spec/opensearch/1.1/")[0];
+            Assert.AreEqual("100", totalResults);
+
+            nvc.Set("count", "100");
+
+            osr = ose.Query(multiEntity, nvc, "atom");
+
+            Assert.AreEqual(100, osr.TotalResults);
             Assert.AreEqual(100, osr.Count);
             Assert.AreEqual("A1", osr.Items.First().Identifier);
             Assert.AreEqual("A100", osr.Items.Last().Identifier);
@@ -122,6 +131,7 @@ namespace Terradue.OpenSearch.Test {
 
             osr = ose.Query(multiEntity, nvc, "atom");
 
+            Assert.AreEqual(200, osr.TotalResults);
             Assert.AreEqual(10, osr.Count);
             Assert.AreEqual("A1", osr.Items.First().Identifier);
             Assert.AreEqual("B5", osr.Items.Last().Identifier);

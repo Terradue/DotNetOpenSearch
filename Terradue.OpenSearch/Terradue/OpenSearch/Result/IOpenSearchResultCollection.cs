@@ -51,7 +51,7 @@ namespace Terradue.OpenSearch.Result {
 
         long Count { get; }
 
-        long TotalResults { get; }
+        long TotalResults { get; set; }
 
         void SerializeToStream(Stream stream);
 
@@ -63,7 +63,7 @@ namespace Terradue.OpenSearch.Result {
 
         IOpenSearchable OpenSearchable { get; }
 
-        OpenSearchRequest Request { get; }
+        NameValueCollection Parameters { get; set; }
 
         TimeSpan Duration { get; }
 

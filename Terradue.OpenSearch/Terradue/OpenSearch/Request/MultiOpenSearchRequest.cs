@@ -214,7 +214,7 @@ namespace Terradue.OpenSearch.Request {
 
             }
 
-
+            feed.TotalResults = totalResults;
 
         }
 

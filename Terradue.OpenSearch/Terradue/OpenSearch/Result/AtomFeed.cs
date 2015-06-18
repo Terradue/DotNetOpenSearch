@@ -169,6 +169,9 @@ namespace Terradue.OpenSearch.Result {
             get {
                 return totalResults;
             }
+            set {
+                totalResults = value;
+            }
         }
 
         bool showNamespaces;
@@ -199,13 +202,13 @@ namespace Terradue.OpenSearch.Result {
             }
         }
 
-        Terradue.OpenSearch.Request.OpenSearchRequest request;
-        public Terradue.OpenSearch.Request.OpenSearchRequest Request {
+        NameValueCollection parameters;
+        public NameValueCollection Parameters {
             get {
-                return request;
+                return parameters;
             }
             set {
-                request = value;
+                parameters = value;
             }
         }
 

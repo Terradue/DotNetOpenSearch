@@ -618,11 +618,11 @@ namespace Terradue.OpenSearch {
 
             parameter = new ParameterDescription();
 
-            p.Parameters.Add(new ParameterDescription(){Id="count", Template = new XmlQualifiedName("count","http://a9.com/-/spec/opensearch/1.1/"), Abstract="number of search results per page desired", Type="integer"});
-            p.Parameters.Add(new ParameterDescription(){Id="startPage", Template = new XmlQualifiedName("startPage","http://a9.com/-/spec/opensearch/1.1/"), Namespace="http://a9.com/-/spec/opensearch/1.1/", Abstract="page number of the set of search results desired", Type="integer"});
-            p.Parameters.Add(new ParameterDescription(){Id="startIndex", Template = new XmlQualifiedName("startIndex","http://a9.com/-/spec/opensearch/1.1/"), Namespace="http://a9.com/-/spec/opensearch/1.1/", Abstract="index of the first search result desired", Type="integer"});
-            p.Parameters.Add(new ParameterDescription(){Id="q", Template = new XmlQualifiedName("searchTerms","http://a9.com/-/spec/opensearch/1.1/"), Namespace="http://a9.com/-/spec/opensearch/1.1/", Abstract="keywords to be found in the search results", Type="string"});
-            p.Parameters.Add(new ParameterDescription(){Id="lang", Template = new XmlQualifiedName("language","http://a9.com/-/spec/opensearch/1.1/"), Namespace="http://a9.com/-/spec/opensearch/1.1/", Abstract="desired language of the results", Type="string"});
+            p.ParameterItems.Add(new ParameterDescription(){Id="count", Template = new XmlQualifiedName("count","http://a9.com/-/spec/opensearch/1.1/"), Abstract="number of search results per page desired", Type="integer"});
+            p.ParameterItems.Add(new ParameterDescription(){Id="startPage", Template = new XmlQualifiedName("startPage","http://a9.com/-/spec/opensearch/1.1/"), Namespace="http://a9.com/-/spec/opensearch/1.1/", Abstract="page number of the set of search results desired", Type="integer"});
+            p.ParameterItems.Add(new ParameterDescription(){Id="startIndex", Template = new XmlQualifiedName("startIndex","http://a9.com/-/spec/opensearch/1.1/"), Namespace="http://a9.com/-/spec/opensearch/1.1/", Abstract="index of the first search result desired", Type="integer"});
+            p.ParameterItems.Add(new ParameterDescription(){Id="q", Template = new XmlQualifiedName("searchTerms","http://a9.com/-/spec/opensearch/1.1/"), Namespace="http://a9.com/-/spec/opensearch/1.1/", Abstract="keywords to be found in the search results", Type="string"});
+            p.ParameterItems.Add(new ParameterDescription(){Id="lang", Template = new XmlQualifiedName("language","http://a9.com/-/spec/opensearch/1.1/"), Namespace="http://a9.com/-/spec/opensearch/1.1/", Abstract="desired language of the results", Type="string"});
 
             return p;
 

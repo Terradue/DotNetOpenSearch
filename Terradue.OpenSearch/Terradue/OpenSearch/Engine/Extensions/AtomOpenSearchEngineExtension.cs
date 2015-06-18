@@ -95,7 +95,6 @@ namespace Terradue.OpenSearch.Engine.Extensions {
             try {
                 
                 reader = XmlReader.Create(new MemoryStream((byte[])response.GetResponseObject()));
-
                 result = AtomFeed.Load(reader);
                 result.Duration = response.RequestTime;
                 result.OpenSearchable = response.Entity;

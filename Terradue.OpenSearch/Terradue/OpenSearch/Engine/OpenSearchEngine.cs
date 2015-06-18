@@ -152,6 +152,7 @@ namespace Terradue.OpenSearch.Engine {
 
             // 6) Transform the response
             IOpenSearchResultCollection results = querySettings.ReadNative.Invoke(response);
+            results.Parameters = request.Parameters;
 
             // 7) Apply post search filters
             entity.ApplyResultFilters(request, ref results);
@@ -219,6 +220,7 @@ namespace Terradue.OpenSearch.Engine {
 
             // 6) Transform the response
             IOpenSearchResultCollection results = querySettings.ReadNative.Invoke(response);
+            results.Parameters = request.Parameters;
 
             // 7) Apply post search filters
             entity.ApplyResultFilters(request, ref results);
@@ -263,6 +265,7 @@ namespace Terradue.OpenSearch.Engine {
 
             // 6) Read the response 
             var results = querySettings.ReadNative.Invoke(response);
+            results.Parameters = request.Parameters;
 
             // 7) Apply post search filters
             entity.ApplyResultFilters(request, ref results);
