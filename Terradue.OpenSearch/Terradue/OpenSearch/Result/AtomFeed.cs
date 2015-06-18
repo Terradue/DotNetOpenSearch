@@ -164,13 +164,19 @@ namespace Terradue.OpenSearch.Result {
             }
         }
 
-        long totalResults;
         public long TotalResults {
             get {
-                return totalResults;
+                var totalResults = ElementExtensions.ReadElementExtensions<string>("totalResults", "http://a9.com/-/spec/opensearch/1.1/");
+                return totalResults.Count == 0 ? 0 : long.Parse(totalResults[0]);
             }
             set {
-                totalResults = value;
+                foreach (var ext in this.ElementExtensions.ToArray()) {
+                    if (ext.OuterName == "totalResults" && ext.OuterNamespace == "http://a9.com/-/spec/opensearch/1.1//") {
+                        this.ElementExtensions.Remove(ext);
+                        continue;
+                    }
+                }
+                this.ElementExtensions.Add(new XElement(XName.Get("totalResults", "http://a9.com/-/spec/opensearch/1.1/"), value).CreateReader());
             }
         }
 

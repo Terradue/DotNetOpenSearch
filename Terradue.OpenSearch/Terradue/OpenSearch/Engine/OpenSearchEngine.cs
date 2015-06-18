@@ -461,8 +461,6 @@ namespace Terradue.OpenSearch.Engine {
                     newResults.ElementExtensions.Remove(ext);
                 if (ext.OuterName == "Query" && ext.OuterNamespace == "http://a9.com/-/spec/opensearch/1.1/")
                     newResults.ElementExtensions.Remove(ext);
-                if (ext.OuterName == "totalResults" && ext.OuterNamespace == "http://a9.com/-/spec/opensearch/1.1/")
-                    newResults.ElementExtensions.Remove(ext);
             }
             newResults.ElementExtensions.Add("startIndex", "http://a9.com/-/spec/opensearch/1.1/", request.OpenSearchUrl.IndexOffset);
             newResults.ElementExtensions.Add("itemsPerPage", "http://a9.com/-/spec/opensearch/1.1/", request.OpenSearchUrl.Count);
@@ -494,10 +492,6 @@ namespace Terradue.OpenSearch.Engine {
                 }
             }
             newResults.ElementExtensions.Add(query.CreateReader());
-
-            XElement tr = new XElement(XName.Get("totalResults", "http://a9.com/-/spec/opensearch/1.1/"));
-            tr.SetValue(newResults.TotalResults);
-            newResults.ElementExtensions.Add(tr.CreateReader());
      
         }
 

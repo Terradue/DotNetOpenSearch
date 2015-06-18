@@ -519,6 +519,7 @@ namespace Terradue.OpenSearch {
             myUrl.Query = string.Join("&", queryString);
 
             feed.Links.Add(new SyndicationLink(myUrl.Uri, "self", "Reference link", contentType, 0));
+            feed.Id = myUrl.ToString();
 
             foreach (IOpenSearchResultItem item in feed.Items) {
                 matchLinks = item.Links.Where(l => l.RelationshipType == "self").ToArray();
@@ -528,6 +529,7 @@ namespace Terradue.OpenSearch {
                 string template = entryTemplate(item, osd, contentType);
                 if (template != null) {
                     item.Links.Add(new SyndicationLink(new Uri(template), "self", "Reference link", contentType, 0));
+                    item.Id = template;
                 }
             }
         }
