@@ -101,7 +101,5 @@
   <ItemGroup>
     <None Include="Terradue.OpenSearch.csproj" />
     <None Include="packages.config" />
-    <None Include="Terradue\OpenSearch\Result\OpenSearchResult.cs" />
-    <None Include="Terradue\OpenSearch\Result\IOpenSearchResult.cs" />
   </ItemGroup>
 </Project>
