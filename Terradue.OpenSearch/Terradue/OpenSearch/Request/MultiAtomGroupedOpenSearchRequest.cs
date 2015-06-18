@@ -33,7 +33,7 @@ namespace Terradue.OpenSearch.Request {
         OpenSearchEngine ose;
         CountdownEvent countdown;
         IOpenSearchable[] entities;
-        Dictionary<IOpenSearchable,IOpenSearchResult> results;
+        Dictionary<IOpenSearchable,IOpenSearchResultCollection> results;
         AtomFeed feed;
 
         bool concurrent = false;
@@ -113,7 +113,7 @@ namespace Terradue.OpenSearch.Request {
         private void ExecuteConcurrentRequest(List<IOpenSearchable> ents) {
 
             countdown = new CountdownEvent(ents.Count);
-            results = new Dictionary<IOpenSearchable, IOpenSearchResult>();
+            results = new Dictionary<IOpenSearchable, IOpenSearchResultCollection>();
 
             foreach (IOpenSearchable entity in ents) {
                 if (concurrent) {
@@ -135,7 +135,7 @@ namespace Terradue.OpenSearch.Request {
         /// <param name="entity">Entity.</param>
         void ExecuteOneRequest(object entity) {
 
-            IOpenSearchResult result = ose.Query((IOpenSearchable)entity, parameters, typeof(AtomFeed));
+            IOpenSearchResultCollection result = ose.Query((IOpenSearchable)entity, parameters, typeof(AtomFeed));
             results.Add((IOpenSearchable)entity, result);
             countdown.Signal();
 
@@ -151,36 +151,36 @@ namespace Terradue.OpenSearch.Request {
 
             foreach (var key in results.Keys) {
 
-                IOpenSearchResult result = results[key];
+                IOpenSearchResultCollection result = results[key];
                 AtomItem item = null;
 
-                if (result.Result.Count == 1) {
-                    item = AtomItem.FromOpenSearchResultItem(result.Result.Items.First());
+                if (result.Count == 1) {
+                    item = AtomItem.FromOpenSearchResultItem(result.Items.First());
                 } else {
-                    item = new AtomItem(result.Result.Title.Text, 
-                                        result.Result.Description, 
-                                        result.Result.Links.FirstOrDefault(l => l.RelationshipType == "self").Uri,
-                                        result.Result.Id,
-                                        result.Result.Date);
-                    item.Identifier = result.Result.Identifier;
-                    item.ElementExtensions = result.Result.ElementExtensions;
-                    result.Result.Authors.FirstOrDefault( a => {
+                    item = new AtomItem(result.Title.Text, 
+                                        result.Description, 
+                                        result.Links.FirstOrDefault(l => l.RelationshipType == "self").Uri,
+                                        result.Id,
+                                        result.Date);
+                    item.Identifier = result.Identifier;
+                    item.ElementExtensions = result.ElementExtensions;
+                    result.Authors.FirstOrDefault( a => {
                         item.Authors.Add(a);
                         return false;
                     });
-                    result.Result.Categories.FirstOrDefault( a => {
+                    result.Categories.FirstOrDefault( a => {
                         item.Categories.Add(a);
                         return false;
                     });
-                    item.Categories.Add(new SyndicationCategory("group", null, result.Result.Id));
-                    result.Result.Contributors.FirstOrDefault( a => {
+                    item.Categories.Add(new SyndicationCategory("group", null, result.Id));
+                    result.Contributors.FirstOrDefault( a => {
                         item.Contributors.Add(a);
                         return false;
                     });
-                    item.Copyright = result.Result.Copyright;
-                    item.Links = result.Result.Links;
-                    item.PublishDate = result.Result.Date;
-                    item.SourceFeed = (SyndicationFeed)AtomFeed.CreateFromOpenSearchResultCollection(result.Result);
+                    item.Copyright = result.Copyright;
+                    item.Links = result.Links;
+                    item.PublishDate = result.Date;
+                    item.SourceFeed = (SyndicationFeed)AtomFeed.CreateFromOpenSearchResultCollection(result);
                 }
                 items.Add(item);				
             }

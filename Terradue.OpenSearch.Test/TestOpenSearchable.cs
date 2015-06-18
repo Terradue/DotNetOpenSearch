@@ -35,12 +35,7 @@ namespace Terradue.OpenSearch.Test {
                 .ToArray();
             url.Query = string.Join("&", array);
 
-            MemoryOpenSearchRequest request = new MemoryOpenSearchRequest(new OpenSearchUrl(url.Uri), type);
-            request.ResponseValidity = TimeSpan.FromSeconds(50);
-
-            Stream input = request.MemoryInputStream;
-
-            GenerateSyndicationFeed(input, parameters);
+            AtomOpenSearchRequest request = new AtomOpenSearchRequest(new OpenSearchUrl(url.Uri), GenerateSyndicationFeed);
 
             return request;
         }
@@ -92,8 +87,10 @@ namespace Terradue.OpenSearch.Test {
             }
         }
 
-        public long GetTotalResults(string type, NameValueCollection parameters) {
-            return Items.Count();
+        public long TotalResults {
+            get {
+                return Items.Count();
+            }
         }
 
         public string DefaultMimeType {
@@ -120,7 +117,7 @@ namespace Terradue.OpenSearch.Test {
             OpenSearchableChange(sender, data);
         }
 
-        private void GenerateSyndicationFeed(Stream stream, NameValueCollection parameters) {
+        private AtomFeed GenerateSyndicationFeed(NameValueCollection parameters) {
             UriBuilder myUrl = new UriBuilder("file:///test");
             string[] queryString = Array.ConvertAll(parameters.AllKeys, key => String.Format("{0}={1}", key, parameters[key]));
             myUrl.Query = string.Join("&", queryString);
@@ -155,7 +152,7 @@ namespace Terradue.OpenSearch.Test {
             pds.StartIndex = startIndex - 1;
 
             if (this.Identifier != null)
-                feed.ElementExtensions.Add("identifier", "http://purl.org/dc/elements/1.1/", this.Identifier);
+                feed.Identifier = this.Identifier;
 
             foreach (TestItem s in pds.GetCurrentPage()) {
 
@@ -190,13 +187,9 @@ namespace Terradue.OpenSearch.Test {
             }
 
             feed.Items = items;
+            feed.TotalResults = Items.Count();
 
-            //Atomizable.SerializeToStream ( res, stream.OutputStream );
-            var sw = XmlWriter.Create(stream);
-            Atom10FeedFormatter atomFormatter = new Atom10FeedFormatter(feed.Feed);
-            atomFormatter.WriteTo(sw);
-            sw.Flush();
-            sw.Close();
+            return feed;
         }
 
         public IEnumerable<TestItem> Items {

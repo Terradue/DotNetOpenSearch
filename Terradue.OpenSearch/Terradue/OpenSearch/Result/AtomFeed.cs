@@ -166,10 +166,17 @@ namespace Terradue.OpenSearch.Result {
 
         public long TotalResults {
             get {
-                var el = ElementExtensions.ReadElementExtensions<string>("totalResults", "http://a9.com/-/spec/opensearch/1.1/");
-                if (el.Count > 0)
-                    return long.Parse(el[0]);
-                return 0;
+                var totalResults = ElementExtensions.ReadElementExtensions<string>("totalResults", "http://a9.com/-/spec/opensearch/1.1/");
+                return totalResults.Count == 0 ? 0 : long.Parse(totalResults[0]);
+            }
+            set {
+                foreach (var ext in this.ElementExtensions.ToArray()) {
+                    if (ext.OuterName == "totalResults" && ext.OuterNamespace == "http://a9.com/-/spec/opensearch/1.1//") {
+                        this.ElementExtensions.Remove(ext);
+                        continue;
+                    }
+                }
+                this.ElementExtensions.Add(new XElement(XName.Get("totalResults", "http://a9.com/-/spec/opensearch/1.1/"), value).CreateReader());
             }
         }
 
@@ -190,6 +197,42 @@ namespace Terradue.OpenSearch.Result {
             }
         }
 
+
+        IOpenSearchable openSearchable;
+        public IOpenSearchable OpenSearchable {
+            get {
+                return openSearchable;
+            }
+            set {
+                openSearchable = value;
+            }
+        }
+
+        NameValueCollection parameters;
+        public NameValueCollection Parameters {
+            get {
+                return parameters;
+            }
+            set {
+                parameters = value;
+            }
+        }
+
+        public TimeSpan Duration {
+            get {
+                var duration = ElementExtensions.ReadElementExtensions<double>("queryTime", "http://purl.org/dc/elements/1.1/");
+                return duration.Count == 0 ? new TimeSpan() : TimeSpan.FromMilliseconds(duration[0]);
+            }
+            set {
+                foreach (var ext in this.ElementExtensions.ToArray()) {
+                    if (ext.OuterName == "queryTime" && ext.OuterNamespace == "http://purl.org/dc/elements/1.1/") {
+                        this.ElementExtensions.Remove(ext);
+                        continue;
+                    }
+                }
+                this.ElementExtensions.Add(new XElement(XName.Get("queryTime", "http://purl.org/dc/elements/1.1/"), value.TotalMilliseconds).CreateReader());
+            }
+        }
         #endregion
 
         public static IOpenSearchResultCollection CreateFromOpenSearchResultCollection(IOpenSearchResultCollection results) {
@@ -218,7 +261,13 @@ namespace Terradue.OpenSearch.Result {
                 }
                 feed.Items = items;
             }
+
+            feed.Duration = results.Duration;
+            feed.OpenSearchable = results.OpenSearchable;
+            feed.TotalResults = results.TotalResults;
+
             return feed;
+
         }
     }
 

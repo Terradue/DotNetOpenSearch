@@ -33,10 +33,13 @@ namespace Terradue.OpenSearch.Request {
         OpenSearchEngine ose;
         CountdownEvent countdown;
         Dictionary<IOpenSearchable, int> currentEntities;
-        Dictionary<IOpenSearchable,IOpenSearchResult> results;
+        Dictionary<IOpenSearchable,IOpenSearchResultCollection> results;
         AtomFeed feed;
         bool usingCache = false;
         bool concurrent = true;
+        long totalResults = 0;
+
+        IOpenSearchable parent;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Terradue.OpenSearch.Request.MultiAtomOpenSearchRequest"/> class.
@@ -45,7 +48,8 @@ namespace Terradue.OpenSearch.Request {
         /// <param name="entities">IOpenSearchable entities to be searched.</param>
         /// <param name="type">contentType of the .</param>
         /// <param name="url">URL.</param>
-        public MultiAtomOpenSearchRequest(OpenSearchEngine ose, IOpenSearchable[] entities, string type, OpenSearchUrl url, bool concurrent) : base(url, type) {
+        public MultiAtomOpenSearchRequest(OpenSearchEngine ose, IOpenSearchable[] entities, string type, OpenSearchUrl url, bool concurrent, IOpenSearchable parent) : base(url, type) {
+            this.parent = parent;
             this.concurrent = concurrent;
 
             this.ose = ose;
@@ -86,6 +90,9 @@ namespace Terradue.OpenSearch.Request {
         /// Requests the current page.
         /// </summary>
         private void RequestCurrentPage() {
+
+            Stopwatch sw = Stopwatch.StartNew();
+
             bool emptySources = false;
             int count = ose.DefaultCount;
 
@@ -127,6 +134,8 @@ namespace Terradue.OpenSearch.Request {
             // new page -> new feed
             feed = new AtomFeed();
 
+            totalResults = 0;
+
 
             // While we do not have the count needed for our results
             // and that all the sources have are not empty
@@ -142,7 +151,7 @@ namespace Terradue.OpenSearch.Request {
                 SetCurrentEntitiesOffset();
 
                 var r1 = results.Values.FirstOrDefault(r => {
-                    AtomFeed result = (AtomFeed)r.Result;
+                    AtomFeed result = (AtomFeed)r;
                     if (result.Items.Count() > 0)
                         return true;
                     return false;
@@ -184,7 +193,7 @@ namespace Terradue.OpenSearch.Request {
                     SetCurrentEntitiesOffset();
 
                     var r1 = results.Values.FirstOrDefault(r => {
-                        AtomFeed result = (AtomFeed)r.Result;
+                        AtomFeed result = (AtomFeed)r;
                         if (result.Items.Count() > 0)
                             return true;
                         return false;
@@ -211,12 +220,12 @@ namespace Terradue.OpenSearch.Request {
 
             }
 
-            long totalResults = 0;
-            foreach (var osEntity in currentEntities.Keys) {
-                totalResults += osEntity.GetTotalResults(feed.ContentType, OriginalParameters);
-            }
+            sw.Stop();
 
-            feed.ElementExtensions.Add("totalResults", "http://a9.com/-/spec/opensearch/1.1/", totalResults);
+            feed.TotalResults = totalResults;
+            feed.OpenSearchable = parent;
+            feed.Duration = sw.Elapsed;
+
         }
 
         /// <summary>
@@ -225,7 +234,7 @@ namespace Terradue.OpenSearch.Request {
         private void ExecuteConcurrentRequest() {
 
             countdown = new CountdownEvent(currentEntities.Count);
-            results = new Dictionary<IOpenSearchable, IOpenSearchResult>();
+            results = new Dictionary<IOpenSearchable, IOpenSearchResultCollection>();
 
             foreach (IOpenSearchable entity in currentEntities.Keys) {
                 if (concurrent) {
@@ -255,7 +264,8 @@ namespace Terradue.OpenSearch.Request {
 
             entityParameters["startIndex"] = offset.ToString();
 
-            IOpenSearchResult result = ose.Query((IOpenSearchable)entity, entityParameters, typeof(AtomFeed));
+
+            IOpenSearchResultCollection result = ose.Query((IOpenSearchable)entity, entityParameters, typeof(AtomFeed));
             results.Add((IOpenSearchable)entity, result);
             countdown.Signal();
 
@@ -268,9 +278,11 @@ namespace Terradue.OpenSearch.Request {
 
 
 
-            foreach (IOpenSearchResult result in results.Values) {
+            foreach (IOpenSearchResultCollection result in results.Values) {
 
-                AtomFeed f1 = (AtomFeed)result.Result;
+                AtomFeed f1 = (AtomFeed)result;
+
+                totalResults += f1.TotalResults;
 
                 if (f1.Items.Count() == 0)
                     continue;
@@ -392,7 +404,7 @@ namespace Terradue.OpenSearch.Request {
             foreach (IOpenSearchable entity in it) {
 
                 // the offset for this entity will be the number of items taken from its current result.
-                int offset = ((AtomFeed)results[entity].Result).Items.Cast<AtomItem>().Intersect(feed.Items.Cast<AtomItem>()).Count();
+                int offset = ((AtomFeed)results[entity]).Items.Cast<AtomItem>().Intersect(feed.Items.Cast<AtomItem>()).Count();
 
                 // Add this offset to the current state for this entity
                 currentEntities[entity] += offset;

@@ -14,6 +14,7 @@ using System.Collections.Specialized;
 using Terradue.ServiceModel.Syndication;
 using System.IO;
 using System.Collections.ObjectModel;
+using Terradue.OpenSearch.Request;
 
 namespace Terradue.OpenSearch.Result {
 
@@ -50,7 +51,7 @@ namespace Terradue.OpenSearch.Result {
 
         long Count { get; }
 
-        long TotalResults { get; }
+        long TotalResults { get; set; }
 
         void SerializeToStream(Stream stream);
 
@@ -59,6 +60,12 @@ namespace Terradue.OpenSearch.Result {
         string ContentType { get; }
 
         bool ShowNamespaces { get; set; }
+
+        IOpenSearchable OpenSearchable { get; set; }
+
+        NameValueCollection Parameters { get; set; }
+
+        TimeSpan Duration { get; set; }
 
     }
 

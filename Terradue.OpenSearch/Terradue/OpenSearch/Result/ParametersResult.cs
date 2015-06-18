@@ -39,7 +39,7 @@ namespace Terradue.OpenSearch.Result
         }
 
         [DataMember]
-        public List<ParameterDescription> Parameters {
+        public List<ParameterDescription> ParameterItems {
             get {
                 return parameters;
             }
@@ -177,6 +177,9 @@ namespace Terradue.OpenSearch.Result
             get {
                 throw new NotImplementedException();
             }
+            set {
+                throw new NotImplementedException();
+            }
         }
         [IgnoreDataMember]
         public string ContentType {
@@ -186,6 +189,33 @@ namespace Terradue.OpenSearch.Result
         }
         [IgnoreDataMember]
         public bool ShowNamespaces {
+            get {
+                throw new NotImplementedException();
+            }
+            set {
+                throw new NotImplementedException();
+            }
+        }
+
+        public IOpenSearchable OpenSearchable {
+            get {
+                throw new NotImplementedException();
+            }
+            set {
+                throw new NotImplementedException();
+            }
+        }
+
+        public NameValueCollection Parameters {
+            get {
+                throw new NotImplementedException();
+            }
+            set {
+                throw new NotImplementedException();
+            }
+        }
+
+        public TimeSpan Duration {
             get {
                 throw new NotImplementedException();
             }

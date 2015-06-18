@@ -96,20 +96,23 @@ namespace Terradue.OpenSearch {
 
         long totalResults = -1;
 
-        public long GetTotalResults(string type, NameValueCollection nvc) {
-            if (totalResults < 0) {
-                var request = this.Create(type, nvc);
-                var iosr = request.GetResponse();
-                var querySettings = this.GetQuerySettings(ose);
-                var results = querySettings.ReadNative.Invoke(iosr);
-                try { 
-                    totalResults = long.Parse(results.ElementExtensions.ReadElementExtensions<string>("totalResults", "http://a9.com/-/spec/opensearch/1.1/")[0]);
+        public long TotalResults {
+            get {
+                if (totalResults <= 0) {
+                    NameValueCollection @params = new NameValueCollection();
+                    @params.Set("count", "0");
+                    var request = this.Create("application/atom+xml", @params );
+                    var iosr = request.GetResponse();
+                    var querySettings = this.GetQuerySettings(ose);
+                    var results = querySettings.ReadNative.Invoke(iosr);
+                    try { 
+                        totalResults = results.TotalResults;
+                    } catch {
+                        totalResults = 0;
+                    }
                 }
-                catch {
-                    totalResults = 0;
-                }
+                return totalResults;
             }
-            return totalResults;
         }
 
         public void ApplyResultFilters(OpenSearchRequest request, ref IOpenSearchResultCollection osr) {

@@ -107,18 +107,20 @@ namespace Terradue.OpenSearch {
 
             OpenSearchUrl url = GetInternalOpenSearchUrl(parameters);
 
-            return new MultiAtomOpenSearchRequest(ose, entities.ToArray(), type, url, concurrent);
+            return new MultiAtomOpenSearchRequest(ose, entities.ToArray(), type, url, concurrent, this);
 
         }
 
-        public long GetTotalResults(string type, NameValueCollection parameters) {
+        public long TotalResults {
+            get {
 
-            long count = 0;
+                long count = 0;
 
-            foreach (IOpenSearchable entity in entities) {
-                count = count + entity.GetTotalResults(type, parameters);
+                foreach (IOpenSearchable entity in entities) {
+                    count = count + entity.TotalResults;
+                }
+                return count;
             }
-            return count;
         }
 
         public void ApplyResultFilters(OpenSearchRequest request, ref IOpenSearchResultCollection osr) {
