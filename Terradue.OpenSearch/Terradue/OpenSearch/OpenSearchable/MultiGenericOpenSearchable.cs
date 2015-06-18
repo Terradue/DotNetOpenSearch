@@ -107,7 +107,7 @@ namespace Terradue.OpenSearch {
 
             OpenSearchUrl url = GetInternalOpenSearchUrl(parameters);
 
-            return new MultiAtomOpenSearchRequest(ose, entities.ToArray(), type, url, concurrent);
+            return new MultiAtomOpenSearchRequest(ose, entities.ToArray(), type, url, concurrent, this);
 
         }
 

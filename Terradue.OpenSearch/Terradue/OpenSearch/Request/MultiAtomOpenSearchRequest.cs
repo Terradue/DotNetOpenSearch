@@ -39,6 +39,8 @@ namespace Terradue.OpenSearch.Request {
         bool concurrent = true;
         long totalResults = 0;
 
+        IOpenSearchable parent;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Terradue.OpenSearch.Request.MultiAtomOpenSearchRequest"/> class.
         /// </summary>
@@ -46,7 +48,8 @@ namespace Terradue.OpenSearch.Request {
         /// <param name="entities">IOpenSearchable entities to be searched.</param>
         /// <param name="type">contentType of the .</param>
         /// <param name="url">URL.</param>
-        public MultiAtomOpenSearchRequest(OpenSearchEngine ose, IOpenSearchable[] entities, string type, OpenSearchUrl url, bool concurrent) : base(url, type) {
+        public MultiAtomOpenSearchRequest(OpenSearchEngine ose, IOpenSearchable[] entities, string type, OpenSearchUrl url, bool concurrent, IOpenSearchable parent) : base(url, type) {
+            this.parent = parent;
             this.concurrent = concurrent;
 
             this.ose = ose;
@@ -87,6 +90,9 @@ namespace Terradue.OpenSearch.Request {
         /// Requests the current page.
         /// </summary>
         private void RequestCurrentPage() {
+
+            Stopwatch sw = Stopwatch.StartNew();
+
             bool emptySources = false;
             int count = ose.DefaultCount;
 
@@ -214,7 +220,11 @@ namespace Terradue.OpenSearch.Request {
 
             }
 
+            sw.Stop();
+
             feed.TotalResults = totalResults;
+            feed.OpenSearchable = parent;
+            feed.Duration = sw.Elapsed;
 
         }
 

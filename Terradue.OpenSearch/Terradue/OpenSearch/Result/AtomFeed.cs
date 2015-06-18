@@ -218,13 +218,19 @@ namespace Terradue.OpenSearch.Result {
             }
         }
 
-        TimeSpan duration;
         public TimeSpan Duration {
             get {
-                return duration;
+                var duration = ElementExtensions.ReadElementExtensions<double>("queryTime", "http://purl.org/dc/elements/1.1/");
+                return duration.Count == 0 ? new TimeSpan() : TimeSpan.FromMilliseconds(duration[0]);
             }
             set {
-                duration = value;
+                foreach (var ext in this.ElementExtensions.ToArray()) {
+                    if (ext.OuterName == "queryTime" && ext.OuterNamespace == "http://purl.org/dc/elements/1.1/") {
+                        this.ElementExtensions.Remove(ext);
+                        continue;
+                    }
+                }
+                this.ElementExtensions.Add(new XElement(XName.Get("queryTime", "http://purl.org/dc/elements/1.1/"), value.TotalMilliseconds).CreateReader());
             }
         }
         #endregion
@@ -234,9 +240,6 @@ namespace Terradue.OpenSearch.Result {
                 throw new ArgumentNullException("results");
 
             AtomFeed feed = new AtomFeed(new SyndicationFeed());
-
-            feed.Duration = results.Duration;
-            feed.OpenSearchable = results.OpenSearchable;
 
             feed.Id = results.Id;
             feed.Identifier = results.Identifier;
@@ -258,7 +261,13 @@ namespace Terradue.OpenSearch.Result {
                 }
                 feed.Items = items;
             }
+
+            feed.Duration = results.Duration;
+            feed.OpenSearchable = results.OpenSearchable;
+            feed.TotalResults = results.TotalResults;
+
             return feed;
+
         }
     }
 

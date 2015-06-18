@@ -61,11 +61,11 @@ namespace Terradue.OpenSearch.Result {
 
         bool ShowNamespaces { get; set; }
 
-        IOpenSearchable OpenSearchable { get; }
+        IOpenSearchable OpenSearchable { get; set; }
 
         NameValueCollection Parameters { get; set; }
 
-        TimeSpan Duration { get; }
+        TimeSpan Duration { get; set; }
 
     }
 

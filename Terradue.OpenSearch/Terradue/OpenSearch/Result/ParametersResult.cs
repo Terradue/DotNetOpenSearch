@@ -201,6 +201,9 @@ namespace Terradue.OpenSearch.Result
             get {
                 throw new NotImplementedException();
             }
+            set {
+                throw new NotImplementedException();
+            }
         }
 
         public NameValueCollection Parameters {
@@ -214,6 +217,9 @@ namespace Terradue.OpenSearch.Result
 
         public TimeSpan Duration {
             get {
+                throw new NotImplementedException();
+            }
+            set {
                 throw new NotImplementedException();
             }
         }
