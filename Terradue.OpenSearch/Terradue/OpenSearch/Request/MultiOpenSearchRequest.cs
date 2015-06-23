@@ -278,7 +278,8 @@ namespace Terradue.OpenSearch.Request {
             foreach (IOpenSearchResultCollection result in results.Values) {
 
                 TFeed f1 = (TFeed)result;
-                totalResults += f1.TotalResults;
+                if ( f1.Count > 0 )
+                    totalResults += f1.TotalResults;
 
                 if (f1.Items.Count() == 0)
                     continue;

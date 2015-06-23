@@ -54,11 +54,14 @@ namespace Terradue.OpenSearch.Filters {
         public static OpenSearchUrl GetCorrelatedUrl (NameValueCollection searchParameters){
 
             string corWith = searchParameters["correlatedTo"];
-            if (corWith == null) return null;
+            if (string.IsNullOrEmpty(corWith)) return null;
 
-            OpenSearchUrl urlCor = new OpenSearchUrl(corWith);
-
-            return urlCor;
+            try {
+                return new OpenSearchUrl(corWith);
+            }
+            catch (UriFormatException){
+                throw new FormatException(string.Format("Wrong format for param cor:with={0}. must be an URL", searchParameters["corFunction"]));
+            }
 
         }
 
@@ -70,6 +73,7 @@ namespace Terradue.OpenSearch.Filters {
         public static string GetFunction (NameValueCollection searchParameters){
 
             return searchParameters["corFunction"];
+          
 
         }
 
@@ -85,6 +89,24 @@ namespace Terradue.OpenSearch.Filters {
                 return int.Parse(value);
             } catch (Exception){
                 return 1;
+            }
+
+        }
+
+        public static int[] GetTimeCoverage (NameValueCollection searchParameters){
+
+            string value = searchParameters["timeCover"];
+            if (string.IsNullOrEmpty(value)) {
+                return new int[]{ int.MinValue, int.MaxValue };
+            }
+            try {
+                var time = value.Split(',');
+                if ( time.Length != 2 ){
+                    throw new FormatException(string.Format("Wrong format for param cor:time={0}. must be 2 integer separated by ,", value));
+                }
+                return Array.ConvertAll<string, int>(time, t => int.Parse(t));
+            } catch (Exception){
+                throw new FormatException(string.Format("Wrong format for param cor:time={0}. must be 2 integer separated by ,", value));
             }
 
         }

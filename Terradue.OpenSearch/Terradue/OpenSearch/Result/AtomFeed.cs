@@ -243,6 +243,8 @@ namespace Terradue.OpenSearch.Result {
 
             feed.Id = results.Id;
             feed.Identifier = results.Identifier;
+            feed.Title = results.Title;
+
             foreach ( var author in results.Authors ){
                 feed.Authors.Add(author);
             }
