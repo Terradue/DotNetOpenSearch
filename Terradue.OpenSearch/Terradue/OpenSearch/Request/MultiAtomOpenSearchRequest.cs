@@ -141,6 +141,8 @@ namespace Terradue.OpenSearch.Request {
             // and that all the sources have are not empty
             while (feed.Items.Count() < originalStartIndex - currentStartIndex && emptySources == false) {
 
+                feed = new AtomFeed();
+
                 //
                 ExecuteConcurrentRequest();
 
@@ -281,10 +283,9 @@ namespace Terradue.OpenSearch.Request {
             foreach (IOpenSearchResultCollection result in results.Values) {
 
                 AtomFeed f1 = (AtomFeed)result;
-                if (f1.Count > 0)
-                    totalResults += f1.TotalResults;
+                totalResults += f1.TotalResults;
 
-                if (f1.Items.Count() == 0)
+                if (f1.Count == 0)
                     continue;
                 feed = Merge(feed, f1);
 				

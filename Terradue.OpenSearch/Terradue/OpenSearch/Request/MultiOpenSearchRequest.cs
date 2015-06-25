@@ -141,6 +141,8 @@ namespace Terradue.OpenSearch.Request {
             // and that all the sources have are not empty
             while (feed.Items.Count() < originalStartIndex-currentStartIndex && emptySources == false) {
 
+                feed = new TFeed();
+
                 //
                 ExecuteConcurrentRequest();
 
@@ -278,8 +280,7 @@ namespace Terradue.OpenSearch.Request {
             foreach (IOpenSearchResultCollection result in results.Values) {
 
                 TFeed f1 = (TFeed)result;
-                if ( f1.Count > 0 )
-                    totalResults += f1.TotalResults;
+                totalResults += f1.TotalResults;
 
                 if (f1.Items.Count() == 0)
                     continue;
