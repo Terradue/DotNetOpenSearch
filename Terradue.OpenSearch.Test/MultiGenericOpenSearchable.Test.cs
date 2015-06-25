@@ -273,6 +273,15 @@ namespace Terradue.OpenSearch.Test {
             Assert.AreEqual(1, osr.Count);
             Assert.AreEqual("A2", osr.Items.First().Identifier);
 
+            nvc.Set("count", "1");
+            nvc.Set("startPage", "1");
+            nvc.Set("startIndex", "20");
+
+            osr = ose.Query(multiEntity, nvc, "atom");
+
+            Assert.AreEqual(15, osr.TotalResults);
+            Assert.AreEqual(0, osr.Count);
+
         }
 
     }
