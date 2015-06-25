@@ -197,7 +197,7 @@ namespace Terradue.OpenSearch.Test {
             set;
         }
 
-        public static TestOpenSearchable GenerateNumberedItomFeed(string lid, int n) {
+        public static TestOpenSearchable GenerateNumberedItomFeed(string lid, int n, TimeSpan shift) {
 
             TestOpenSearchable test = new TestOpenSearchable();
             List<TestItem> items = new List<TestItem>();
@@ -208,7 +208,7 @@ namespace Terradue.OpenSearch.Test {
                 item.Identifier = lid + i;
                 item.Name = "Item" + lid + i;
                 item.TextContent = "This is the text for item " + lid + i;
-
+                item.Shift = shift;
                 items.Add(item);
 
             }
@@ -249,9 +249,14 @@ namespace Terradue.OpenSearch.Test {
                 set;
             }
 
+            public TimeSpan Shift {
+                get;
+                set;
+            }
+
             public DateTimeOffset Date {
                 get {
-                    return new DateTime(1900, 01, 01, 01, 01, 01).AddYears(100 - i);
+                    return new DateTime(1900, 01, 01, 01, 01, 01).AddYears(100 - i).Add(Shift);
                 }
             }
         }
