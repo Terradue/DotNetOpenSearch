@@ -79,7 +79,7 @@ namespace Terradue.OpenSearch {
 
             }
 
-            string[] queryString = Array.ConvertAll(finalQueryParameters.AllKeys, key => string.Format("{0}={1}", key, finalQueryParameters[key]));
+            string[] queryString = Array.ConvertAll(finalQueryParameters.AllKeys, key => string.Format("{0}={1}", key, HttpUtility.UrlEncode(finalQueryParameters[key])));
             finalUrl.Query = string.Join("&", queryString);
 
             return new OpenSearchUrl(finalUrl.Uri);
@@ -147,7 +147,7 @@ namespace Terradue.OpenSearch {
 
             finalQueryParameters.Set("enableSourceproduct", "true");
 
-            string[] queryString = Array.ConvertAll(finalQueryParameters.AllKeys, key => string.Format("{0}={1}", key, finalQueryParameters[key]));
+            string[] queryString = Array.ConvertAll(finalQueryParameters.AllKeys, key => string.Format("{0}={1}", key, HttpUtility.UrlEncode(finalQueryParameters[key])));
             finalUrl.Query = string.Join("&", queryString);
 			
             return new OpenSearchUrl(finalUrl.Uri);
@@ -187,7 +187,7 @@ namespace Terradue.OpenSearch {
 
             }
 
-            string[] queryString = Array.ConvertAll(finalQueryParameters.AllKeys, key => string.Format("{0}={1}", key, finalQueryParameters[key]));
+            string[] queryString = Array.ConvertAll(finalQueryParameters.AllKeys, key => string.Format("{0}={1}", key, HttpUtility.UrlEncode(finalQueryParameters[key])));
             finalUrl.Query = string.Join("&", queryString);
 
             return finalUrl.ToString();
@@ -628,6 +628,14 @@ namespace Terradue.OpenSearch {
 
             return p;
 
+        }
+
+        public static int GetCount(NameValueCollection parameters){
+            try {
+                return int.Parse(parameters["count"]);
+            } catch (Exception e) {
+                return OpenSearchEngine.DEFAULT_COUNT;
+            }
         }
     }
 

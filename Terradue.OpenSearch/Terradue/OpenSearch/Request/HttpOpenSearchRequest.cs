@@ -14,6 +14,7 @@ using System.Web;
 using System.Diagnostics;
 using System.Threading;
 using Terradue.OpenSearch.Response;
+using Terradue.OpenSearch.Engine;
 
 namespace Terradue.OpenSearch.Request {
 
@@ -24,6 +25,8 @@ namespace Terradue.OpenSearch.Request {
         private HttpWebRequest httpWebRequest;
 
         string contentType;
+
+        int timeOut = 10000;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Terradue.OpenSearch.HttpOpenSearchRequest"/> class.
@@ -42,10 +45,10 @@ namespace Terradue.OpenSearch.Request {
         /// <value>The time out.</value>
         public int TimeOut {
             get {
-                return httpWebRequest.Timeout;
+                return timeOut;
             }
             set {
-                httpWebRequest.Timeout = value;
+                timeOut = value;
             }
         }
 
@@ -65,7 +68,7 @@ namespace Terradue.OpenSearch.Request {
                     httpWebRequest = (HttpWebRequest)WebRequest.Create(this.OpenSearchUrl);
                     if ( contentType != null )
                         httpWebRequest.Accept = contentType;
-                    httpWebRequest.Timeout = TimeOut;
+                    httpWebRequest.Timeout = timeOut;
                     HttpWebResponse webResponse = (HttpWebResponse)httpWebRequest.GetResponse();
                     sw.Stop();
 

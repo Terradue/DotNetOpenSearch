@@ -79,6 +79,7 @@ namespace Terradue.OpenSearch.Request {
                 case "http":
                 case "https":
                     request = new HttpOpenSearchRequest(queryUrl, mimeType);
+                    ((HttpOpenSearchRequest)request).TimeOut = 60000;
                     break;
                 case "file":
                     request = new FileOpenSearchRequest(queryUrl, mimeType);

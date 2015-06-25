@@ -40,7 +40,7 @@ namespace Terradue.OpenSearch.Test {
         public void CacheTest1() {
             
 
-            TestOpenSearchable entity1 = TestOpenSearchable.GenerateNumberedItomFeed("A", 100);
+            TestOpenSearchable entity1 = TestOpenSearchable.GenerateNumberedItomFeed("A", 100, new TimeSpan(0));
 
             ose.Query(entity1, new NameValueCollection());
 

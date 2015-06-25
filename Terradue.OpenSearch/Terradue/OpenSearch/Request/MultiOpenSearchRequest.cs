@@ -273,12 +273,13 @@ namespace Terradue.OpenSearch.Request {
         /// </summary>
         void MergeResults() {
 
-            //totalResults = 0;
+            totalResults = 0;
 
             foreach (IOpenSearchResultCollection result in results.Values) {
 
                 TFeed f1 = (TFeed)result;
-                totalResults += f1.TotalResults;
+                if ( f1.Count > 0 )
+                    totalResults += f1.TotalResults;
 
                 if (f1.Items.Count() == 0)
                     continue;
