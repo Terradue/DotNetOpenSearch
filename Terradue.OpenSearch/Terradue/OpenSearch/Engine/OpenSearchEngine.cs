@@ -52,6 +52,7 @@ namespace Terradue.OpenSearch.Engine {
     public sealed partial class OpenSearchEngine : IOpenSearchableFactory {
 
         public const int DEFAULT_COUNT = 20;
+        public const int DEFAULT_MAXCOUNT = 100;
         public const int DEFAULT_VALIDITY = 3600;
 
         private log4net.ILog log = log4net.LogManager.GetLogger
@@ -70,6 +71,7 @@ namespace Terradue.OpenSearch.Engine {
             postFilters = new List<PostFilterAction>();
             DefaultCount = DEFAULT_COUNT;
             DefaultTimeOut = 10000;
+            MaxCount = DEFAULT_MAXCOUNT;
         }
 
         public delegate void PreFilterAction(ref OpenSearchRequest request);
@@ -90,6 +92,11 @@ namespace Terradue.OpenSearch.Engine {
         /// </summary>
         /// <value>The default count.</value>
         public int DefaultCount {
+            get;
+            set;
+        }
+
+        public int MaxCount {
             get;
             set;
         }
@@ -155,11 +162,12 @@ namespace Terradue.OpenSearch.Engine {
             results.Parameters = request.Parameters;
             results.Date = DateTime.Now;
 
+            IOpenSearchEngineExtension osee = GetExtensionByExtensionName(resultName);
+
             // 7) Apply post search filters
-            entity.ApplyResultFilters(request, ref results);
+            entity.ApplyResultFilters(request, ref results, osee.DiscoveryContentType);
 
             // 8) Change format
-            IOpenSearchEngineExtension osee = GetExtensionByExtensionName(resultName);
             IOpenSearchResultCollection newResults = osee.CreateOpenSearchResultFromOpenSearchResult(results);
 
             // 9) Create Result
@@ -224,11 +232,12 @@ namespace Terradue.OpenSearch.Engine {
             results.Parameters = request.Parameters;
             results.Date = DateTime.Now;
 
+            IOpenSearchEngineExtension osee = GetFirstExtensionByTypeAbility(resultType);
+
             // 7) Apply post search filters
-            entity.ApplyResultFilters(request, ref results);
+            entity.ApplyResultFilters(request, ref results, osee.DiscoveryContentType);
 
             // 8) Change format
-            IOpenSearchEngineExtension osee = GetFirstExtensionByTypeAbility(resultType);
             IOpenSearchResultCollection newResults = osee.CreateOpenSearchResultFromOpenSearchResult(results);
 
             // 9) Create Result container
@@ -271,7 +280,7 @@ namespace Terradue.OpenSearch.Engine {
             results.Date = DateTime.Now;
 
             // 7) Apply post search filters
-            entity.ApplyResultFilters(request, ref results);
+            entity.ApplyResultFilters(request, ref results, results.ContentType);
 
             // 8 Create the container
             ApplyOpenSearchElements(ref results, request, response);

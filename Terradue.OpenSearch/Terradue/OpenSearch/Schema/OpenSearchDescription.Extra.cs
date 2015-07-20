@@ -5,6 +5,7 @@ using System.Web;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using System.Collections.Generic;
 
 
 namespace Terradue.OpenSearch.Schema
@@ -15,6 +16,7 @@ namespace Terradue.OpenSearch.Schema
 
         public OpenSearchDescription(){
             ExtraNamespace.Add("os", "http://a9.com/-/spec/opensearch/1.1/");
+            ExtraNamespace.Add("param", "http://a9.com/-/spec/opensearch/extensions/parameters/1.0/");
         }
 
         [System.Xml.Serialization.XmlIgnore]
@@ -39,6 +41,7 @@ namespace Terradue.OpenSearch.Schema
         [System.Xml.Serialization.XmlIgnore]
         public OpenSearchUrl Originator { get; set; }
 
+
 	}
 
     public partial class OpenSearchDescriptionUrl
@@ -50,6 +53,7 @@ namespace Terradue.OpenSearch.Schema
             return OpenSearchFactory.ReverseTemplateOpenSearchParameters(nvc);
 
         }
+
 
     }
 }

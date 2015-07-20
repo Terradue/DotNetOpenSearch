@@ -57,6 +57,7 @@ namespace Terradue.OpenSearch.Test {
             UriBuilder urlb = new UriBuilder("dummy://localhost/test/description");
 
             OpenSearchDescriptionUrl url = new OpenSearchDescriptionUrl("application/opensearchdescription+xml", urlb.ToString(), "self");
+            url.Parameters = OpenSearchFactory.GetDefaultParametersDescription(100).ToArray();
             urls.Add(url);
 
             urlb = new UriBuilder("dummy://localhost/test/search");
@@ -77,7 +78,7 @@ namespace Terradue.OpenSearch.Test {
             return OpenSearchFactory.GetBaseOpenSearchParameter();
         }
 
-        public void ApplyResultFilters(Terradue.OpenSearch.Request.OpenSearchRequest request, ref Terradue.OpenSearch.Result.IOpenSearchResultCollection osr) {
+        public void ApplyResultFilters(Terradue.OpenSearch.Request.OpenSearchRequest request, ref Terradue.OpenSearch.Result.IOpenSearchResultCollection osr, string finalContentType) {
 
         }
 
@@ -97,10 +98,6 @@ namespace Terradue.OpenSearch.Test {
             get {
                 return "application/atom+xml";
             }
-        }
-
-        public ParametersResult DescribeParameters() {
-            return OpenSearchFactory.GetDefaultParametersResult();
         }
 
         public bool CanCache {

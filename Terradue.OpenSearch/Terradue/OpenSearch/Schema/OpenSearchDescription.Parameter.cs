@@ -5,6 +5,7 @@
 //       Emmanuel Mathot <emmanuel.mathot@terradue.com>
 //
 //  Copyright (c) 2014 Terradue
+using System.Collections.Generic;
 
 namespace Terradue.OpenSearch.Schema {
 
@@ -52,9 +53,8 @@ namespace Terradue.OpenSearch.Schema {
 		}
 
         /// <remarks/>
-        [XmlElementAttribute("Url")]
-        [DataMember]
-        public OpenSearchDescriptionUrlParameter[] Url {
+        [XmlElement("Parameter", Namespace="http://a9.com/-/spec/opensearch/extensions/parameters/1.0/")]
+        public OpenSearchDescriptionUrlParameter[] Parameters {
             get {
                 return this.parameterField;
             }
@@ -67,7 +67,7 @@ namespace Terradue.OpenSearch.Schema {
 	}
 	
 	/// <remarks/>
-    [DataContract(Name="Paraemeter",Namespace="http://a9.com/-/spec/opensearch/extensions/parameters/1.0/")]
+    [DataContract(Name="Parameter",Namespace="http://a9.com/-/spec/opensearch/extensions/parameters/1.0/")]
 	[SerializableAttribute()]
     [XmlTypeAttribute(Namespace="http://a9.com/-/spec/opensearch/extensions/parameters/1.0/")]
     public partial class OpenSearchDescriptionUrlParameter {
@@ -76,12 +76,28 @@ namespace Terradue.OpenSearch.Schema {
 		
         private string valueField;
 		
-		private int minimumField = 1;
+		private string minimumField = null;
 
-        private int maximumField = 1;
+        private string maximumField = null;
+
+        private string pattern = null;
+
+        private string title = null;
+
+        private string minExclusive = null;
+
+        private string maxExclusive = null;
+
+        private string minInclusive = null;
+
+        private string maxInclusive = null;
+
+        private string step = null;
+
+        private List<OpenSearchDescriptionUrlParameterOption> options = new List<OpenSearchDescriptionUrlParameterOption>();
 		
 		/// <remarks/>
-        [XmlAttribute(AttributeName="type")]
+        [XmlAttribute(AttributeName="name")]
         [DataMember]
         public string Name {
 			get {
@@ -107,7 +123,7 @@ namespace Terradue.OpenSearch.Schema {
 		/// <remarks/>
         [XmlAttribute(AttributeName="minimum")]
         [DataMember]
-        public int Minimum {
+        public string Minimum {
 			get {
                 return this.minimumField;
 			}
@@ -119,7 +135,7 @@ namespace Terradue.OpenSearch.Schema {
         /// <remarks/>
         [XmlAttribute(AttributeName="maximum")]
         [DataMember]
-        public int Maximum {
+        public string Maximum {
             get {
                 return this.maximumField;
             }
@@ -127,6 +143,141 @@ namespace Terradue.OpenSearch.Schema {
                 this.maximumField = value;
             }
         }
+
+        /// <remarks/>
+        [XmlAttribute(AttributeName="pattern")]
+        [DataMember]
+        public string Pattern {
+            get {
+                return this.pattern;
+            }
+            set {
+                this.pattern = value;
+            }
+        }
+
+        /// <remarks/>
+        [XmlAttribute(AttributeName="title")]
+        [DataMember]
+        public string Title {
+            get {
+                return this.title;
+            }
+            set {
+                this.title = value;
+            }
+        }
+
+        /// <remarks/>
+        [XmlAttribute(AttributeName="minExclusive")]
+        [DataMember]
+        public string MinExclusive {
+            get {
+                return this.minExclusive;
+            }
+            set {
+                this.minExclusive = value;
+            }
+        }
+
+        /// <remarks/>
+        [XmlAttribute(AttributeName="maxExclusive")]
+        [DataMember]
+        public string MaxExclusive {
+            get {
+                return this.maxExclusive;
+            }
+            set {
+                this.maxExclusive = value;
+            }
+        }
+
+        /// <remarks/>
+        [XmlAttribute(AttributeName="minInclusive")]
+        [DataMember]
+        public string MinInclusive {
+            get {
+                return this.minInclusive;
+            }
+            set {
+                this.minInclusive = value;
+            }
+        }
+
+        /// <remarks/>
+        [XmlAttribute(AttributeName="maxInclusive")]
+        [DataMember]
+        public string MaxInclusive {
+            get {
+                return this.maxInclusive;
+            }
+            set {
+                this.maxInclusive = value;
+            }
+        }
+
+        /// <remarks/>
+        [XmlAttribute(AttributeName="step")]
+        [DataMember]
+        public string Step {
+            get {
+                return this.step;
+            }
+            set {
+                this.step = value;
+            }
+        }
+
+        [XmlElement("Option")]
+        public List<OpenSearchDescriptionUrlParameterOption> Options {
+            get {
+                return options;
+            }
+            set {
+                options = value;
+            }
+        }
+
+        [XmlAnyElement]
+        public XmlElement[] Any {
+            get ;
+            set ;
+        }
 	}
+
+    /// <remarks/>
+    [DataContract(Name="Parameter",Namespace="http://a9.com/-/spec/opensearch/extensions/parameters/1.0/")]
+    [SerializableAttribute()]
+    [XmlTypeAttribute(Namespace="http://a9.com/-/spec/opensearch/extensions/parameters/1.0/")]
+    public partial class OpenSearchDescriptionUrlParameterOption {
+
+        private string valueField;
+
+        private string labelField;
+
+        /// <remarks/>
+        [XmlAttribute(AttributeName="value")]
+        [DataMember]
+        public string Value {
+            get {
+                return this.valueField;
+            }
+            set {
+                this.valueField = value;
+            }
+        }
+
+        /// <remarks/>
+        [XmlAttribute(AttributeName="label")]
+        [DataMember]
+        public string Label {
+            get {
+                return this.labelField;
+            }
+            set {
+                this.labelField = value;
+            }
+        }
+    }
    
 }

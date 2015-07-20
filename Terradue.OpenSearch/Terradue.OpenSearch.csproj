@@ -86,11 +86,6 @@
     <Compile Include="Terradue\OpenSearch\OpenSearchException.cs" />
     <Compile Include="Terradue\OpenSearch\Result\IOpenSearchResultItem.cs" />
     <Compile Include="Terradue\OpenSearch\Schema\OpenSearchDescription.Parameter.cs" />
-    <Compile Include="Terradue\OpenSearch\Engine\Extensions\ParametersOpenSearchEngineExtension.cs" />
-    <Compile Include="Terradue\OpenSearch\Response\ParametersOpenSearchResponse.cs" />
-    <Compile Include="Terradue\OpenSearch\Result\ParametersResult.cs" />
-    <Compile Include="Terradue\OpenSearch\Request\ParametersOpenSearchRequest.cs" />
-    <Compile Include="Terradue\OpenSearch\Result\ParameterDescription.cs" />
     <Compile Include="Terradue\OpenSearch\Response\IOpenSearchResponse.cs" />
     <Compile Include="Terradue\OpenSearch\Request\AtomOpenSearchRequest.cs" />
     <Compile Include="Terradue\OpenSearch\Request\MultiAtomGroupedOpenSearchRequest.cs" />
