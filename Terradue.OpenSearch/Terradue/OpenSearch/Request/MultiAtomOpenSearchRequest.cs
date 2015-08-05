@@ -26,6 +26,7 @@ namespace Terradue.OpenSearch.Request {
     /// This request will return an atom response and thus the entities requested must be able to return 
     /// Atom response.
     /// </description>
+    [Obsolete("MultiAtomOpenSearchRequest is deprecated, please use MultiOpenSearchRequest instead.")]
     public class MultiAtomOpenSearchRequest : OpenSearchRequest {
         static List<MultiAtomOpenSearchRequestState> requestStatesCache = new List<MultiAtomOpenSearchRequestState>();
         string type;
@@ -226,7 +227,7 @@ namespace Terradue.OpenSearch.Request {
 
             feed.TotalResults = totalResults;
             feed.OpenSearchable = parent;
-            feed.Duration = sw.Elapsed;
+            feed.QueryTimeSpan = sw.Elapsed;
 
         }
 

@@ -26,7 +26,7 @@ namespace Terradue.OpenSearch.Request {
     /// This request will return an atom response and thus the entities requested must be able to return 
     /// Opensearch Collection response.
     /// </description>
-    public class MultiOpenSearchRequest<TFeed, TItem> : OpenSearchRequest where TFeed: class, IOpenSearchResultCollection, ICloneable, new() where TItem: class, IOpenSearchResultItem  {
+    public class MultiOpenSearchRequest<TFeed, TItem> : OpenSearchRequest where TFeed: class, IOpenSearchResultCollection, ICloneable, new() where TItem: class, IOpenSearchResultItem {
         static List<MultiOpenSearchRequestState> requestStatesCache = new List<MultiOpenSearchRequestState>();
         string type;
         NameValueCollection originalParameters, entitiesParameters, currentParameters;
@@ -139,7 +139,7 @@ namespace Terradue.OpenSearch.Request {
 
             // While we do not have the count needed for our results
             // and that all the sources have are not empty
-            while (feed.Items.Count() < originalStartIndex-currentStartIndex && emptySources == false) {
+            while (feed.Items.Count() < originalStartIndex - currentStartIndex && emptySources == false) {
 
                 feed = new TFeed();
 
@@ -148,7 +148,7 @@ namespace Terradue.OpenSearch.Request {
 
                 MergeResults();
 
-                feed.Items = feed.Items.Take(originalStartIndex-currentStartIndex);
+                feed.Items = feed.Items.Take(originalStartIndex - currentStartIndex);
 
                 SetCurrentEntitiesOffset();
 
@@ -226,7 +226,7 @@ namespace Terradue.OpenSearch.Request {
 
             feed.TotalResults = totalResults;
             feed.OpenSearchable = parent;
-            feed.Duration = sw.Elapsed;
+            feed.QueryTimeSpan = sw.Elapsed;
 
         }
 
@@ -240,7 +240,7 @@ namespace Terradue.OpenSearch.Request {
 
             foreach (IOpenSearchable entity in currentEntities.Keys) {
                 if (concurrent) {
-                    Thread queryThread = new Thread(this.ExecuteOneRequest);
+                    Thread queryThread = new Thread(new ParameterizedThreadStart(this.ExecuteOneRequest));
                     queryThread.Start(entity);
                 } else {
 
@@ -252,21 +252,40 @@ namespace Terradue.OpenSearch.Request {
 
         }
 
+        private void CatchException(Exception ex) {
+            throw ex;
+        }
+
         /// <summary>
         /// Executes one request.
         /// </summary>
         /// <param name="entity">Entity.</param>
         void ExecuteOneRequest(object entity) {
 
-            int offset = currentEntities[(IOpenSearchable)entity];
+            try {
+                int offset = currentEntities[(IOpenSearchable)entity];
 
-            NameValueCollection entityParameters = new NameValueCollection(entitiesParameters);
+                NameValueCollection entityParameters = new NameValueCollection(entitiesParameters);
 
-            entityParameters["startIndex"] = offset.ToString();
+                entityParameters["startIndex"] = offset.ToString();
 
-            IOpenSearchResultCollection result = ose.Query((IOpenSearchable)entity, entityParameters);
-            results.Add((IOpenSearchable)entity, result);
-            countdown.Signal();
+                IOpenSearchResultCollection result = ose.Query((IOpenSearchable)entity, entityParameters);
+                results.Add((IOpenSearchable)entity, result);
+                countdown.Signal();
+            } catch (Exception ex) {
+                TFeed result = new TFeed();
+                result.Id = "Exception";
+                result.ElementExtensions.Add(new SyndicationElementExtension("exception", "", 
+                                                                             new ExceptionMessage{
+                    Message = ex.Message,
+                    Source = ex.Source,
+                    HelpLink = ex.HelpLink
+                }
+                )
+                                            );
+                results.Add((IOpenSearchable)entity, result);
+                countdown.Signal();
+            }
 
         }
 
@@ -280,6 +299,14 @@ namespace Terradue.OpenSearch.Request {
             foreach (IOpenSearchResultCollection result in results.Values) {
 
                 TFeed f1 = (TFeed)result;
+
+                if (f1.ElementExtensions.ReadElementExtensions<ExceptionMessage>("exception", "").Count > 0) {
+                    foreach (var ext in f1.ElementExtensions) {
+                        if (ext.OuterName == "exception")
+                            feed.ElementExtensions.Add(ext);
+                    }
+                }
+
                 totalResults += f1.TotalResults;
 
                 if (f1.Items.Count() == 0)
@@ -317,8 +344,7 @@ namespace Terradue.OpenSearch.Request {
             feed.Items = f1.Items.Union(f2.Items).OrderBy(u => u.Id).OrderByDescending(u => u.Date);
 
             feed.Items = feed.Items.Take(originalCount);
-
-
+                
             return (TFeed)feed.Clone();
         }
 

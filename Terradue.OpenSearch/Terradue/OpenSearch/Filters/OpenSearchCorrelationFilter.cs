@@ -46,6 +46,8 @@ namespace Terradue.OpenSearch.Filters {
         /// <param name="originalParameters">Original parameters.</param>
         public abstract void ApplyResultFilters(ref IOpenSearchResultCollection osr, NameValueCollection originalParameters, IOpenSearchable entity);
 
+        public abstract void AddSearchLink(ref IOpenSearchResultCollection osr, NameValueCollection originalParameters, IOpenSearchable entity, string with, string finalContentType);
+
         /// <summary>
         /// Gets the correlated URL.
         /// </summary>

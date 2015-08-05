@@ -115,7 +115,7 @@ namespace Terradue.OpenSearch {
             }
         }
 
-        public void ApplyResultFilters(OpenSearchRequest request, ref IOpenSearchResultCollection osr) {
+        public void ApplyResultFilters(OpenSearchRequest request, ref IOpenSearchResultCollection osr, string finalContentType) {
             // do nothing.
         }
 
@@ -125,10 +125,6 @@ namespace Terradue.OpenSearch {
                     return "application/atom+xml";
                 return osd.DefaultUrl.Type;
             }
-        }
-
-        public ParametersResult DescribeParameters() {
-            throw new NotImplementedException();
         }
 
         public bool CanCache {

@@ -102,11 +102,12 @@ namespace Terradue.OpenSearch {
             NameValueCollection remoteParametersDef = HttpUtility.ParseQueryString(finalUrl.Query);
 
             // control duplicates
-            foreach (string key in remoteParametersDef)
-            {
-                if (string.IsNullOrEmpty(key)) continue;
+            foreach (string key in remoteParametersDef) {
+                if (string.IsNullOrEmpty(key))
+                    continue;
                 int count = remoteParametersDef.GetValues(key).Count();
-                if (count > 1) throw new OpenSearchException(string.Format("Url template [{0}] from OpenSearch Description cannot contains duplicates parameter definition: {1}", finalUrl, key));
+                if (count > 1)
+                    throw new OpenSearchException(string.Format("Url template [{0}] from OpenSearch Description cannot contains duplicates parameter definition: {1}", finalUrl, key));
             }
 
             // For each parameter requested
@@ -326,21 +327,19 @@ namespace Terradue.OpenSearch {
                 OpenSearchDescriptionUrl openSearchDescriptionUrl;
                 if (mimeType == null) {
                     openSearchDescriptionUrl = openSearchDescription.Url.First<OpenSearchDescriptionUrl>();
-                }
-                else {
+                } else {
                     openSearchDescriptionUrl = openSearchDescription.Url.FirstOrDefault((OpenSearchDescriptionUrl u) => u.Type == mimeType);
                 }
                 if (openSearchDescriptionUrl == null) {
                     throw new InvalidOperationException("Impossible to find an OpenSearchable link for the type " + mimeType);
                 }
                 openSearchDescription.DefaultUrl = openSearchDescriptionUrl;
-            }
-            catch (InvalidOperationException ex) {
+            } catch (InvalidOperationException ex) {
                 if (!(ex.InnerException is FileNotFoundException) && !(ex.InnerException is SecurityException) && !(ex.InnerException is UriFormatException)) {
                     openSearchDescription = ose.AutoDiscoverFromQueryUrl(new OpenSearchUrl(baseUrl));
                     urlBasedOpenSearchableFactory = new UrlBasedOpenSearchableFactory(ose);
                     result = urlBasedOpenSearchableFactory.Create(url);
-                    if ( string.IsNullOrEmpty (mimeType))
+                    if (string.IsNullOrEmpty(mimeType))
                         return result;
                     var murl = openSearchDescription.Url.FirstOrDefault((OpenSearchDescriptionUrl u) => u.Type == mimeType);
                     if (murl != null)
@@ -351,13 +350,11 @@ namespace Terradue.OpenSearch {
                 try {
                     url = new OpenSearchUrl(new Uri(baseUrl, "/description"));
                     openSearchDescription = OpenSearchFactory.LoadOpenSearchDescriptionDocument(url);
-                }
-                catch {
+                } catch {
                     try {
                         url = new OpenSearchUrl(new Uri(baseUrl, "/OSDD"));
                         openSearchDescription = OpenSearchFactory.LoadOpenSearchDescriptionDocument(url);
-                    }
-                    catch {
+                    } catch {
                         throw new EntryPointNotFoundException(string.Format("No OpenSearch description found around {0}", baseUrl));
                     }
                 }
@@ -612,25 +609,47 @@ namespace Terradue.OpenSearch {
             return links.ToArray();
         }
 
-        public static ParametersResult GetDefaultParametersResult(){
+        public static List<OpenSearchDescriptionUrlParameter> GetDefaultParametersDescription(int maxCount) {
 
-            ParametersResult p = new ParametersResult();
+            List<OpenSearchDescriptionUrlParameter> parameters = new List<OpenSearchDescriptionUrlParameter>();
 
-            ParameterDescription parameter;
+            parameters.Add(new OpenSearchDescriptionUrlParameter() {
+                Name = "count",
+                Value = @"{count?}",
+                Title = "number of search results per page desired",
+                Minimum = "0",
+                MaxInclusive = maxCount.ToString()
+            });
+            parameters.Add(new OpenSearchDescriptionUrlParameter() {
+                Name = "startPage",
+                Value = @"{startPage?}",
+                Title = "page number of the set of search results desired",
+                Minimum = "0"
+            });
+            parameters.Add(new OpenSearchDescriptionUrlParameter() {
+                Name = "startIndex",
+                Value = @"{startIndex?}",
+                Title = "index of the first search result desired" ,
+                Minimum = "0"
+            });
+            parameters.Add(new OpenSearchDescriptionUrlParameter() {
+                Name = "q",
+                Value = @"{searchTerms?}",
+                Title = "keywords to be found in the search results" ,
+                Minimum = "0"
+            });
+            parameters.Add(new OpenSearchDescriptionUrlParameter() {
+                Name = "lang",
+                Value = @"{language?}",
+                Title = "desired language of the results",
+                Minimum = "0"
+            });
 
-            parameter = new ParameterDescription();
-
-            p.ParameterItems.Add(new ParameterDescription(){Id="count", Template = new XmlQualifiedName("count","http://a9.com/-/spec/opensearch/1.1/"), Abstract="number of search results per page desired", Type="integer"});
-            p.ParameterItems.Add(new ParameterDescription(){Id="startPage", Template = new XmlQualifiedName("startPage","http://a9.com/-/spec/opensearch/1.1/"), Namespace="http://a9.com/-/spec/opensearch/1.1/", Abstract="page number of the set of search results desired", Type="integer"});
-            p.ParameterItems.Add(new ParameterDescription(){Id="startIndex", Template = new XmlQualifiedName("startIndex","http://a9.com/-/spec/opensearch/1.1/"), Namespace="http://a9.com/-/spec/opensearch/1.1/", Abstract="index of the first search result desired", Type="integer"});
-            p.ParameterItems.Add(new ParameterDescription(){Id="q", Template = new XmlQualifiedName("searchTerms","http://a9.com/-/spec/opensearch/1.1/"), Namespace="http://a9.com/-/spec/opensearch/1.1/", Abstract="keywords to be found in the search results", Type="string"});
-            p.ParameterItems.Add(new ParameterDescription(){Id="lang", Template = new XmlQualifiedName("language","http://a9.com/-/spec/opensearch/1.1/"), Namespace="http://a9.com/-/spec/opensearch/1.1/", Abstract="desired language of the results", Type="string"});
-
-            return p;
+            return parameters;
 
         }
 
-        public static int GetCount(NameValueCollection parameters){
+        public static int GetCount(NameValueCollection parameters) {
             try {
                 return int.Parse(parameters["count"]);
             } catch (Exception e) {
