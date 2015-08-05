@@ -65,8 +65,10 @@ namespace Terradue.OpenSearch.Result {
                 items = feed.items.Select(i => new AtomItem(i)).ToList();
             } else
                 items = feed.items;
-            base.LastUpdatedTime = DateTime.UtcNow;
-
+            QueryTimeSpan = feed.QueryTimeSpan;
+            OpenSearchable = feed.OpenSearchable;
+            Parameters = feed.Parameters;
+            TotalResults = feed.TotalResults;
         }
 
         public new static AtomFeed Load(XmlReader reader) {
@@ -171,23 +173,12 @@ namespace Terradue.OpenSearch.Result {
             }
             set {
                 foreach (var ext in this.ElementExtensions.ToArray()) {
-                    if (ext.OuterName == "totalResults" && ext.OuterNamespace == "http://a9.com/-/spec/opensearch/1.1//") {
+                    if (ext.OuterName == "totalResults" && ext.OuterNamespace == "http://a9.com/-/spec/opensearch/1.1/") {
                         this.ElementExtensions.Remove(ext);
                         continue;
                     }
                 }
                 this.ElementExtensions.Add(new XElement(XName.Get("totalResults", "http://a9.com/-/spec/opensearch/1.1/"), value).CreateReader());
-            }
-        }
-
-        bool showNamespaces;
-
-        public bool ShowNamespaces {
-            get {
-                return showNamespaces;
-            }
-            set {
-                showNamespaces = value;
             }
         }
 
@@ -218,7 +209,7 @@ namespace Terradue.OpenSearch.Result {
             }
         }
 
-        public TimeSpan Duration {
+        public TimeSpan QueryTimeSpan {
             get {
                 var duration = ElementExtensions.ReadElementExtensions<double>("queryTime", "http://purl.org/dc/elements/1.1/");
                 return duration.Count == 0 ? new TimeSpan() : TimeSpan.FromMilliseconds(duration[0]);
@@ -264,12 +255,16 @@ namespace Terradue.OpenSearch.Result {
                 feed.Items = items;
             }
 
-            feed.Duration = results.Duration;
+            feed.QueryTimeSpan = results.QueryTimeSpan;
             feed.OpenSearchable = results.OpenSearchable;
             feed.TotalResults = results.TotalResults;
 
             return feed;
 
+        }
+
+        public object Clone() {
+            return new AtomFeed(this, true);
         }
     }
 

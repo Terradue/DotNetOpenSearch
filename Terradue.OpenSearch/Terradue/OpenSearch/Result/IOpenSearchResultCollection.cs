@@ -21,7 +21,7 @@ namespace Terradue.OpenSearch.Result {
     /// <summary>
     /// Interface to represent a collection of results item
     /// </summary>
-    public interface IOpenSearchResultCollection {
+    public interface IOpenSearchResultCollection : ICloneable{
 
         string Id { get; set; }
 
@@ -59,13 +59,11 @@ namespace Terradue.OpenSearch.Result {
 
         string ContentType { get; }
 
-        bool ShowNamespaces { get; set; }
-
         IOpenSearchable OpenSearchable { get; set; }
 
         NameValueCollection Parameters { get; set; }
 
-        TimeSpan Duration { get; set; }
+        TimeSpan QueryTimeSpan { get; set; }
 
     }
 
