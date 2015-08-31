@@ -15,6 +15,7 @@ using System.Diagnostics;
 using System.Threading;
 using Terradue.OpenSearch.Response;
 using Terradue.OpenSearch.Engine;
+using System.IO;
 
 namespace Terradue.OpenSearch.Request {
 
@@ -22,7 +23,6 @@ namespace Terradue.OpenSearch.Request {
     /// Implements an OpenSearch request over HTTP
     /// </summary>
     public class HttpOpenSearchRequest : OpenSearchRequest {
-        private HttpWebRequest httpWebRequest;
 
         string contentType;
 
@@ -34,9 +34,11 @@ namespace Terradue.OpenSearch.Request {
         /// <param name="url">the HTTP URL.</param>
         internal HttpOpenSearchRequest(OpenSearchUrl url, string contentType = null) : base(url, contentType) {
             this.contentType = contentType;
-            if (!url.Scheme.StartsWith("http")) throw new InvalidOperationException("A http scheme is expected for this kind of request");
+            if (!url.Scheme.StartsWith("http"))
+                throw new InvalidOperationException("A http scheme is expected for this kind of request");
             this.OpenSearchUrl = url;
             this.originalParameters = HttpUtility.ParseQueryString(url.Query);
+
         }
 
         /// <summary>
@@ -65,18 +67,32 @@ namespace Terradue.OpenSearch.Request {
             while (retry >= 0) {
                 try {
                     Stopwatch sw = Stopwatch.StartNew();
-                    httpWebRequest = (HttpWebRequest)WebRequest.Create(this.OpenSearchUrl);
-                    if ( contentType != null )
-                        httpWebRequest.Accept = contentType;
-                    httpWebRequest.Timeout = timeOut;
-                    HttpWebResponse webResponse = (HttpWebResponse)httpWebRequest.GetResponse();
-                    sw.Stop();
+                    byte[] data;
+                    MemoryOpenSearchResponse response;
 
-                    HttpOpenSearchResponse response = new HttpOpenSearchResponse(webResponse, sw.Elapsed);
+                    HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create(this.OpenSearchUrl);
+                    if (contentType != null) {
+                        ((HttpWebRequest)httpWebRequest).Accept = contentType;
+                    }
+                    httpWebRequest.Timeout = timeOut;
+
+                    HttpWebResponse webResponse = (HttpWebResponse)httpWebRequest.GetResponse();
+                    using (var ms = new MemoryStream()) {
+                        webResponse.GetResponseStream().CopyTo(ms);
+                        data = ms.ToArray();
+                    }
+                    
+                    response = new MemoryOpenSearchResponse(data, webResponse.ContentType, sw.Elapsed);
+
+                    webResponse.Close();
+                    webResponse.Dispose();
+
+                    sw.Stop();
                     return response;
 
                 } catch (WebException e) {
-                    if (e.Status == WebExceptionStatus.Timeout) throw new TimeoutException(String.Format("Search Request {0} has timed out", httpWebRequest.RequestUri.AbsoluteUri), e);
+                    if (e.Status == WebExceptionStatus.Timeout)
+                        throw new TimeoutException(String.Format("Search Request {0} has timed out", this.OpenSearchUrl), e);
                     retry--;
                     if (retry > 0) {
                         Thread.Sleep(1000);
@@ -84,14 +100,15 @@ namespace Terradue.OpenSearch.Request {
                     }
                     throw e;
                 } catch (Exception e) {
-                    throw new Exception("Unknown error during query at " + httpWebRequest.RequestUri.AbsoluteUri, e);
+                    throw new Exception("Unknown error during query at " + this.OpenSearchUrl, e);
                 }
             }
 
-            throw new Exception("Unknown error during query at " + httpWebRequest.RequestUri.AbsoluteUri);
+            throw new Exception("Unknown error during query at " + this.OpenSearchUrl);
         }
 
-        NameValueCollection originalParameters= new NameValueCollection();
+        NameValueCollection originalParameters = new NameValueCollection();
+
         public override NameValueCollection OriginalParameters {
             get {
                 return originalParameters;

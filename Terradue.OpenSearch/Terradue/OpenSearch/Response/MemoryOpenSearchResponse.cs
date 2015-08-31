@@ -38,6 +38,12 @@ namespace Terradue.OpenSearch.Response
 			timeSpan = sw.Elapsed;
 		}
 
+        public MemoryOpenSearchResponse(byte[] input, string contentType, TimeSpan requestTime){
+            payload = input;
+            this.contentType = contentType;
+            this.timeSpan = requestTime;
+        }
+
         protected MemoryOpenSearchResponse(string contentType){
             Stopwatch sw = new Stopwatch();
             sw.Start();

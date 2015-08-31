@@ -43,7 +43,7 @@ namespace Terradue.OpenSearch.Result {
 
         TextSyndicationContent Description { get; set; }
 
-        DateTime Date { get; set; }
+        DateTime LastUpdatedTime { get; set; }
 
         string Generator { get; set; }
 

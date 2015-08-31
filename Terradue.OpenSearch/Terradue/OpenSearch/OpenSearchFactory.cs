@@ -38,8 +38,9 @@ namespace Terradue.OpenSearch {
         public static OpenSearchDescription LoadOpenSearchDescriptionDocument(OpenSearchUrl url) {
             try {
                 XmlSerializer ser = new XmlSerializer(typeof(OpenSearchDescription));
-                XmlReader reader = XmlReader.Create(url.ToString());
-                return (OpenSearchDescription)ser.Deserialize(reader);
+                using (XmlReader reader = XmlReader.Create(url.ToString())){
+                    return (OpenSearchDescription)ser.Deserialize(reader);
+                }
             } catch (Exception e) {
                 throw new InvalidOperationException("Exception querying OpenSearch description at " + url.ToString() + " : " + e.Message, e);
             }
@@ -146,7 +147,7 @@ namespace Terradue.OpenSearch {
                     finalQueryParameters.Set(parameter, remoteParametersDef[parameter]);
             }
 
-            finalQueryParameters.Set("enableSourceproduct", "true");
+            //finalQueryParameters.Set("enableSourceproduct", "true");
 
             string[] queryString = Array.ConvertAll(finalQueryParameters.AllKeys, key => string.Format("{0}={1}", key, HttpUtility.UrlEncode(finalQueryParameters[key])));
             finalUrl.Query = string.Join("&", queryString);

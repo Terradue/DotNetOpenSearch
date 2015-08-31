@@ -26,7 +26,9 @@ namespace Terradue.OpenSearch.Result {
 
         TextSyndicationContent Title { get; set; }
 
-        DateTime Date { get; set; }
+        DateTime LastUpdatedTime { get; set; }
+
+        DateTime PublishDate { get; set; }
 
         TextSyndicationContent Summary { get; set; }
 

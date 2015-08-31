@@ -135,7 +135,7 @@ namespace Terradue.OpenSearch.Result {
             }
         }
 
-        public DateTime Date {
+        public DateTime LastUpdatedTime {
             get {
                 return base.LastUpdatedTime.DateTime;
             }
@@ -243,8 +243,8 @@ namespace Terradue.OpenSearch.Result {
             if ( results.ElementExtensions != null )
                 feed.ElementExtensions = new SyndicationElementExtensionCollection(results.ElementExtensions);
 
-            if ( results.Date.Ticks > 0 )
-                feed.Date = results.Date;
+            if ( results.LastUpdatedTime.Ticks > 0 )
+                feed.LastUpdatedTime = results.LastUpdatedTime;
             feed.Links = new Collection<SyndicationLink>(results.Links);
 
             if (results.Items != null) {
