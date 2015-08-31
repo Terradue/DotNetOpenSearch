@@ -46,12 +46,21 @@ namespace Terradue.OpenSearch.Result {
             }
         }
 
-        public DateTime Date {
+        public DateTime LastUpdatedTime {
             get {
                 return base.LastUpdatedTime.DateTime;
             }
             set {
                 base.LastUpdatedTime = new DateTimeOffset(value);
+            }
+        }
+
+        public DateTime PublishDate {
+            get {
+                return base.PublishDate.DateTime;
+            }
+            set {
+                base.PublishDate = new DateTimeOffset(value);
             }
         }
 
@@ -112,8 +121,10 @@ namespace Terradue.OpenSearch.Result {
 
             item.Id = result.Id;
             item.Identifier = result.Identifier;
-            if ( result.Date.Ticks != 0 )
-                item.Date = result.Date;
+            if ( result.LastUpdatedTime.Ticks != 0 )
+                item.LastUpdatedTime = result.LastUpdatedTime;
+            if ( result.PublishDate.Ticks != 0 )
+                item.PublishDate = result.PublishDate;
             item.Links = result.Links;
             item.Title = result.Title;
             item.Summary = result.Summary;

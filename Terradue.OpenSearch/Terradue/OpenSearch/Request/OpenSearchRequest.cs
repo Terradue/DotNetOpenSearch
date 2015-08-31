@@ -61,6 +61,7 @@ namespace Terradue.OpenSearch.Request {
         /// <param name="parameters">Parameters of the request.</param>
         public static OpenSearchRequest Create(IOpenSearchable entity, string mimeType, NameValueCollection parameters) {
 
+
             OpenSearchDescription osd = entity.GetOpenSearchDescription();
 
             OpenSearchDescriptionUrl url = OpenSearchFactory.GetOpenSearchUrlByType(osd, mimeType);

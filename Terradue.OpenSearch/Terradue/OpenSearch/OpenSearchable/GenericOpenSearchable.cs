@@ -52,11 +52,14 @@ namespace Terradue.OpenSearch {
         #region IOpenSearchable implementation
 
         public QuerySettings GetQuerySettings(OpenSearchEngine ose) {
-            IOpenSearchEngineExtension osee = ose.GetExtensionByContentTypeAbility(this.DefaultMimeType);
+            string defaultMimeType = this.DefaultMimeType;
+            if (defaultMimeType.Contains(";"))
+                defaultMimeType = defaultMimeType.Split(';')[0];
+            IOpenSearchEngineExtension osee = ose.GetExtensionByContentTypeAbility(defaultMimeType);
             if (osee == null)
                 return null;
 
-            return new QuerySettings(osee.DiscoveryContentType, osee.ReadNative);
+            return new QuerySettings(this.DefaultMimeType, osee.ReadNative);
         }
 
         public OpenSearchRequest Create(string type, NameValueCollection parameters) {
@@ -69,6 +72,7 @@ namespace Terradue.OpenSearch {
                 nvc.Set(k, parameters[k]);
                 return false;
             });
+            
             return OpenSearchRequest.Create(this, type, nvc);
         }
 
@@ -123,7 +127,9 @@ namespace Terradue.OpenSearch {
             get {
                 if (string.IsNullOrEmpty(GetOpenSearchDescription().DefaultUrl.Type) || GetOpenSearchDescription().DefaultUrl.Type == "application/opensearchdescription+xml")
                     return "application/atom+xml";
+                
                 return osd.DefaultUrl.Type;
+
             }
         }
 

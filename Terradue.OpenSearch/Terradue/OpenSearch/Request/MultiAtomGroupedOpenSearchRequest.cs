@@ -161,7 +161,7 @@ namespace Terradue.OpenSearch.Request {
                                         result.Description, 
                                         result.Links.FirstOrDefault(l => l.RelationshipType == "self").Uri,
                                         result.Id,
-                                        result.Date);
+                                        result.LastUpdatedTime);
                     item.Identifier = result.Identifier;
                     item.ElementExtensions = result.ElementExtensions;
                     result.Authors.FirstOrDefault( a => {
@@ -179,7 +179,7 @@ namespace Terradue.OpenSearch.Request {
                     });
                     item.Copyright = result.Copyright;
                     item.Links = result.Links;
-                    item.PublishDate = result.Date;
+                    item.PublishDate = result.LastUpdatedTime;
                     item.SourceFeed = (SyndicationFeed)AtomFeed.CreateFromOpenSearchResultCollection(result);
                 }
                 items.Add(item);				

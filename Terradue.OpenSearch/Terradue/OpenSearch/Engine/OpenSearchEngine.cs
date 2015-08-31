@@ -160,7 +160,7 @@ namespace Terradue.OpenSearch.Engine {
             // 6) Transform the response
             IOpenSearchResultCollection results = querySettings.ReadNative.Invoke(response);
             results.Parameters = request.Parameters;
-            results.Date = DateTime.Now;
+            results.LastUpdatedTime = DateTime.Now;
 
             IOpenSearchEngineExtension osee = GetExtensionByExtensionName(resultName);
 
@@ -230,7 +230,7 @@ namespace Terradue.OpenSearch.Engine {
             // 6) Transform the response
             IOpenSearchResultCollection results = querySettings.ReadNative.Invoke(response);
             results.Parameters = request.Parameters;
-            results.Date = DateTime.Now;
+            results.LastUpdatedTime = DateTime.Now;
 
             IOpenSearchEngineExtension osee = GetFirstExtensionByTypeAbility(resultType);
 
@@ -277,7 +277,7 @@ namespace Terradue.OpenSearch.Engine {
             // 6) Read the response 
             var results = querySettings.ReadNative.Invoke(response);
             results.Parameters = request.Parameters;
-            results.Date = DateTime.Now;
+            results.LastUpdatedTime = DateTime.Now;
 
             // 7) Apply post search filters
             entity.ApplyResultFilters(request, ref results, results.ContentType);
@@ -342,6 +342,8 @@ namespace Terradue.OpenSearch.Engine {
         /// <param name="url">URL.</param>
         public OpenSearchDescription LoadOpenSearchDescriptionDocument(OpenSearchUrl url) {
 
+            OpenSearchDescription osd;
+
             OpenSearchRequest request = OpenSearchRequest.Create(url);
 
             ApplyPreSearchFilters(ref request);
@@ -356,12 +358,13 @@ namespace Terradue.OpenSearch.Engine {
             try {
                 XmlSerializer ser = new XmlSerializer(typeof(OpenSearchDescription));
                 Stream stream = new MemoryStream((byte[])response.GetResponseObject());
-                return (OpenSearchDescription)ser.Deserialize(XmlReader.Create(stream));
+                osd = (OpenSearchDescription)ser.Deserialize(XmlReader.Create(stream));
+                stream.Close();
             } catch (Exception e) {
                 throw new Exception("Exception querying OpenSearch description at " + url.ToString() + " : " + e.Message, e);
-            }
+            } 
 
-
+            return osd;
 
         }
 
@@ -489,7 +492,7 @@ namespace Terradue.OpenSearch.Engine {
                     continue;
                 query.Add(new XAttribute(XNamespace.Xmlns + ns.Name, ns.Namespace));
             }
-            var osparams = OpenSearchFactory.GetOpenSearchParameters(OpenSearchFactory.GetOpenSearchUrlByType(osd, response.ContentType));
+            var osparams = OpenSearchFactory.GetOpenSearchParameters(OpenSearchFactory.GetOpenSearchUrlByType(osd, request.ContentType));
             foreach (var key in request.Parameters.AllKeys) {
                 string osparam = OpenSearchFactory.GetParamNameFromId(osparams, key);
                 if (!string.IsNullOrEmpty(osparam)) {
