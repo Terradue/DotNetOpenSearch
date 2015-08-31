@@ -38,7 +38,6 @@
       <HintPath>..\packages\ServiceStack.Text.3.9.71\lib\net35\ServiceStack.Text.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml" />
-    <Reference Include="System.Xml.Serialization" />
     <Reference Include="System.Net" />
     <Reference Include="System.Web" />
     <Reference Include="Mono.Addins">
@@ -53,13 +52,13 @@
     <Reference Include="Terradue.GeoJson">
       <HintPath>..\packages\Terradue.GeoJson.1.4.15\lib\net40\Terradue.GeoJson.dll</HintPath>
     </Reference>
+    <Reference Include="System.Xml.Linq" />
     <Reference Include="FluentAssertions.Core">
-      <HintPath>..\packages\FluentAssertions.3.4.1\lib\net40\FluentAssertions.Core.dll</HintPath>
+      <HintPath>..\packages\FluentAssertions.4.0.0\lib\net40\FluentAssertions.Core.dll</HintPath>
     </Reference>
     <Reference Include="FluentAssertions">
-      <HintPath>..\packages\FluentAssertions.3.4.1\lib\net40\FluentAssertions.dll</HintPath>
+      <HintPath>..\packages\FluentAssertions.4.0.0\lib\net40\FluentAssertions.dll</HintPath>
     </Reference>
-    <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MultiGenericOpenSearchable.Test.cs" />
