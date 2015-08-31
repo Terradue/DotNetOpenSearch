@@ -173,7 +173,8 @@ namespace Terradue.OpenSearch.Test {
                     Uri id = new Uri(s.Id);
 
                     AtomItem entry = new AtomItem(fIdentifier, fName, alternate, id.ToString(), s.Date);
-                    entry.PublishDate = s.Date;
+                    entry.PublishDate = s.Date.DateTime;
+                    entry.LastUpdatedTime = s.Date.DateTime;
                     entry.Categories.Add(new SyndicationCategory(this.Identifier));
 
                     entry.Summary = new TextSyndicationContent(fName);

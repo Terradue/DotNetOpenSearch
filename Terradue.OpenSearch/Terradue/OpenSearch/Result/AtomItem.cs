@@ -46,7 +46,7 @@ namespace Terradue.OpenSearch.Result {
             }
         }
 
-        public DateTime LastUpdatedTime {
+        public new DateTime LastUpdatedTime {
             get {
                 return base.LastUpdatedTime.DateTime;
             }
@@ -55,7 +55,7 @@ namespace Terradue.OpenSearch.Result {
             }
         }
 
-        public DateTime PublishDate {
+        public new DateTime PublishDate {
             get {
                 return base.PublishDate.DateTime;
             }
