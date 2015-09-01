@@ -306,13 +306,16 @@ namespace Terradue.OpenSearch.Engine {
 
             ApplyPostSearchFilters(request, ref response);
 
+            string contentType = response.ContentType;
+            if (contentType.Contains(";"))
+                contentType = contentType.Split(';')[0];
+
             if (response.ContentType == "application/opensearchdescription+xml") {
                 osd = this.LoadOpenSearchDescriptionDocument(url);
                 descriptionUrl = url;
             } else {
 
-
-                IOpenSearchEngineExtension osee = GetExtensionByContentTypeAbility(response.ContentType);
+                IOpenSearchEngineExtension osee = GetExtensionByContentTypeAbility(contentType);
 
                 if (osee == null)
                     throw new ImpossibleSearchException("No registered extension is able to read content of type " + response.ContentType);
@@ -325,12 +328,12 @@ namespace Terradue.OpenSearch.Engine {
                 osd = LoadOpenSearchDescriptionDocument(descriptionUrl);
             }
 
-            string contentType = response.ContentType;
+            osd.Originator = descriptionUrl;
+
             if (contentType == "application/opensearchdescription+xml")
                 contentType = "application/atom+xml";
 
-            osd.Originator = descriptionUrl;
-            osd.DefaultUrl = osd.Url.Single(u => u.Type == contentType);
+            osd.DefaultUrl = osd.Url.SingleOrDefault(u => u.Type.StartsWith(contentType));
 
             return osd;
         }
