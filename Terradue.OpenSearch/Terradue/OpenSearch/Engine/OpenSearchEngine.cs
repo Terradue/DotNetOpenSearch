@@ -495,7 +495,8 @@ namespace Terradue.OpenSearch.Engine {
                     continue;
                 query.Add(new XAttribute(XNamespace.Xmlns + ns.Name, ns.Namespace));
             }
-            var osparams = OpenSearchFactory.GetOpenSearchParameters(OpenSearchFactory.GetOpenSearchUrlByType(osd, request.ContentType));
+            var osUrl = OpenSearchFactory.GetOpenSearchUrlByType(osd, request.ContentType);
+            var osparams = OpenSearchFactory.GetOpenSearchParameters(osUrl);
             foreach (var key in request.Parameters.AllKeys) {
                 string osparam = OpenSearchFactory.GetParamNameFromId(osparams, key);
                 if (!string.IsNullOrEmpty(osparam)) {
