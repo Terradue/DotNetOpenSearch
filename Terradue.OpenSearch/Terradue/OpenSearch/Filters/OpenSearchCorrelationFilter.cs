@@ -95,21 +95,41 @@ namespace Terradue.OpenSearch.Filters {
 
         }
 
-        public double[] GetTimeCoverage (NameValueCollection searchParameters, IOpenSearchResultItem item){
+        /// <summary>
+        /// Gets the minimum correlation parameter.
+        /// </summary>
+        /// <returns>The minimum.</returns>
+        /// <param name="searchParameters">Search parameters.</param>
+        public static int GetSpatialCover (NameValueCollection searchParameters){
+
+            string value = searchParameters["spatialCover"];
+            try {
+                int sc = int.Parse(value);
+                if ( sc < 0 || sc > 100 )
+                    throw new FormatException(string.Format("Wrong format for param cor:spatial={0}. must be an integer betwenn 0 and 100", value));
+                return sc;
+            } catch (Exception){
+                throw new FormatException(string.Format("Wrong format for param cor:spatial={0}. must be an integer", value));
+            }
+
+        }
+
+        public DateTime[] GetTimeCoverage (NameValueCollection searchParameters, IOpenSearchResultItem item){
 
             string value = searchParameters["timeCover"];
             if (string.IsNullOrEmpty(value)) {
-                TimeSpan[] itemAnxTimes = GetStartAndStopTimeSpanFromAscendingNode(item);
-                return new double[]{ itemAnxTimes[0].TotalSeconds, 3600 };
+                return null;
             }
             try {
+                DateTime[] itemDates = GetStartAndStopTime(item);
                 var time = value.Split(',');
                 if ( time.Length != 2 ){
-                    throw new FormatException(string.Format("Wrong format for param cor:time={0}. must be 2 integer separated by ,", value));
+                    throw new FormatException(string.Format("Wrong format for param cor:time={0}. must be 2 timespan separated by ,", value));
                 }
-                return Array.ConvertAll<string, double>(time, t => double.Parse(t));
+                TimeSpan[] timeSpans = Array.ConvertAll<string, TimeSpan>(time, t => TimeSpan.Parse(t));
+                return new DateTime[]{itemDates[0].Add(timeSpans[0]), itemDates[1].Add(timeSpans[1])};
             } catch (Exception){
-                throw new FormatException(string.Format("Wrong format for param cor:time={0}. must be 2 integer separated by ,", value));
+                throw new FormatException(string.Format("Wrong format for param cor:time={0}. must be 2 timespan separated by ,", value));
             }
 
         }
@@ -152,7 +172,7 @@ namespace Terradue.OpenSearch.Filters {
             return nvc;
         }
 
-        protected abstract TimeSpan[] GetStartAndStopTimeSpanFromAscendingNode(IOpenSearchResultItem item);
+        protected abstract DateTime[] GetStartAndStopTime(IOpenSearchResultItem item);
     }
 
 }
