@@ -19,6 +19,7 @@ using Terradue.OpenSearch.Response;
 using Terradue.OpenSearch.Result;
 using Terradue.OpenSearch.Schema;
 using System.IO;
+using System.Web;
 
 namespace Terradue.OpenSearch.Engine.Extensions {
     /// <summary>
@@ -47,7 +48,7 @@ namespace Terradue.OpenSearch.Engine.Extensions {
         public override IOpenSearchResultCollection ReadNative(IOpenSearchResponse response) {
 
             if (response.ObjectType == typeof(byte[])) {
-                if (response.ContentType == "application/atom+xml" || response.ContentType == "application/xml")
+                if (response.ContentType.StartsWith("application/atom+xml") || response.ContentType.StartsWith("application/xml"))
                     return TransformAtomResponseToAtomFeed((OpenSearchResponse<byte[]>)response);
                 throw new InvalidOperationException("Atom extension does not transform OpenSearch response with content type " + response.ContentType);
             }
