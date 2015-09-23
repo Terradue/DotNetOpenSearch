@@ -19,6 +19,8 @@ using System.Diagnostics;
 using Terradue.OpenSearch.Result;
 
 namespace Terradue.OpenSearch.Request {
+
+
     /// <summary>
     /// An OpenSearchRequest able to request multiple IOpenSearchable as a unique one.
     /// </summary>
@@ -26,6 +28,7 @@ namespace Terradue.OpenSearch.Request {
     /// This request will return an atom response and thus the entities requested must be able to return 
     /// Atom response.
     /// </description>
+    [Obsolete("use MultiOpenSearchRequest with AtomFeed type instead")]
     public class MultiAtomGroupedOpenSearchRequest : OpenSearchRequest {
 
         string type;

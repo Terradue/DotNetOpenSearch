@@ -65,6 +65,8 @@
     <Compile Include="TestOpenSearchable.cs" />
     <Compile Include="CacheTest.cs" />
     <Compile Include="OpenSearchDescriptionTests.cs" />
+    <Compile Include="IllimitedOpenSearchable.Test.cs" />
+    <Compile Include="IllimitedOpenSearchable.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

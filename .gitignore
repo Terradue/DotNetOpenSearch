@@ -10,3 +10,5 @@ Terradue.OpenSearch.userprefs
 
 /Terradue.OpenSearch.Test/obj/
 build
+Terradue.OpenSearch/packages
+Terradue.OpenSearch.Test/packages
