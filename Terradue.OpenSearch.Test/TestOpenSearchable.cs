@@ -185,7 +185,7 @@ namespace Terradue.OpenSearch.Test {
             }
 
             feed.Items = items;
-            feed.TotalResults = Items.Count();
+            feed.TotalResults = pds.Count();
 
             return feed;
         }
