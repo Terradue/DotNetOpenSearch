@@ -86,7 +86,7 @@ namespace Terradue.OpenSearch.Response
 		}
 
         public virtual IOpenSearchResponse CloneForCache(){
-            return null;
+            return new OpenSearchResponse<T>(payload, contentType, requestTime);
         }
 
         TimeSpan validity = TimeSpan.FromSeconds(OpenSearchEngine.DEFAULT_VALIDITY);
