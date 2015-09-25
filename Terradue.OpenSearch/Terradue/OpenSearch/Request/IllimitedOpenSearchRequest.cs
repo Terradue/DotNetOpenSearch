@@ -161,18 +161,18 @@ namespace Terradue.OpenSearch.Request {
             while (currentStartPage <= originalStartPage) {
 
                 // new page -> new feed
-                feed = new TFeed();
+                feed = null;
 
                 // count=0 case for totalResults
                 if (count == 0) {
                     ExecuteOneRequest(currentEntities.Key);
                     MergeResults();
-                    feed = new TFeed();
+                        feed = null;
                 }
 
                 // While we do not have the count needed for our results
                 // and that all the sources have are not empty
-                while (feed.Items.Count() < count && emptySources == false) {
+                while ((feed == null || feed.Items.Count() < count) && emptySources == false) {
 
                     //
                     ExecuteOneRequest(currentEntities.Key);
@@ -184,6 +184,9 @@ namespace Terradue.OpenSearch.Request {
                     emptySources = (results.Value.TotalResults < currentEntities.Value);
 
                 }
+
+                if (feed == null)
+                    feed = new TFeed();
 
                 if (currentStartPage == 1) {
                     // nest startIndex
@@ -264,7 +267,10 @@ namespace Terradue.OpenSearch.Request {
                 }
             }
 
-            feed = Merge(feed, f1);
+            if ( feed == null )
+                feed = (TFeed)f1.Clone();
+            else
+                feed = Merge(feed, f1);
 
             totalResults += f1.Count;
         }
