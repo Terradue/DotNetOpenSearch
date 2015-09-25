@@ -42,8 +42,8 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyCopyright ("Terradue")]
 [assembly: AssemblyTrademark ("")]
 [assembly: AssemblyCulture ("")]
-[assembly: AssemblyVersion ("1.11.6.*")]
-[assembly: AssemblyInformationalVersion ("1.11.6")]
+[assembly: AssemblyVersion ("1.11.7.*")]
+[assembly: AssemblyInformationalVersion ("1.11.7")]
 
 [assembly: log4net.Config.XmlConfigurator(ConfigFile="log4net.config", Watch = true)]
 
