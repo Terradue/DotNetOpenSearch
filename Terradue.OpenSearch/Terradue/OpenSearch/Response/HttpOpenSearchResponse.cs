@@ -53,6 +53,7 @@ namespace Terradue.OpenSearch.Response {
             if (payload == null) {
                 using (var ms = new MemoryStream()) {
                     webResponse.GetResponseStream().CopyTo(ms);
+                    ms.Flush();
                     payload = ms.ToArray();
                 }
             }

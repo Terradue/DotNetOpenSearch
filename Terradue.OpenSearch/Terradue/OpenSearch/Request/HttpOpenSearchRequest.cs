@@ -79,6 +79,7 @@ namespace Terradue.OpenSearch.Request {
                     HttpWebResponse webResponse = (HttpWebResponse)httpWebRequest.GetResponse();
                     using (var ms = new MemoryStream()) {
                         webResponse.GetResponseStream().CopyTo(ms);
+                        ms.Flush();
                         data = ms.ToArray();
                     }
                     
