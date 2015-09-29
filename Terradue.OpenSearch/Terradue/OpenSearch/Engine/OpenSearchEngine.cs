@@ -362,6 +362,7 @@ namespace Terradue.OpenSearch.Engine {
                 XmlSerializer ser = new XmlSerializer(typeof(OpenSearchDescription));
                 Stream stream = new MemoryStream((byte[])response.GetResponseObject());
                 osd = (OpenSearchDescription)ser.Deserialize(XmlReader.Create(stream));
+                stream.Flush();
                 stream.Close();
             } catch (Exception e) {
                 throw new Exception("Exception querying OpenSearch description at " + url.ToString() + " : " + e.Message, e);

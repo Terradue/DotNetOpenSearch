@@ -29,7 +29,7 @@ namespace Terradue.OpenSearch.Test {
             using (var xw = XmlWriter.Create(stream)) {
 
                 serializer.Serialize(xw, osd);
-
+                xw.Flush();
             }
 
             stream.Seek(0, SeekOrigin.Begin);
