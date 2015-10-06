@@ -42,6 +42,9 @@ namespace Terradue.OpenSearch.Request {
 
         IOpenSearchable parent;
 
+        private log4net.ILog log = log4net.LogManager.GetLogger
+            (System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Terradue.OpenSearch.Request.MultiOpenSearchRequest"/> class.
         /// </summary>
@@ -296,9 +299,9 @@ namespace Terradue.OpenSearch.Request {
 
             totalResults = 0;
 
-            foreach (IOpenSearchResultCollection result in results.Values) {
+            foreach (IOpenSearchable key in results.Keys) {
 
-                TFeed f1 = (TFeed)result;
+                TFeed f1 = (TFeed)results[key];
 
                 if (f1.ElementExtensions.ReadElementExtensions<ExceptionMessage>("exception", "").Count > 0) {
                     foreach (var ext in f1.ElementExtensions) {
@@ -311,7 +314,7 @@ namespace Terradue.OpenSearch.Request {
 
                 if (f1.Items.Count() == 0)
                     continue;
-                feed = Merge(feed, f1);
+                feed = Merge(feed, f1, key);
 
             }
         }
@@ -321,7 +324,7 @@ namespace Terradue.OpenSearch.Request {
         /// </summary>
         /// <param name="f1">F1.</param>
         /// <param name="f2">F2.</param>
-        TFeed Merge(TFeed f1, TFeed f2) {
+        TFeed Merge(TFeed f1, TFeed f2, IOpenSearchable os) {
 
             TFeed feed = (TFeed)f1.Clone();
 
@@ -344,6 +347,8 @@ namespace Terradue.OpenSearch.Request {
             feed.Items = f1.Items.Union(f2.Items, new OpenSearchResultItemComparer()).OrderBy(u => u.Id).OrderByDescending(u => u.LastUpdatedTime);
 
             feed.Items = feed.Items.Take(originalCount);
+
+
                 
             return (TFeed)feed.Clone();
         }
@@ -428,10 +433,12 @@ namespace Terradue.OpenSearch.Request {
             foreach (IOpenSearchable entity in it) {
 
                 // the offset for this entity will be the number of items taken from its current result.
-                int offset = ((TFeed)results[entity]).Items.Cast<TItem>().Intersect(feed.Items.Cast<TItem>()).Count();
+                int offset = ((TFeed)results[entity]).Items.Cast<TItem>().Intersect(feed.Items.Cast<TItem>(), new OpenSearchResultItemComparer()).Count();
 
                 // Add this offset to the current state for this entity
                 currentEntities[entity] += offset;
+
+                log.DebugFormat("{3} [multi] : OS {0} offset + {1} = {2}", entity.Identifier, offset, currentEntities[entity], this.OpenSearchUrl);
 
             }
         }
