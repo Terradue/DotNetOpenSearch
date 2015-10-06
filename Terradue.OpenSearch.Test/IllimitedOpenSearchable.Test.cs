@@ -22,7 +22,7 @@ namespace Terradue.OpenSearch.Test {
             OpenSearchEngine ose = new OpenSearchEngine();
             ose.LoadPlugins();
 
-            TestOpenSearchable entity = TestOpenSearchable.GenerateNumberedItomFeed("A", 100, new TimeSpan(0));
+            TestUnlimitedOpenSearchable entity = TestUnlimitedOpenSearchable.GenerateNumberedItomFeed("A", 100, new TimeSpan(0));
             IOpenSearchable entity1 = new IllimitedOpenSearchable(entity, ose);
 
             NameValueCollection nvc = new NameValueCollection();
