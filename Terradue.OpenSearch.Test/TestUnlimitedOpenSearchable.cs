@@ -14,9 +14,9 @@ using Terradue.OpenSearch.Filters;
 
 namespace Terradue.OpenSearch.Test {
 
-    public class TestOpenSearchable : IMonitoredOpenSearchable {
+    public class TestUnlimitedOpenSearchable : IMonitoredOpenSearchable {
 
-        public TestOpenSearchable() {
+        public TestUnlimitedOpenSearchable() {
         }
 
         #region IOpenSearchable implementation
@@ -189,9 +189,6 @@ namespace Terradue.OpenSearch.Test {
 
             feed.Items = items;
             var tr = pds.Count();
-            if (!string.IsNullOrEmpty(parameters["q"])) {  
-                tr = pds.Sum(i => (!(i.Name.Contains(parameters["q"]) || i.Identifier.Contains(parameters["q"]) || i.TextContent.Contains(parameters["q"]))) ? 0 : 1);
-            }
             feed.TotalResults = tr;
 
             return feed;
@@ -202,9 +199,9 @@ namespace Terradue.OpenSearch.Test {
             set;
         }
 
-        public static TestOpenSearchable GenerateNumberedItomFeed(string lid, int n, TimeSpan shift) {
+        public static TestUnlimitedOpenSearchable GenerateNumberedItomFeed(string lid, int n, TimeSpan shift) {
 
-            TestOpenSearchable test = new TestOpenSearchable();
+            TestUnlimitedOpenSearchable test = new TestUnlimitedOpenSearchable();
             test.Identifier = lid;
             List<TestItem> items = new List<TestItem>();
 
@@ -225,8 +222,7 @@ namespace Terradue.OpenSearch.Test {
 
         }
 
-
+       
     }
-
 }
 

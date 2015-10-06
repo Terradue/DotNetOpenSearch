@@ -58,7 +58,7 @@ namespace Terradue.OpenSearch.Request {
             this.originalParameters = HttpUtility.ParseQueryString(url.Query);
             this.entitiesParameters = RemovePaginationParameters(this.originalParameters);
             // Ask the cache if a previous page request is present to save some requests
-            usingCache = GetClosestState(entities, type, this.originalParameters, out this.currentEntities, out this.currentParameters);
+            usingCache = GetClosestState(entities.Distinct(new OpenSearchableComparer()).ToArray(), type, this.originalParameters, out this.currentEntities, out this.currentParameters);
 
 
 
@@ -238,7 +238,7 @@ namespace Terradue.OpenSearch.Request {
             countdown = new CountdownEvent(currentEntities.Count);
             results = new Dictionary<IOpenSearchable, IOpenSearchResultCollection>();
 
-            foreach (IOpenSearchable entity in currentEntities.Keys) {
+            foreach (IOpenSearchable entity in currentEntities.Keys.Distinct(new OpenSearchableComparer())) {
                 if (concurrent) {
                     Thread queryThread = new Thread(new ParameterizedThreadStart(this.ExecuteOneRequest));
                     queryThread.Start(entity);

@@ -18,9 +18,9 @@ namespace Terradue.OpenSearch.Test {
     public class IllimitedOpenSearchable : IOpenSearchable {
         OpenSearchEngine ose;
 
-        TestOpenSearchable entity;
+        TestUnlimitedOpenSearchable entity;
 
-        public IllimitedOpenSearchable(TestOpenSearchable entity, OpenSearchEngine ose) {
+        public IllimitedOpenSearchable(TestUnlimitedOpenSearchable entity, OpenSearchEngine ose) {
             this.entity = entity;
             this.ose = ose;
         }
@@ -114,7 +114,7 @@ namespace Terradue.OpenSearch.Test {
 
         #endregion
 
-        public IEnumerable<Terradue.OpenSearch.Test.TestOpenSearchable.TestItem> Items {
+        public IEnumerable<TestItem> Items {
             get;
             set;
         }
