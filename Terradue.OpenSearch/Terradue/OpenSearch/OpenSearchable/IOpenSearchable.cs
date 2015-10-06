@@ -129,8 +129,9 @@ namespace Terradue.OpenSearch {
         #region IEqualityComparer implementation
 
         public bool Equals(IOpenSearchable x, IOpenSearchable y) {
-            if (x.Identifier == y.Identifier && x.GetType() == y.GetType()) return true;
-            else return false;
+            var osrx = x.Create(x.DefaultMimeType, new NameValueCollection());
+            var osry = y.Create(y.DefaultMimeType, new NameValueCollection());
+            return osrx.OpenSearchUrl.Equals(osry.OpenSearchUrl);
         }
 
         public int GetHashCode(IOpenSearchable obj) {

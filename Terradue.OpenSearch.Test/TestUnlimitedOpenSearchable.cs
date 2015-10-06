@@ -28,7 +28,7 @@ namespace Terradue.OpenSearch.Test {
 
         public OpenSearchRequest Create(string type, NameValueCollection parameters) {
             UriBuilder url = new UriBuilder("dummy://localhost");
-            url.Path += "test/search";
+            url.Path += Identifier + "/search";
             var array = (from key in parameters.AllKeys
                                   from value in parameters.GetValues(key)
                                   select string.Format("{0}={1}", HttpUtility.UrlEncode(key), HttpUtility.UrlEncode(value)))
