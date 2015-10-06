@@ -10,6 +10,8 @@
     <ReleaseVersion>1.5</ReleaseVersion>
     <SynchReleaseVersion>false</SynchReleaseVersion>
     <UseMSBuildEngine>False</UseMSBuildEngine>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -91,6 +93,7 @@
     <Compile Include="Terradue\OpenSearch\Request\MultiOpenSearchRequest.cs" />
     <Compile Include="Terradue\OpenSearch\Exception\ExceptionMessage.cs" />
     <Compile Include="Terradue\OpenSearch\Request\IllimitedOpenSearchRequest.cs" />
+    <Compile Include="Terradue\OpenSearch\Result\OpenSearchResultItemComparer.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
