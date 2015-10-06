@@ -284,6 +284,43 @@ namespace Terradue.OpenSearch.Test {
 
         }
 
+        [Test()]
+        public void SameMultiOpenSearchableTest() {
+
+            AddinManager.Initialize();
+            AddinManager.Registry.Update(null);
+
+            OpenSearchEngine ose = new OpenSearchEngine();
+            ose.LoadPlugins();
+
+            IOpenSearchable entity1 = TestOpenSearchable.GenerateNumberedItomFeed("A", 5, new TimeSpan(0));
+            IOpenSearchable entity2 = TestOpenSearchable.GenerateNumberedItomFeed("A", 5, new TimeSpan(0));
+
+            List<IOpenSearchable> entities = new List<IOpenSearchable>();
+            entities.Add(entity1);
+            entities.Add(entity2);
+
+            IOpenSearchable multiEntity = new MultiGenericOpenSearchable(entities, ose, true);
+
+            NameValueCollection nvc = new NameValueCollection();
+
+            var osr = ose.Query(multiEntity, nvc, "atom");
+
+            nvc = new NameValueCollection();
+            nvc.Set("count", "10");
+            nvc.Set("q", "1");
+
+            osr = ose.Query(multiEntity, nvc, "atom");
+
+            Assert.AreEqual(10, osr.TotalResults);
+            Assert.AreEqual(1, osr.Count);
+            Assert.AreEqual("A1", osr.Items.First().Identifier);
+            Assert.AreEqual("A1", osr.Items.Last().Identifier);
+
+
+
+        }
+
     }
 }
 

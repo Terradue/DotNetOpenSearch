@@ -341,7 +341,7 @@ namespace Terradue.OpenSearch.Request {
 
             }
 
-            feed.Items = f1.Items.Union(f2.Items).OrderBy(u => u.Id).OrderByDescending(u => u.LastUpdatedTime);
+            feed.Items = f1.Items.Union(f2.Items, new OpenSearchResultItemComparer()).OrderBy(u => u.Id).OrderByDescending(u => u.LastUpdatedTime);
 
             feed.Items = feed.Items.Take(originalCount);
                 
