@@ -17,6 +17,7 @@ using Terradue.OpenSearch.Engine;
 using Terradue.OpenSearch.Response;
 using System.Diagnostics;
 using Terradue.OpenSearch.Result;
+using System.Threading.Tasks;
 
 namespace Terradue.OpenSearch.Request {
     /// <summary>
@@ -238,20 +239,24 @@ namespace Terradue.OpenSearch.Request {
         /// </summary>
         private void ExecuteConcurrentRequest() {
 
-            countdown = new CountdownEvent(currentEntities.Count);
+            //countdown = new CountdownEvent(currentEntities.Count);
             results = new Dictionary<IOpenSearchable, IOpenSearchResultCollection>();
+
+            List<Task> request = new List<Task>();
 
             foreach (IOpenSearchable entity in currentEntities.Keys.Distinct(new OpenSearchableComparer())) {
                 if (concurrent) {
-                    Thread queryThread = new Thread(new ParameterizedThreadStart(this.ExecuteOneRequest));
-                    queryThread.Start(entity);
+                    request.Add(Task.Factory.StartNew(() => ExecuteOneRequest(entity)));
+                    //Thread queryThread = new Thread(new ParameterizedThreadStart(this.ExecuteOneRequest));
+                    //queryThread.Start(entity);
                 } else {
 
                     ExecuteOneRequest(entity);
                 }
             }
 
-            countdown.Wait();
+            Task.WaitAll(request.ToArray());
+            //countdown.Wait();
 
         }
 
@@ -274,7 +279,7 @@ namespace Terradue.OpenSearch.Request {
 
                 IOpenSearchResultCollection result = ose.Query((IOpenSearchable)entity, entityParameters);
                 results.Add((IOpenSearchable)entity, result);
-                countdown.Signal();
+                //countdown.Signal();
             } catch (Exception ex) {
                 TFeed result = new TFeed();
                 result.Id = "Exception";
@@ -287,7 +292,7 @@ namespace Terradue.OpenSearch.Request {
                 )
                                             );
                 results.Add((IOpenSearchable)entity, result);
-                countdown.Signal();
+                //countdown.Signal();
             }
 
         }
@@ -344,7 +349,7 @@ namespace Terradue.OpenSearch.Request {
 
             }
 
-            feed.Items = f1.Items.Union(f2.Items, new OpenSearchResultItemComparer()).OrderBy(u => u.Id).OrderByDescending(u => u.LastUpdatedTime);
+            feed.Items = f1.Items.Union(f2.Items, new OpenSearchResultItemComparer()).OrderBy(u => u.Id).OrderByDescending(u => u.SortKey);
 
             feed.Items = feed.Items.Take(originalCount);
 

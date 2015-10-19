@@ -16,6 +16,7 @@ using System.Threading;
 using Terradue.OpenSearch.Response;
 using Terradue.OpenSearch.Engine;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace Terradue.OpenSearch.Request {
 
@@ -71,12 +72,14 @@ namespace Terradue.OpenSearch.Request {
                     MemoryOpenSearchResponse response;
 
                     HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create(this.OpenSearchUrl);
+
                     if (contentType != null) {
                         ((HttpWebRequest)httpWebRequest).Accept = contentType;
                     }
                     httpWebRequest.Timeout = timeOut;
 
                     HttpWebResponse webResponse = (HttpWebResponse)httpWebRequest.GetResponse();
+
                     using (var ms = new MemoryStream()) {
                         webResponse.GetResponseStream().CopyTo(ms);
                         ms.Flush();

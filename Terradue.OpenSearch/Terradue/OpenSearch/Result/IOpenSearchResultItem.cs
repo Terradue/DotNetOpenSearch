@@ -48,6 +48,8 @@ namespace Terradue.OpenSearch.Result {
 
         SyndicationContent Content { get; set; }
 
+        string SortKey { get; }
+
         bool ShowNamespaces { get; set; }
 
     }
