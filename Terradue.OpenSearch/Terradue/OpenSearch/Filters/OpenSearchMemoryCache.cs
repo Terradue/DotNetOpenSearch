@@ -46,8 +46,6 @@ namespace Terradue.OpenSearch.Filters {
         /// <param name="request">Request.</param>
         public void TryReplaceWithCacheRequest(ref OpenSearchRequest request) {
 
-            log.DebugFormat("OpenSearch Cache [count] : {0}", cache.GetCount());
-
             Stopwatch watch = new Stopwatch();
             watch.Start();
             CacheItem it = cache.GetCacheItem(request.OpenSearchUrl.ToString());
@@ -57,7 +55,7 @@ namespace Terradue.OpenSearch.Filters {
             OpenSearchResponseCacheItem item = new OpenSearchResponseCacheItem(it);
             watch.Stop();
 
-            log.DebugFormat("OpenSearch Cache {0} [load]", request.OpenSearchUrl);
+            log.DebugFormat("OpenSearch Cache [load] {0}", request.OpenSearchUrl);
             request = new CachedOpenSearchRequest(item.OpenSearchUrl, item.OpenSearchResponse, request.OriginalParameters, watch.Elapsed);
 
         }
@@ -69,6 +67,9 @@ namespace Terradue.OpenSearch.Filters {
         /// <param name="response">Response.</param>
         public void CacheResponse(OpenSearchRequest request, ref IOpenSearchResponse response) {
 
+            CacheItem it = cache.GetCacheItem(request.OpenSearchUrl.ToString());
+
+                if (it != null) return;
 
             if (response.Entity != null && !response.Entity.CanCache)
                 return;
@@ -81,11 +82,11 @@ namespace Terradue.OpenSearch.Filters {
             
             OpenSearchResponseCacheItem item = new OpenSearchResponseCacheItem(request.OpenSearchUrl, clonedResponse);
             CacheItemPolicy policy = this.CreatePolicy(item, request);
-            log.DebugFormat("OpenSearch Cache {0} [store]", request.OpenSearchUrl);
+            log.DebugFormat("OpenSearch Cache [store] {0}", request.OpenSearchUrl);
 
             cache.Set(item, policy);
 
-            log.DebugFormat("OpenSearch Cache [count] : {0}", cache.GetCount());
+            log.DebugFormat("OpenSearch Cache [count] {0}", cache.GetCount());
 
         }
 
@@ -97,12 +98,12 @@ namespace Terradue.OpenSearch.Filters {
         protected CacheItemPolicy CreatePolicy(OpenSearchResponseCacheItem item, OpenSearchRequest request) {
             CacheItemPolicy policy = new CacheItemPolicy();
             policy.AbsoluteExpiration = DateTime.UtcNow.Add(item.OpenSearchResponse.Validity);
-            log.DebugFormat("OpenSearch Cache {0} [prepare to store] AbsoluteExpiration : {1} ", item.OpenSearchUrl, policy.AbsoluteExpiration);
+            log.DebugFormat("OpenSearch Cache [prepare to store] AbsoluteExpiration {1} {0}", item.OpenSearchUrl, policy.AbsoluteExpiration);
             policy.RemovedCallback = new CacheEntryRemovedCallback(this.EntryRemovedCallBack);
             if (item.OpenSearchResponse.Entity is IMonitoredOpenSearchable) {
                 IMonitoredOpenSearchable mos = (IMonitoredOpenSearchable)item.OpenSearchResponse.Entity;
                 var monitor = new OpenSearchableChangeMonitor(mos, request);
-                log.DebugFormat("OpenSearch Cache {0} [prepare to store] Monitor : {1} ", item.OpenSearchUrl, monitor.UniqueId);
+                log.DebugFormat("OpenSearch Cache [prepare to store] Monitor {1} {0}  ", item.OpenSearchUrl, monitor.UniqueId);
                 policy.ChangeMonitors.Add(monitor);
             }
             return policy;
@@ -111,7 +112,7 @@ namespace Terradue.OpenSearch.Filters {
         public void EntryRemovedCallBack(CacheEntryRemovedArguments arguments){
             if ( arguments.CacheItem is OpenSearchResponseCacheItem ){
                 OpenSearchResponseCacheItem item = new OpenSearchResponseCacheItem(arguments.CacheItem);
-                log.DebugFormat("OpenSearch Cache {0} [remove] reason : {1}", item.OpenSearchUrl, arguments.RemovedReason);
+                log.DebugFormat("OpenSearch Cache [remove] reason {1} {0}", item.OpenSearchUrl, arguments.RemovedReason);
             }
         }
     }

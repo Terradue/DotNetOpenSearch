@@ -27,17 +27,23 @@ namespace Terradue.OpenSearch.Request {
     /// Opensearch Collection response.
     /// </description>
     public class IllimitedOpenSearchRequest<TFeed, TItem> : OpenSearchRequest where TFeed: class, IOpenSearchResultCollection, ICloneable, new() where TItem: class, IOpenSearchResultItem {
-        
+
+        private log4net.ILog log = log4net.LogManager.GetLogger
+            (System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         static List<IllimitedOpenSearchRequestState> requestStatesCache = new List<IllimitedOpenSearchRequestState>();
         string type;
-        NameValueCollection originalParameters, entitiesParameters, currentParameters;
+        NameValueCollection targetParameters, virtualParameters, currentParameters;
+
+        NameValueCollection originalParameters;
+
         OpenSearchEngine ose;
-        CountdownEvent countdown;
-        KeyValuePair<IOpenSearchable, int> currentEntities;
-        KeyValuePair<IOpenSearchable,IOpenSearchResultCollection> results;
+        long currentTotalResults;
+        IOpenSearchResultCollection currentResults;
         TFeed feed;
         bool usingCache = false;
-        long totalResults = 0;
+
+        IOpenSearchable entity;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Terradue.OpenSearch.Request.MultiOpenSearchRequest"/> class.
@@ -46,14 +52,17 @@ namespace Terradue.OpenSearch.Request {
         /// <param name="entities">IOpenSearchable entities to be searched.</param>
         /// <param name="type">contentType of the .</param>
         /// <param name="url">URL.</param>
-        public IllimitedOpenSearchRequest(OpenSearchEngine ose, IOpenSearchable entity, string type, OpenSearchUrl url) : base(url, type) {
+        public IllimitedOpenSearchRequest(OpenSearchEngine ose, IOpenSearchable entity, string type, OpenSearchUrl url, NameValueCollection originalParameters = null) : base(url, type) {
+            this.originalParameters = originalParameters;
+            this.entity = entity;
             this.ose = ose;
             this.type = type;
-            this.originalParameters = HttpUtility.ParseQueryString(url.Query);
-            this.entitiesParameters = RemovePaginationParameters(this.originalParameters);
-            // Ask the cache if a previous page request is present to save some requests
-            usingCache = GetClosestState(entity, type, this.originalParameters, out this.currentEntities, out this.currentParameters);
+            this.targetParameters = HttpUtility.ParseQueryString(url.Query);
+            this.virtualParameters = RemovePaginationParameters(this.targetParameters);
 
+
+            // Ask the cache if a previous page request is present to save some requests
+            usingCache = GetClosestState(entity, type, this.targetParameters, out currentTotalResults, out this.currentParameters);
 
 
         }
@@ -72,7 +81,9 @@ namespace Terradue.OpenSearch.Request {
 
         public override NameValueCollection OriginalParameters {
             get {
-                return originalParameters;
+                if (originalParameters != null)
+                    return originalParameters;
+                return targetParameters;
             }
             set {
                 originalParameters = value;
@@ -92,13 +103,13 @@ namespace Terradue.OpenSearch.Request {
             int count = ose.DefaultCount;
 
             try {
-                count = int.Parse(originalParameters["count"]);
+                count = int.Parse(targetParameters["count"]);
             } catch (Exception) {
                 currentParameters.Add("count", count.ToString());
             }
 
             int currentStartPage = 1;
-            int originalStartPage = 1;
+            int targetStartPage = 1;
             try {
                 currentStartPage = int.Parse(currentParameters[OpenSearchFactory.ReverseTemplateOpenSearchParameters(OpenSearchFactory.GetBaseOpenSearchParameter())["startPage"]]);
             } catch (Exception) {
@@ -106,14 +117,14 @@ namespace Terradue.OpenSearch.Request {
             }
 
             try {
-                originalStartPage = int.Parse(originalParameters[OpenSearchFactory.ReverseTemplateOpenSearchParameters(OpenSearchFactory.GetBaseOpenSearchParameter())["startPage"]]);
+                targetStartPage = int.Parse(targetParameters[OpenSearchFactory.ReverseTemplateOpenSearchParameters(OpenSearchFactory.GetBaseOpenSearchParameter())["startPage"]]);
             } catch (Exception) {
 
             }
 
 
             int currentStartIndex = 1;
-            int originalStartIndex = 1;
+            int targetStartIndex = 1;
             try {
                 currentStartIndex = int.Parse(currentParameters[OpenSearchFactory.ReverseTemplateOpenSearchParameters(OpenSearchFactory.GetBaseOpenSearchParameter())["startIndex"]]);
             } catch (Exception) {
@@ -121,7 +132,7 @@ namespace Terradue.OpenSearch.Request {
             }
 
             try {
-                originalStartIndex = int.Parse(originalParameters[OpenSearchFactory.ReverseTemplateOpenSearchParameters(OpenSearchFactory.GetBaseOpenSearchParameter())["startIndex"]]);
+                targetStartIndex = int.Parse(targetParameters[OpenSearchFactory.ReverseTemplateOpenSearchParameters(OpenSearchFactory.GetBaseOpenSearchParameter())["startIndex"]]);
             } catch (Exception) {
             }
 
@@ -129,88 +140,108 @@ namespace Terradue.OpenSearch.Request {
             // new page -> new feed
             feed = new TFeed();
 
-            totalResults = 0;
+            int fibocount = count;
 
-            // While we do not have the count needed for our results
-            // and that all the sources have are not empty
-            while (feed.Items.Count() < originalStartIndex - currentStartIndex && emptySources == false) {
+            // While we do not have the count needed to reach the start index, we query
+            while (currentTotalResults + 1 < targetStartIndex && emptySources == false) {
 
-                feed = new TFeed();
+                log.DebugFormat("TR:{0} CSI:{1} TSI:{2}", currentTotalResults, currentStartIndex, targetStartIndex);
+                log.DebugFormat("Query {0}", fibocount);
 
-                //
-                ExecuteOneRequest(currentEntities.Key);
+                // we start with a new feed. lets query
+                feed = ExecuteOneRequest(entity, fibocount);
 
-                MergeResults();
+                log.DebugFormat("Got {0}", feed.Items.Count());
 
-                feed.Items = feed.Items.Take(originalStartIndex - currentStartIndex);
+                currentTotalResults += feed.Items.Count();
 
-                SetCurrentEntitiesOffset(count);
+                emptySources = (currentResults.TotalResults < currentStartIndex);
 
-                emptySources = (results.Value.TotalResults < currentEntities.Value);
-
-                currentStartIndex += count;
+                currentStartIndex += fibocount;
 
                 currentParameters[OpenSearchFactory.ReverseTemplateOpenSearchParameters(OpenSearchFactory.GetBaseOpenSearchParameter())["startIndex"]] = currentStartIndex.ToString();
 
                 CacheCurrentState();
 
+                log.DebugFormat("TR:{0} CSI:{1} TSI:{2} [cached]", currentTotalResults, currentStartIndex, targetStartIndex);
+
+                fibocount += fibocount;
+
             }
 
+            virtualParameters[OpenSearchFactory.ReverseTemplateOpenSearchParameters(OpenSearchFactory.GetBaseOpenSearchParameter())["startIndex"]] = currentTotalResults.ToString();
 
 
-            while (currentStartPage <= originalStartPage) {
+            while (currentStartPage <= targetStartPage) {
 
+                fibocount = count;
+
+                log.DebugFormat("TR:{0} CSI:{1} TSI:{2} CP:{3} TP:{4} [new page]", currentTotalResults, currentStartIndex, targetStartIndex, currentStartPage, targetStartPage);
                 // new page -> new feed
                 feed = null;
-
-                // count=0 case for totalResults
-                if (count == 0) {
-                    ExecuteOneRequest(currentEntities.Key);
-                    MergeResults();
-                        feed = null;
-                }
 
                 // While we do not have the count needed for our results
                 // and that all the sources have are not empty
                 while ((feed == null || feed.Items.Count() < count) && emptySources == false) {
 
-                    //
-                    ExecuteOneRequest(currentEntities.Key);
+                    if (feed != null) {
+                        
+                    }
 
-                    MergeResults();
+                    log.DebugFormat("TR:{0} CSI:{1} TSI:{2} CP:{3} TP:{4}", currentTotalResults, currentStartIndex, targetStartIndex, currentStartPage, targetStartPage);
 
-                    SetCurrentEntitiesOffset(count);
+                    log.DebugFormat("Query {0}", fibocount);
+                    TFeed feed1 = ExecuteOneRequest(entity, fibocount);
+                    log.DebugFormat("Got {0}", feed1.Items.Count());
+                    currentTotalResults += feed1.Items.Count();
 
-                    emptySources = (results.Value.TotalResults < currentEntities.Value);
+                    if (feed == null) {
+                        feed = feed1;
+                    } else {
+                        log.DebugFormat("Add {0} to {1}", feed1.Items.Count(), feed.Items.Count());
+                        List<TItem> newItems = feed.Items.Cast<TItem>().ToList();
+                        newItems.AddRange(feed1.Items.Cast<TItem>().ToList());
+                        feed.Items = newItems;
+                    }
 
-                }
+                    log.DebugFormat("CRTR:{0} TR:{1} CSI:{2}", currentResults.TotalResults, currentTotalResults, currentStartIndex);
+                    emptySources = (currentResults.TotalResults < currentStartIndex);
 
-                if (feed == null)
-                    feed = new TFeed();
+                    log.DebugFormat("Keep {0} out of {1}", count, feed.Items.Count());
 
-                if (currentStartPage == 1) {
-                    // nest startIndex
-                    currentStartIndex += feed.Items.Count();
-                    currentParameters[OpenSearchFactory.ReverseTemplateOpenSearchParameters(OpenSearchFactory.GetBaseOpenSearchParameter())["startIndex"]] = currentStartIndex.ToString();
-                    // lets cache and then reset
+                    feed.Items = feed.Items.Take(count);
+
+                    if (feed.Items.Count() < count) {
+                        currentStartIndex += fibocount;
+                        currentParameters[OpenSearchFactory.ReverseTemplateOpenSearchParameters(OpenSearchFactory.GetBaseOpenSearchParameter())["startIndex"]] = currentStartIndex.ToString();
+                    } else {
+                        currentStartIndex += feed1.Items.TakeWhile(i => i != feed.Items.Last()).Count() + 2;
+                        currentParameters[OpenSearchFactory.ReverseTemplateOpenSearchParameters(OpenSearchFactory.GetBaseOpenSearchParameter())["startIndex"]] = currentStartIndex.ToString();
+
+                    }
+
+
+
                     CacheCurrentState();
-                    currentStartIndex -= feed.Items.Count();
-                    currentParameters[OpenSearchFactory.ReverseTemplateOpenSearchParameters(OpenSearchFactory.GetBaseOpenSearchParameter())["startIndex"]] = currentStartIndex.ToString();
+                    log.DebugFormat("TR:{0} CSI:{1} TSI:{2} CP:{3} TP:{4} [cached]", currentTotalResults, currentStartIndex, targetStartIndex, currentStartPage, targetStartPage);
+
+                    fibocount += fibocount;
                 }
 
                 // next page
                 currentStartPage++;
-                currentParameters[OpenSearchFactory.ReverseTemplateOpenSearchParameters(OpenSearchFactory.GetBaseOpenSearchParameter())["startPage"]] = currentStartPage.ToString();
-                CacheCurrentState();
+                virtualParameters[OpenSearchFactory.ReverseTemplateOpenSearchParameters(OpenSearchFactory.GetBaseOpenSearchParameter())["startPage"]] = currentStartPage.ToString();
+
 
             }
 
             sw.Stop();
-            feed.TotalResults = totalResults;
-            if (!emptySources)
-                feed.TotalResults += 1;
+            if (feed == null)
+                feed = new TFeed();
+
+            feed.TotalResults = currentTotalResults + (emptySources == true ? 0 : 1);
             
-            feed.OpenSearchable = currentEntities.Key;
+            feed.OpenSearchable = entity;
             feed.QueryTimeSpan = sw.Elapsed;
 
         }
@@ -224,88 +255,17 @@ namespace Terradue.OpenSearch.Request {
         /// Executes one request.
         /// </summary>
         /// <param name="entity">Entity.</param>
-        void ExecuteOneRequest(IOpenSearchable entity) {
+        TFeed ExecuteOneRequest(IOpenSearchable entity, int recount) {
 
-            try {
-                int offset = currentEntities.Value;
+            NameValueCollection nvc = new NameValueCollection(currentParameters);
+            nvc.Set("count", recount.ToString());
 
-                NameValueCollection entityParameters = new NameValueCollection(entitiesParameters);
+            currentResults = ose.Query((IOpenSearchable)entity, nvc);
 
-                entityParameters["startIndex"] = offset.ToString();
-
-                IOpenSearchResultCollection result = ose.Query((IOpenSearchable)entity, entityParameters);
-                results = new KeyValuePair<IOpenSearchable, IOpenSearchResultCollection>(entity, result);
-            } catch (Exception ex) {
-                TFeed result = new TFeed();
-                result.Id = "Exception";
-                result.ElementExtensions.Add(new SyndicationElementExtension("exception", "", 
-                                                                             new ExceptionMessage {
-                    Message = ex.Message,
-                    Source = ex.Source,
-                    HelpLink = ex.HelpLink
-                }
-                )
-                );
-                results = new KeyValuePair<IOpenSearchable, IOpenSearchResultCollection>(entity, result);
-            }
-
+            return (TFeed)currentResults;
         }
 
-        /// <summary>
-        /// Merges the results.
-        /// </summary>
-        void MergeResults() {
 
-            IOpenSearchResultCollection result = results.Value;
-
-            TFeed f1 = (TFeed)result;
-
-            if (f1.ElementExtensions.ReadElementExtensions<ExceptionMessage>("exception", "").Count > 0) {
-                foreach (var ext in f1.ElementExtensions) {
-                    if (ext.OuterName == "exception")
-                        feed.ElementExtensions.Add(ext);
-                }
-            }
-
-            if ( feed == null )
-                feed = (TFeed)f1.Clone();
-            else
-                feed = Merge(feed, f1);
-
-            totalResults += f1.Count;
-        }
-
-        /// <summary>
-        /// Merge SyndicationFeed
-        /// </summary>
-        /// <param name="f1">F1.</param>
-        /// <param name="f2">F2.</param>
-        TFeed Merge(TFeed f1, TFeed f2) {
-
-            TFeed feed = (TFeed)f1.Clone();
-
-            int originalCount;
-            try {
-                originalCount = int.Parse(originalParameters["count"]);
-            } catch (Exception e) {
-                originalCount = ose.DefaultCount;
-            }
-
-            if (feed.Items.Count() >= originalCount) {
-
-                if (f1.Items.Count() != 0 && f2.Items.Count() != 0) {
-                    if (f1.Items.Last().LastUpdatedTime >= f2.Items.First().LastUpdatedTime)
-                        return feed;
-                }
-
-            }
-
-            feed.Items = f1.Items.Union(f2.Items).OrderBy(u => u.Id).OrderByDescending(u => u.LastUpdatedTime);
-
-            feed.Items = feed.Items.Take(originalCount);
-                
-            return (TFeed)feed.Clone();
-        }
 
         /// <summary>
         /// Gets the cache state
@@ -316,67 +276,65 @@ namespace Terradue.OpenSearch.Request {
         /// <param name="parameters">Parameters.</param>
         /// <param name="entities2">Entities2.</param>
         /// <param name="parameters2">Parameters2.</param>
-        public static bool GetClosestState(IOpenSearchable entity, string type, NameValueCollection parameters, out KeyValuePair<IOpenSearchable, int> entity2, out NameValueCollection parameters2) {
+        public static bool GetClosestState(IOpenSearchable entity, string type, NameValueCollection parameters, out long totalResults, out NameValueCollection parameters2) {
 
-            entity2 = new KeyValuePair<IOpenSearchable, int>();
+            totalResults = 0;
+            int currentStartIndex = 1;
+
+            if (entity is IProxiedOpenSearchable) {
+                currentStartIndex = ((IProxiedOpenSearchable)entity).GetProxyOpenSearchDescription().Url.FirstOrDefault(p => p.Type == type).IndexOffset;
+            } else {
+                currentStartIndex = entity.GetOpenSearchDescription().Url.FirstOrDefault(p => p.Type == type).IndexOffset;
+            }
+
+            parameters2 = RemovePaginationParameters(parameters);
+            parameters2[OpenSearchFactory.ReverseTemplateOpenSearchParameters(OpenSearchFactory.GetBaseOpenSearchParameter())["startIndex"]] = currentStartIndex.ToString();
 
             // Find the request states with the same combination of opensearchable items
-            List<IllimitedOpenSearchRequestState> states = requestStatesCache.FindAll(s => s.Entity.Key.Identifier == entity.Identifier && s.Entity.Key.GetType() == entity.Identifier.GetType());
+            List<IllimitedOpenSearchRequestState> states = requestStatesCache.FindAll(s => {
+                return s.Entity.Identifier == entity.Identifier && s.Entity.GetType() == entity.GetType();
+            });
             // and with the same opensearch parameters
             states = states.FindAll(s => OpenSearchFactory.PaginationFreeEqual(s.Parameters, parameters) == true);
 
             // if no such state, create new one with the entity pagination parameter unset (=1)
             if (states.Count <= 0) {
-                entity2 = new KeyValuePair<IOpenSearchable, int>(entity, entity.GetOpenSearchDescription().DefaultUrl.IndexOffset);
-                parameters2 = RemovePaginationParameters(parameters);
                 return false;
             }
 
             // if found, what was is the startPage parameter requested (assume 1)
-            int startPage = 1;
+            int targetStartPage = 1;
             try {
-                startPage = int.Parse(parameters["startPage"]);
+                targetStartPage = int.Parse(parameters["startPage"]);
             } catch (Exception) {
             }
 
-            int startIndex = 1;
+            int targetStartIndex = 1;
             try {
-                startIndex = int.Parse(parameters["startIndex"]);
+                targetStartIndex = int.Parse(parameters["startIndex"]);
             } catch (Exception) {
             }
 
             // Lets try the find the latest startPage regarding the requested startPage (closest) in the cached states
-            List<IllimitedOpenSearchRequestState> temp = states.Where(m => int.Parse(m.Parameters["startPage"]) <= startPage).ToList();
+            List<IllimitedOpenSearchRequestState> temp = states.Where(m => int.Parse(m.Parameters["startPage"]) <= targetStartPage).ToList();
             temp = temp.OrderByDescending(m => int.Parse(m.Parameters["startPage"])).ToList();
 
-            List<IllimitedOpenSearchRequestState> temp2 = temp.Where(m => int.Parse(m.Parameters["startIndex"]) <= startIndex).ToList();
+            List<IllimitedOpenSearchRequestState> temp2 = temp.Where(m => int.Parse(m.Parameters["startIndex"]) <= targetStartIndex).ToList();
             temp2 = temp2.OrderByDescending(m => int.Parse(m.Parameters["startIndex"])).ToList();
 
             IllimitedOpenSearchRequestState state = temp2.FirstOrDefault();
 
             // If not, useless and create new one with the entity pagination parameter unset (=1)
-            if (state.Entity.Key == null) {
-                if (entity is IProxiedOpenSearchable) {
-                    entity2 = new KeyValuePair<IOpenSearchable, int>(entity, ((IProxiedOpenSearchable)entity).GetProxyOpenSearchDescription().Url.FirstOrDefault(p => p.Type == type).IndexOffset);
-                } else {
-                    entity2 = new KeyValuePair<IOpenSearchable, int>(entity, entity.GetOpenSearchDescription().Url.FirstOrDefault(p => p.Type == type).IndexOffset);
-                }
-                parameters2 = RemovePaginationParameters(parameters);
+            if (state.Entity == null) {
                 return false;
             }
 
             //Set the OpenSearch params to the closest pagination params found
-            entity2 = state.Entity;
             parameters2 = new NameValueCollection(state.Parameters);
+            totalResults = state.TotalResults;
 
             return true;
 
-        }
-
-        void SetCurrentEntitiesOffset(int count) {
-
-            // Add this offset to the current state for this entity
-            currentEntities = new KeyValuePair<IOpenSearchable, int>(currentEntities.Key, currentEntities.Value + count);
         }
 
         /// <summary>
@@ -385,9 +343,10 @@ namespace Terradue.OpenSearch.Request {
         void CacheCurrentState() {
 
             IllimitedOpenSearchRequestState state = new IllimitedOpenSearchRequestState();
-            state.Entity = new KeyValuePair<IOpenSearchable, int>(currentEntities.Key, currentEntities.Value);
+            state.Entity = entity;
             state.Parameters = new NameValueCollection(currentParameters);
             state.Type = type;
+            state.TotalResults = currentTotalResults;
 
             requestStatesCache.Add(state);
 
@@ -402,9 +361,10 @@ namespace Terradue.OpenSearch.Request {
 
         /// Structure to hold a request state
         struct IllimitedOpenSearchRequestState {
-            public KeyValuePair<IOpenSearchable, int> Entity;
+            public IOpenSearchable Entity;
             public NameValueCollection Parameters;
             public string Type;
+            public long TotalResults;
         }
     }
 }

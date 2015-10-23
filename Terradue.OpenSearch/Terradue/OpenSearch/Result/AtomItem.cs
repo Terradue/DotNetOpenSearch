@@ -15,9 +15,11 @@ namespace Terradue.OpenSearch.Result {
         public AtomItem() {
         }
 
-        public AtomItem(string title, string description, Uri feedAlternateLink, string id, DateTimeOffset date) : base (title,description,feedAlternateLink,id,date){}
+        public AtomItem(string title, string description, Uri feedAlternateLink, string id, DateTimeOffset date) : base(title, description, feedAlternateLink, id, date) {
+        }
 
-        public AtomItem(string title, SyndicationContent content, Uri feedAlternateLink, string id, DateTimeOffset date) : base (title,content,feedAlternateLink,id,date){}
+        public AtomItem(string title, SyndicationContent content, Uri feedAlternateLink, string id, DateTimeOffset date) : base(title, content, feedAlternateLink, id, date) {
+        }
 
         public AtomItem(AtomItem si) : base(si) {
             this.ReferenceData = si.ReferenceData;
@@ -38,7 +40,8 @@ namespace Terradue.OpenSearch.Result {
         public new string Id {
             get {
                 var links = Links.Where(l => l.RelationshipType == "self").ToArray();
-                if (links.Count() > 0) return links[0].Uri.ToString();
+                if (links.Count() > 0)
+                    return links[0].Uri.ToString();
                 return base.Id;
             }
             set {
@@ -88,19 +91,31 @@ namespace Terradue.OpenSearch.Result {
             }
         }
 
+        string sortKey;
+        public string SortKey {
+            get {
+                if (sortKey == null)
+                    return LastUpdatedTime.ToUniversalTime().ToString("O");
+                return sortKey.ToString();
+            }
+            set {
+                sortKey = value;
+            }
+        }
+
         #endregion
 
         #region IEquatable implementation
 
         public bool Equals(AtomItem other) {
-            if (this.Id == other.Id) return true;
+            if (this.Id == other.Id)
+                return true;
             return false;
         }
 
         #endregion
 
-        public override int GetHashCode()
-        {
+        public override int GetHashCode() {
 
             //Get hash code for the Name field if it is not null.
             int hashProductName = Id == null ? 0 : Id.GetHashCode();
@@ -121,9 +136,9 @@ namespace Terradue.OpenSearch.Result {
 
             item.Id = result.Id;
             item.Identifier = result.Identifier;
-            if ( result.LastUpdatedTime.Ticks != 0 )
+            if (result.LastUpdatedTime.Ticks != 0)
                 item.LastUpdatedTime = result.LastUpdatedTime;
-            if ( result.PublishDate.Ticks != 0 )
+            if (result.PublishDate.Ticks != 0)
                 item.PublishDate = result.PublishDate;
             item.Links = result.Links;
             item.Title = result.Title;
@@ -143,6 +158,8 @@ namespace Terradue.OpenSearch.Result {
                 return false;
             });
             item.Copyright = result.Copyright;
+
+            item.sortKey = result.SortKey;
 
             return item;
         }
