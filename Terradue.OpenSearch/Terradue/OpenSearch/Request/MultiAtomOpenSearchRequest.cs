@@ -247,7 +247,7 @@ namespace Terradue.OpenSearch.Request {
 
             List<Task> request = new List<Task>();
 
-            foreach (IOpenSearchable entity in currentEntities.Keys) {
+            /*foreach (IOpenSearchable entity in currentEntities.Keys) {
                 if (concurrent) {
                     request.Add(Task.Factory.StartNew(() => ExecuteOneRequest(entity)));
                     //Thread queryThread = new Thread(this.ExecuteOneRequest);
@@ -256,9 +256,14 @@ namespace Terradue.OpenSearch.Request {
 
                     ExecuteOneRequest(entity);
                 }
-            }
+            }*/
 
-            Task.WaitAll(request.ToArray());
+            Parallel.ForEach<IOpenSearchable>(currentEntities.Keys.Distinct(new OpenSearchableComparer()),
+                                              entity => {
+                ExecuteOneRequest(entity);
+            });
+
+            //Task.WaitAll(request.ToArray());
             //countdown.Wait();
 
 
@@ -445,7 +450,13 @@ namespace Terradue.OpenSearch.Request {
             state.Parameters = new NameValueCollection(currentParameters);
             state.Type = type;
 
-            requestStatesCache.Add(state);
+            try {
+                _m.WaitOne();
+
+                requestStatesCache.Add(state);
+            } finally {
+                _m.ReleaseMutex();
+            }
 
         }
 
