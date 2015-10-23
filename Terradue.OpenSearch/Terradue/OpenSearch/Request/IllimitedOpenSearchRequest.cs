@@ -34,6 +34,9 @@ namespace Terradue.OpenSearch.Request {
         static List<IllimitedOpenSearchRequestState> requestStatesCache = new List<IllimitedOpenSearchRequestState>();
         string type;
         NameValueCollection targetParameters, virtualParameters, currentParameters;
+
+        NameValueCollection originalParameters;
+
         OpenSearchEngine ose;
         long currentTotalResults;
         IOpenSearchResultCollection currentResults;
@@ -49,7 +52,8 @@ namespace Terradue.OpenSearch.Request {
         /// <param name="entities">IOpenSearchable entities to be searched.</param>
         /// <param name="type">contentType of the .</param>
         /// <param name="url">URL.</param>
-        public IllimitedOpenSearchRequest(OpenSearchEngine ose, IOpenSearchable entity, string type, OpenSearchUrl url) : base(url, type) {
+        public IllimitedOpenSearchRequest(OpenSearchEngine ose, IOpenSearchable entity, string type, OpenSearchUrl url, NameValueCollection originalParameters = null) : base(url, type) {
+            this.originalParameters = originalParameters;
             this.entity = entity;
             this.ose = ose;
             this.type = type;
@@ -77,10 +81,12 @@ namespace Terradue.OpenSearch.Request {
 
         public override NameValueCollection OriginalParameters {
             get {
+                if (originalParameters != null)
+                    return originalParameters;
                 return targetParameters;
             }
             set {
-                targetParameters = value;
+                originalParameters = value;
             }
         }
 
@@ -178,9 +184,13 @@ namespace Terradue.OpenSearch.Request {
                 // and that all the sources have are not empty
                 while ((feed == null || feed.Items.Count() < count) && emptySources == false) {
 
+                    if (feed != null) {
+                        
+                    }
+
                     log.DebugFormat("TR:{0} CSI:{1} TSI:{2} CP:{3} TP:{4}", currentTotalResults, currentStartIndex, targetStartIndex, currentStartPage, targetStartPage);
 
-                    log.DebugFormat("Query {0}", count);
+                    log.DebugFormat("Query {0}", fibocount);
                     TFeed feed1 = ExecuteOneRequest(entity, fibocount);
                     log.DebugFormat("Got {0}", feed1.Items.Count());
                     currentTotalResults += feed1.Items.Count();
@@ -197,15 +207,22 @@ namespace Terradue.OpenSearch.Request {
                     log.DebugFormat("CRTR:{0} TR:{1} CSI:{2}", currentResults.TotalResults, currentTotalResults, currentStartIndex);
                     emptySources = (currentResults.TotalResults < currentStartIndex);
 
-                    currentStartIndex += fibocount;
-                    currentParameters[OpenSearchFactory.ReverseTemplateOpenSearchParameters(OpenSearchFactory.GetBaseOpenSearchParameter())["startIndex"]] = currentStartIndex.ToString();
-
-                    CacheCurrentState();
-
                     log.DebugFormat("Keep {0} out of {1}", count, feed.Items.Count());
 
                     feed.Items = feed.Items.Take(count);
 
+                    if (feed.Items.Count() < count) {
+                        currentStartIndex += fibocount;
+                        currentParameters[OpenSearchFactory.ReverseTemplateOpenSearchParameters(OpenSearchFactory.GetBaseOpenSearchParameter())["startIndex"]] = currentStartIndex.ToString();
+                    } else {
+                        currentStartIndex += feed1.Items.TakeWhile(i => i != feed.Items.Last()).Count() + 2;
+                        currentParameters[OpenSearchFactory.ReverseTemplateOpenSearchParameters(OpenSearchFactory.GetBaseOpenSearchParameter())["startIndex"]] = currentStartIndex.ToString();
+
+                    }
+
+
+
+                    CacheCurrentState();
                     log.DebugFormat("TR:{0} CSI:{1} TSI:{2} CP:{3} TP:{4} [cached]", currentTotalResults, currentStartIndex, targetStartIndex, currentStartPage, targetStartPage);
 
                     fibocount += fibocount;
@@ -214,11 +231,14 @@ namespace Terradue.OpenSearch.Request {
                 // next page
                 currentStartPage++;
                 virtualParameters[OpenSearchFactory.ReverseTemplateOpenSearchParameters(OpenSearchFactory.GetBaseOpenSearchParameter())["startPage"]] = currentStartPage.ToString();
-                CacheCurrentState();
+
 
             }
 
             sw.Stop();
+            if (feed == null)
+                feed = new TFeed();
+
             feed.TotalResults = currentTotalResults + (emptySources == true ? 0 : 1);
             
             feed.OpenSearchable = entity;

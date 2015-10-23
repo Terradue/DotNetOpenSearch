@@ -242,9 +242,14 @@ namespace Terradue.OpenSearch.Request {
             //countdown = new CountdownEvent(currentEntities.Count);
             results = new Dictionary<IOpenSearchable, IOpenSearchResultCollection>();
 
-            List<Task> request = new List<Task>();
+            //List<Task> request = new List<Task>();
 
-            foreach (IOpenSearchable entity in currentEntities.Keys.Distinct(new OpenSearchableComparer())) {
+            Parallel.ForEach<IOpenSearchable>(currentEntities.Keys.Distinct(new OpenSearchableComparer()),
+                                              entity => {
+                ExecuteOneRequest(entity);
+            });
+
+            /*foreach (IOpenSearchable entity in currentEntities.Keys.Distinct(new OpenSearchableComparer())) {
                 if (concurrent) {
                     request.Add(Task.Factory.StartNew(() => ExecuteOneRequest(entity)));
                     //Thread queryThread = new Thread(new ParameterizedThreadStart(this.ExecuteOneRequest));
@@ -253,9 +258,9 @@ namespace Terradue.OpenSearch.Request {
 
                     ExecuteOneRequest(entity);
                 }
-            }
+            }*/
 
-            Task.WaitAll(request.ToArray());
+            //Task.WaitAll(request.ToArray());
             //countdown.Wait();
 
         }
@@ -284,13 +289,13 @@ namespace Terradue.OpenSearch.Request {
                 TFeed result = new TFeed();
                 result.Id = "Exception";
                 result.ElementExtensions.Add(new SyndicationElementExtension("exception", "", 
-                                                                             new ExceptionMessage{
+                                                                             new ExceptionMessage {
                     Message = ex.Message,
                     Source = ex.Source,
                     HelpLink = ex.HelpLink
                 }
                 )
-                                            );
+                );
                 results.Add((IOpenSearchable)entity, result);
                 //countdown.Signal();
             }
