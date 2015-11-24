@@ -19,13 +19,15 @@
 
 \namespace Terradue.OpenSearch
 @{
-    DotNetOpenSearch Software Package
+    Terradue.OpenSearch is a .Net library that provides an engine perform OpenSearch query from a class or an URL to multiple and custom types of results
 
     \xrefitem sw_version "Versions" "Software Package Version" 1.11.14
 
     \xrefitem sw_link "Link" "Software Package Link" [DotNetOpenSearch](https://github.com/Terradue/DotNetOpenSearch)
 
     \xrefitem sw_license "License" "Software License" [GPLv3](https://github.com/DotNetOpenSearch/Terradue.OpenSearch/blob/master/LICENSE.txt)
+
+    \xrefitem sw_req "Require" "Software Dependencies" \ref Terradue.ServiceModel.Syndication
 
     \ingroup OpenSearch
 @}
