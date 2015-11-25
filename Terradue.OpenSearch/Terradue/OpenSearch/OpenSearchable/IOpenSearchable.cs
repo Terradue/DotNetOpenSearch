@@ -18,13 +18,11 @@ using Terradue.OpenSearch.Schema;
 
 /*!
 
-\defgroup OpenSearchable OpenSearchable
+\defgroup OpenSearch OpenSearch
 @{
 This is the internal interface for any real world entity to be processed in OpenSearch Engine
 
 \xrefitem cptype_int "Interfaces" "Interfaces"
-
-\ingroup OpenSearch
 
 \xrefitem norm "Normative References" "Normative References" [OpenSearch 1.1](http://www.opensearch.org/Specifications/OpenSearch/1.1)
 
