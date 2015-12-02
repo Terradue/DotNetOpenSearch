@@ -22,6 +22,8 @@ using Terradue.OpenSearch.Schema;
 @{
 This is the internal interface for any real world entity to be processed in OpenSearch Engine
 
+Combined with the OpenSearch extensions, the search interface offers many format to export results.
+
 \xrefitem cptype_int "Interfaces" "Interfaces"
 
 \xrefitem norm "Normative References" "Normative References" [OpenSearch 1.1](http://www.opensearch.org/Specifications/OpenSearch/1.1)
