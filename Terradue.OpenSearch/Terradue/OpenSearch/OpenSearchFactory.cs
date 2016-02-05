@@ -103,12 +103,17 @@ namespace Terradue.OpenSearch {
             NameValueCollection remoteParametersDef = HttpUtility.ParseQueryString(finalUrl.Query);
 
             // control duplicates
-            foreach (string key in remoteParametersDef) {
+            foreach (string key in remoteParametersDef.AllKeys) {
                 if (string.IsNullOrEmpty(key))
                     continue;
                 int count = remoteParametersDef.GetValues(key).Count();
-                if (count > 1)
-                    throw new OpenSearchException(string.Format("Url template [{0}] from OpenSearch Description cannot contains duplicates parameter definition: {1}", finalUrl, key));
+                if (count > 1) {
+                    var value = remoteParametersDef.GetValues(key)[0];
+                    remoteParametersDef.Remove(key);
+                    remoteParametersDef.Add(key, value);
+                }
+                    // patch : do not throw an error anymore but simply remove suplicate
+                    //throw new OpenSearchException(string.Format("Url template [{0}] from OpenSearch Description cannot contains duplicates parameter definition: {1}", finalUrl, key));
             }
 
             // For each parameter requested
