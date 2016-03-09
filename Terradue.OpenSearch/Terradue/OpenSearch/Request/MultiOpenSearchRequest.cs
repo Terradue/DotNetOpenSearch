@@ -288,8 +288,14 @@ namespace Terradue.OpenSearch.Request {
                 entityParameters["startIndex"] = offset.ToString();
 
                 IOpenSearchResultCollection result = ose.Query((IOpenSearchable)entity, entityParameters);
-                results.Add((IOpenSearchable)entity, result);
-                //countdown.Signal();
+
+                try {
+                    _m.WaitOne();
+                    results.Add((IOpenSearchable)entity, result);
+                } finally {
+                    _m.ReleaseMutex();
+
+                }
             } catch (Exception ex) {
                 TFeed result = new TFeed();
                 result.Id = "Exception";
@@ -302,7 +308,6 @@ namespace Terradue.OpenSearch.Request {
                 )
                 );
                 results.Add((IOpenSearchable)entity, result);
-                //countdown.Signal();
             }
 
         }

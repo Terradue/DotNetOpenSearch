@@ -21,7 +21,7 @@
 @{
     Terradue.OpenSearch is a .Net library that provides an engine perform OpenSearch query from a class or an URL to multiple and custom types of results
 
-    \xrefitem sw_version "Versions" "Software Package Version" 1.11.14
+    \xrefitem sw_version "Versions" "Software Package Version" 1.11.15
 
     \xrefitem sw_link "Link" "Software Package Link" [DotNetOpenSearch](https://github.com/Terradue/DotNetOpenSearch)
 
@@ -36,16 +36,21 @@
 
 using System.Reflection;
 using System.Runtime.CompilerServices;
-[assembly: AssemblyTitle ("Terradue.OpenSearch")]
-[assembly: AssemblyDescription ("Terradue .Net OpenSearch Library")]
-[assembly: AssemblyConfiguration ("")]
-[assembly: AssemblyCompany ("Terradue")]
-[assembly: AssemblyProduct ("Terradue.OpenSearch")]
-[assembly: AssemblyCopyright ("Terradue")]
-[assembly: AssemblyTrademark ("")]
-[assembly: AssemblyCulture ("")]
-[assembly: AssemblyVersion ("1.11.14.*")]
-[assembly: AssemblyInformationalVersion ("1.11.14")]
+using NuGet4Mono.Extensions;
 
-[assembly: log4net.Config.XmlConfigurator(ConfigFile="log4net.config", Watch = true)]
+[assembly: AssemblyTitle("Terradue.OpenSearch")]
+[assembly: AssemblyDescription("Terradue.OpenSearch is a library targeting .NET 4.0 and above that provides an easy way to perform OpenSearch query from a class or an URL to multiple and custom types of results (Atom, Rdf...)")]
+[assembly: AssemblyConfiguration("")]
+[assembly: AssemblyCompany("Terradue")]
+[assembly: AssemblyProduct("Terradue.OpenSearch")]
+[assembly: AssemblyCopyright("Terradue")]
+[assembly: AssemblyAuthors("Emmanuel Mathot")]
+[assembly: AssemblyProjectUrl("https://github.com/Terradue/DotNetOpenSearch")]
+[assembly: AssemblyLicenseUrl("https://github.com/Terradue/DotNetOpenSearch/blob/master/LICENSE")]
+[assembly: AssemblyTrademark("")]
+[assembly: AssemblyCulture("")]
+[assembly: AssemblyVersion("1.11.15.*")]
+[assembly: AssemblyInformationalVersion("1.11.15")]
+
+[assembly: log4net.Config.XmlConfigurator(ConfigFile = "log4net.config", Watch = true)]
 
