@@ -310,7 +310,7 @@ namespace Terradue.OpenSearch.Engine {
             if (contentType.Contains(";"))
                 contentType = contentType.Split(';')[0];
 
-            if (response.ContentType == "application/opensearchdescription+xml") {
+            if (contentType == "application/opensearchdescription+xml") {
                 osd = this.LoadOpenSearchDescriptionDocument(url);
                 descriptionUrl = url;
             } else {
