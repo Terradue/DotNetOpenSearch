@@ -60,7 +60,7 @@ namespace Terradue.OpenSearch.Test {
 
             osr = ose.Query(entity1, nvc, "atom");
 
-            Assert.AreEqual(18, osr.TotalResults);
+            Assert.AreEqual(7, osr.TotalResults);
             Assert.AreEqual(3, osr.Count);
             Assert.AreEqual("A30", osr.Items.First().Identifier);
             Assert.AreEqual("A32", osr.Items.Last().Identifier);

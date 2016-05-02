@@ -28,9 +28,7 @@ namespace Terradue.OpenSearch.Test {
             ose = new OpenSearchEngine();
             ose.LoadPlugins();
 
-            var configCache = new NameValueCollection();
-
-            OpenSearchMemoryCache cache = new OpenSearchMemoryCache("test", configCache);
+            OpenSearchMemoryCache cache = new OpenSearchMemoryCache();
 
             ose.RegisterPreSearchFilter(cache.TryReplaceWithCacheRequest);
             ose.RegisterPostSearchFilter(cache.CacheResponse);

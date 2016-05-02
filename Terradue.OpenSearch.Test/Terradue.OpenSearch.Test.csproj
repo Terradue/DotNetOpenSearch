@@ -88,11 +88,13 @@
     <Compile Include="IllimitedOpenSearchable.cs" />
     <Compile Include="TestUnlimitedOpenSearchable.cs" />
     <Compile Include="TestItem.cs" />
+    <Compile Include="TestAtom.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="Log4Net.config" />
+    <None Include="log4net.config" />
+    <None Include="app.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Terradue.OpenSearch\Terradue.OpenSearch.csproj">

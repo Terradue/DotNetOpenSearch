@@ -101,7 +101,7 @@ namespace Terradue.OpenSearch.Engine.Extensions {
                 result.OpenSearchable = response.Entity;
 
             } catch (Exception e) {
-                throw new InvalidOperationException("Error during transformation : " + e.Message, e);
+                throw new InvalidOperationException(string.Format("Error during transformation : {0}", e.Message), e);
             }
 
             return result;
