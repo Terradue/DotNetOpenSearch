@@ -17,6 +17,8 @@ using Terradue.OpenSearch.Engine;
 using Terradue.OpenSearch.Response;
 using System.Diagnostics;
 using Terradue.OpenSearch.Result;
+using System.Collections;
+using System.Runtime.Caching;
 
 namespace Terradue.OpenSearch.Request {
     /// <summary>
@@ -31,7 +33,7 @@ namespace Terradue.OpenSearch.Request {
         private log4net.ILog log = log4net.LogManager.GetLogger
             (System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        static List<IllimitedOpenSearchRequestState> requestStatesCache = new List<IllimitedOpenSearchRequestState>();
+        static MemoryCache requestStatesCache = new MemoryCache("iosr-cache");
         string type;
         NameValueCollection targetParameters, virtualParameters, currentParameters;
 
@@ -140,16 +142,14 @@ namespace Terradue.OpenSearch.Request {
             // new page -> new feed
             feed = new TFeed();
 
-            int fibocount = count;
-
             // While we do not have the count needed to reach the start index, we query
             while (currentTotalResults + 1 < targetStartIndex && emptySources == false) {
 
                 log.DebugFormat("TR:{0} CSI:{1} TSI:{2}", currentTotalResults, currentStartIndex, targetStartIndex);
-                log.DebugFormat("Query {0}", fibocount);
+                log.DebugFormat("Query {0}", count);
 
                 // we start with a new feed. lets query
-                feed = ExecuteOneRequest(entity, fibocount);
+                feed = ExecuteOneRequest(entity, count);
 
                 log.DebugFormat("Got {0}", feed.Items.Count());
 
@@ -157,7 +157,7 @@ namespace Terradue.OpenSearch.Request {
 
                 emptySources = (currentResults.TotalResults < currentStartIndex);
 
-                currentStartIndex += fibocount;
+                currentStartIndex += count;
 
                 currentParameters[OpenSearchFactory.ReverseTemplateOpenSearchParameters(OpenSearchFactory.GetBaseOpenSearchParameter())["startIndex"]] = currentStartIndex.ToString();
 
@@ -165,16 +165,12 @@ namespace Terradue.OpenSearch.Request {
 
                 log.DebugFormat("TR:{0} CSI:{1} TSI:{2} [cached]", currentTotalResults, currentStartIndex, targetStartIndex);
 
-                fibocount += fibocount;
-
             }
 
             virtualParameters[OpenSearchFactory.ReverseTemplateOpenSearchParameters(OpenSearchFactory.GetBaseOpenSearchParameter())["startIndex"]] = currentTotalResults.ToString();
 
 
             while (currentStartPage <= targetStartPage) {
-
-                fibocount = count;
 
                 log.DebugFormat("TR:{0} CSI:{1} TSI:{2} CP:{3} TP:{4} [new page]", currentTotalResults, currentStartIndex, targetStartIndex, currentStartPage, targetStartPage);
                 // new page -> new feed
@@ -190,8 +186,8 @@ namespace Terradue.OpenSearch.Request {
 
                     log.DebugFormat("TR:{0} CSI:{1} TSI:{2} CP:{3} TP:{4}", currentTotalResults, currentStartIndex, targetStartIndex, currentStartPage, targetStartPage);
 
-                    log.DebugFormat("Query {0}", fibocount);
-                    TFeed feed1 = ExecuteOneRequest(entity, fibocount);
+                    log.DebugFormat("Query {0}", count);
+                    TFeed feed1 = ExecuteOneRequest(entity, count);
                     log.DebugFormat("Got {0}", feed1.Items.Count());
                     currentTotalResults += feed1.Items.Count();
 
@@ -205,14 +201,14 @@ namespace Terradue.OpenSearch.Request {
                     }
 
                     log.DebugFormat("CRTR:{0} TR:{1} CSI:{2}", currentResults.TotalResults, currentTotalResults, currentStartIndex);
-                    emptySources = (currentResults.TotalResults < currentStartIndex);
+                    emptySources = (currentResults.TotalResults < currentStartIndex) || (currentResults.TotalResults <= count);
 
                     log.DebugFormat("Keep {0} out of {1}", count, feed.Items.Count());
 
                     feed.Items = feed.Items.Take(count);
 
                     if (feed.Items.Count() < count) {
-                        currentStartIndex += fibocount;
+                        currentStartIndex += count;
                         currentParameters[OpenSearchFactory.ReverseTemplateOpenSearchParameters(OpenSearchFactory.GetBaseOpenSearchParameter())["startIndex"]] = currentStartIndex.ToString();
                     } else {
                         currentStartIndex += feed1.Items.TakeWhile(i => i != feed.Items.Last()).Count() + 2;
@@ -220,12 +216,9 @@ namespace Terradue.OpenSearch.Request {
 
                     }
 
-
-
                     CacheCurrentState();
                     log.DebugFormat("TR:{0} CSI:{1} TSI:{2} CP:{3} TP:{4} [cached]", currentTotalResults, currentStartIndex, targetStartIndex, currentStartPage, targetStartPage);
 
-                    fibocount += fibocount;
                 }
 
                 // next page
@@ -291,47 +284,24 @@ namespace Terradue.OpenSearch.Request {
             parameters2[OpenSearchFactory.ReverseTemplateOpenSearchParameters(OpenSearchFactory.GetBaseOpenSearchParameter())["startIndex"]] = currentStartIndex.ToString();
 
             // Find the request states with the same combination of opensearchable items
-            List<IllimitedOpenSearchRequestState> states = requestStatesCache.FindAll(s => {
-                return s.Entity.Identifier == entity.Identifier && s.Entity.GetType() == entity.GetType();
-            });
-            // and with the same opensearch parameters
-            states = states.FindAll(s => OpenSearchFactory.PaginationFreeEqual(s.Parameters, parameters) == true);
+            IllimitedOpenSearchRequestState state = (IllimitedOpenSearchRequestState)requestStatesCache.Get(IllimitedOpenSearchRequestState.GetHashCode(entity).ToString());
 
-            // if no such state, create new one with the entity pagination parameter unset (=1)
-            if (states.Count <= 0) {
+            // if no such state, return false
+            if (state == null) {
                 return false;
             }
 
-            // if found, what was is the startPage parameter requested (assume 1)
-            int targetStartPage = 1;
-            try {
-                targetStartPage = int.Parse(parameters["startPage"]);
-            } catch (Exception) {
-            }
-
-            int targetStartIndex = 1;
-            try {
-                targetStartIndex = int.Parse(parameters["startIndex"]);
-            } catch (Exception) {
-            }
-
-            // Lets try the find the latest startPage regarding the requested startPage (closest) in the cached states
-            List<IllimitedOpenSearchRequestState> temp = states.Where(m => int.Parse(m.Parameters["startPage"]) <= targetStartPage).ToList();
-            temp = temp.OrderByDescending(m => int.Parse(m.Parameters["startPage"])).ToList();
-
-            List<IllimitedOpenSearchRequestState> temp2 = temp.Where(m => int.Parse(m.Parameters["startIndex"]) <= targetStartIndex).ToList();
-            temp2 = temp2.OrderByDescending(m => int.Parse(m.Parameters["startIndex"])).ToList();
-
-            IllimitedOpenSearchRequestState state = temp2.FirstOrDefault();
+            // Let's find the closest page in the state
+            var parametersAndTotal = state.GetClosestPage(parameters);
 
             // If not, useless and create new one with the entity pagination parameter unset (=1)
-            if (state.Entity == null) {
+            if (parametersAndTotal.Key == null) {
                 return false;
             }
 
             //Set the OpenSearch params to the closest pagination params found
-            parameters2 = new NameValueCollection(state.Parameters);
-            totalResults = state.TotalResults;
+            parameters2 = new NameValueCollection(parametersAndTotal.Key);
+            totalResults = parametersAndTotal.Value;
 
             return true;
 
@@ -342,13 +312,20 @@ namespace Terradue.OpenSearch.Request {
         /// </summary>
         void CacheCurrentState() {
 
-            IllimitedOpenSearchRequestState state = new IllimitedOpenSearchRequestState();
-            state.Entity = entity;
-            state.Parameters = new NameValueCollection(currentParameters);
-            state.Type = type;
-            state.TotalResults = currentTotalResults;
 
-            requestStatesCache.Add(state);
+            // Is tehre a cache entry for this entity ?
+            IllimitedOpenSearchRequestState state = (IllimitedOpenSearchRequestState)requestStatesCache.Get(IllimitedOpenSearchRequestState.GetHashCode(entity).ToString());
+
+            // no, create it!
+            if (state == null) {
+                state = new IllimitedOpenSearchRequestState(entity);
+            }
+
+            // Let's put the new page state
+            state.SetState(currentParameters, currentTotalResults);
+
+            // finally, we cache the state
+            requestStatesCache.Set(state.GetHashCode().ToString(), state, new CacheItemPolicy(){ AbsoluteExpiration = DateTime.Now.AddMinutes(15) });
 
         }
 
@@ -360,11 +337,97 @@ namespace Terradue.OpenSearch.Request {
         }
 
         /// Structure to hold a request state
-        struct IllimitedOpenSearchRequestState {
+        class IllimitedOpenSearchRequestState {
             public IOpenSearchable Entity;
-            public NameValueCollection Parameters;
-            public string Type;
-            public long TotalResults;
+
+            public IllimitedOpenSearchRequestState(IOpenSearchable entity) {
+                this.Entity = entity;
+            }
+
+            private Dictionary<NameValueCollection, long> states = new Dictionary<NameValueCollection, long>(new NameValueCollectionEqualityComparer());
+
+            public static int GetHashCode(IOpenSearchable entity) {
+
+                return new OpenSearchableComparer().GetHashCode(entity);
+
+            }
+
+            public int GetHashCode() {
+
+                return IllimitedOpenSearchRequestState.GetHashCode(Entity);
+
+            }
+
+            public void SetState(NameValueCollection nvc, long totalResults) {
+                if (states.ContainsKey(nvc))
+                    states.Remove(nvc);
+                states.Add(new NameValueCollection(nvc), totalResults);
+            }
+
+            public KeyValuePair<NameValueCollection, long> GetClosestPage(NameValueCollection parameters) {
+                
+                // and with the same opensearch parameters
+                var keys = states.Keys.Where(s => OpenSearchFactory.PaginationFreeEqual(s, parameters) == true);
+
+                // if no such state, create new one with the entity pagination parameter unset (=1)
+                if (keys.Count() <= 0) {
+                    return new KeyValuePair<NameValueCollection, long>(null, 0);
+                }
+
+                // if found, what was the startPage parameter requested (assume 1)
+                int targetStartPage = 1;
+                try {
+                    targetStartPage = int.Parse(parameters["startPage"]);
+                } catch (Exception) {
+                }
+
+                int targetStartIndex = 1;
+                try {
+                    targetStartIndex = int.Parse(parameters["startIndex"]);
+                } catch (Exception) {
+                }
+
+                // Lets try the find the latest startPage regarding the requested startPage (closest) in the cached states
+                var tempkeys1 = keys.Where(m => int.Parse(m["startPage"]) <= targetStartPage).ToList();
+                tempkeys1 = tempkeys1.OrderByDescending(m => int.Parse(m["startPage"])).ToList();
+
+                var tempkeys2 = tempkeys1.Where(m => int.Parse(m["startIndex"]) <= targetStartIndex).ToList();
+                tempkeys2 = tempkeys2.OrderByDescending(m => int.Parse(m["startIndex"])).ToList();
+
+                var key = tempkeys2.FirstOrDefault();
+
+                // If not, useless and create new one with the entity pagination parameter unset (=1)
+                if (key == null) {
+                    return new KeyValuePair<NameValueCollection, long>(null, 0);;
+                }
+
+                return new KeyValuePair<NameValueCollection, long>(key, states[key]);
+            }
+
+
+        }
+
+
+
+    }
+
+    public class NameValueCollectionEqualityComparer : IEqualityComparer<NameValueCollection> {
+
+        public int GetHashCode(NameValueCollection obj) {
+            var qs = HttpUtility.ParseQueryString("");
+            var sortedList = new SortedList(obj.AllKeys.ToDictionary(k => k, k => obj[k]));
+            for (int i = 0; i < sortedList.Count; i++) {
+                qs.Add(sortedList.GetKey(i).ToString(), sortedList.GetByIndex(i).ToString());
+            }
+
+            return qs.ToString().GetHashCode();
+        }
+
+        public bool Equals(NameValueCollection x, NameValueCollection y) {
+            NameValueCollectionEqualityComparer comp = new NameValueCollectionEqualityComparer();
+            if (comp.GetHashCode(x) == comp.GetHashCode(y))
+                return true;
+            return false;
         }
     }
 }

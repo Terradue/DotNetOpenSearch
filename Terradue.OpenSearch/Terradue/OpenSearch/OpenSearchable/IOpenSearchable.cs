@@ -135,7 +135,8 @@ namespace Terradue.OpenSearch {
         }
 
         public int GetHashCode(IOpenSearchable obj) {
-            return obj.GetType().Name.GetHashCode() + obj.Identifier.GetHashCode();
+            var osrobj = obj.Create(obj.DefaultMimeType, new NameValueCollection());
+            return osrobj.OpenSearchUrl.GetHashCode();
         }
 
         #endregion

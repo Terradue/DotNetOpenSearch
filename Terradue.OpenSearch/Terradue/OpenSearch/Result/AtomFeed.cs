@@ -135,15 +135,6 @@ namespace Terradue.OpenSearch.Result {
             }
         }
 
-        public DateTime LastUpdatedTime {
-            get {
-                return base.LastUpdatedTime.DateTime;
-            }
-            set {
-                base.LastUpdatedTime = new DateTimeOffset(value);
-            }
-        }
-
         public string Identifier {
             get {
                 var identifier = ElementExtensions.ReadElementExtensions<string>("identifier", "http://purl.org/dc/elements/1.1/");
