@@ -18,6 +18,7 @@ using Terradue.OpenSearch.Response;
 using System.Diagnostics;
 using Terradue.OpenSearch.Result;
 using System.Threading.Tasks;
+using System.Runtime.Caching;
 
 namespace Terradue.OpenSearch.Request {
     /// <summary>
@@ -28,7 +29,7 @@ namespace Terradue.OpenSearch.Request {
     /// Opensearch Collection response.
     /// </description>
     public class MultiOpenSearchRequest<TFeed, TItem> : OpenSearchRequest where TFeed: class, IOpenSearchResultCollection, ICloneable, new() where TItem: class, IOpenSearchResultItem {
-        static List<MultiOpenSearchRequestState> requestStatesCache = new List<MultiOpenSearchRequestState>();
+        static MemoryCache requestStatesCache = new MemoryCache("mosr-cache");
         string type;
         NameValueCollection originalParameters, entitiesParameters, currentParameters;
         OpenSearchEngine ose;
@@ -43,7 +44,8 @@ namespace Terradue.OpenSearch.Request {
 
         IOpenSearchable parent;
 
-        static Mutex _m;
+        Mutex _m;
+        static Mutex _m2 = new Mutex();
 
         private log4net.ILog log = log4net.LogManager.GetLogger
             (System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -66,8 +68,13 @@ namespace Terradue.OpenSearch.Request {
 
             _m = new Mutex();
 
-            // Ask the cache if a previous page request is present to save some requests
-            usingCache = GetClosestState(entities.Distinct(new OpenSearchableComparer()).ToArray(), type, this.originalParameters, out this.currentEntities, out this.currentParameters);
+            try {
+                _m2.WaitOne();
+                // Ask the cache if a previous page request is present to save some requests
+                usingCache = GetClosestState(entities.Distinct(new OpenSearchableComparer()).ToArray(), type, this.originalParameters, out this.currentEntities, out this.currentParameters);
+            } finally {
+                _m2.ReleaseMutex();
+            }
 
 
 
@@ -227,7 +234,12 @@ namespace Terradue.OpenSearch.Request {
                 // next page
                 currentStartPage++;
                 currentParameters[OpenSearchFactory.ReverseTemplateOpenSearchParameters(OpenSearchFactory.GetBaseOpenSearchParameter())["startPage"]] = currentStartPage.ToString();
-                CacheCurrentState();
+                try {
+                    _m2.WaitOne();
+                    CacheCurrentState();
+                } finally {
+                    _m2.ReleaseMutex();
+                }
 
             }
 
@@ -298,16 +310,22 @@ namespace Terradue.OpenSearch.Request {
                 }
             } catch (Exception ex) {
                 TFeed result = new TFeed();
-                result.Id = "Exception";
-                result.ElementExtensions.Add(new SyndicationElementExtension("exception", "", 
-                                                                             new ExceptionMessage {
-                    Message = ex.Message,
-                    Source = ex.Source,
-                    HelpLink = ex.HelpLink
+                try {
+                    _m.WaitOne();
+                    result.Id = "Exception";
+                    result.ElementExtensions.Add(new SyndicationElementExtension("exception", "", 
+                                                                                 new ExceptionMessage {
+                        Message = ex.Message,
+                        Source = ex.Source,
+                        HelpLink = ex.HelpLink
+                    }
+                    )
+                    );
+                    results.Add((IOpenSearchable)entity, result);
+                } finally {
+                    _m.ReleaseMutex();
+
                 }
-                )
-                );
-                results.Add((IOpenSearchable)entity, result);
             }
 
         }
@@ -385,78 +403,35 @@ namespace Terradue.OpenSearch.Request {
         /// <param name="parameters">Parameters.</param>
         /// <param name="entities2">Entities2.</param>
         /// <param name="parameters2">Parameters2.</param>
-        public static bool GetClosestState(IOpenSearchable[] entities, string type, NameValueCollection parameters, out Dictionary<IOpenSearchable, int> entities2, out NameValueCollection parameters2) {
+        public static bool GetClosestState(IOpenSearchable[] entities, string type, NameValueCollection parameters, out Dictionary<IOpenSearchable, int> cachedEntities, out NameValueCollection cachedParameters) {
 
-            entities2 = new Dictionary<IOpenSearchable, int>(entities.Length);
-            parameters2 = RemovePaginationParameters(parameters);
+            cachedEntities = new Dictionary<IOpenSearchable, int>(entities.Length);
+            cachedParameters = RemovePaginationParameters(parameters);
+            KeyValuePair<NameValueCollection, Dictionary<IOpenSearchable, int>> cachedPageParameters = new KeyValuePair<NameValueCollection, Dictionary<IOpenSearchable, int>>(null, null);
 
-            try {
-                _m.WaitOne();
+            // Find the request states with the same combination of opensearchable items
+            MultiOpenSearchRequestState state = (MultiOpenSearchRequestState)requestStatesCache.Get(MultiOpenSearchRequestState.GetHashCode(entities).ToString());
 
-                // Find the request states with the same combination of opensearchable items
-                List<MultiOpenSearchRequestState> states = requestStatesCache.FindAll(s => s.Entities.Keys.ToArray().SequenceEqual(entities, new OpenSearchableComparer()));
-                // and with the same opensearch parameters
-                states = states.FindAll(s => OpenSearchFactory.PaginationFreeEqual(s.Parameters, parameters) == true);
+            if (state != null)
+                cachedPageParameters = state.GetClosestPage(parameters);
 
-                // if no such state, create new one with the entity pagination parameter unset (=1)
-                if (states.Count <= 0) {
-                    foreach (IOpenSearchable entity in entities)
-                        entities2.Add(entity, entity.GetOpenSearchDescription().DefaultUrl.IndexOffset);
-                    parameters2 = RemovePaginationParameters(parameters);
-                    return false;
-                }
-
-                // if found, what was is the startPage parameter requested (assume 1)
-                int startPage = 1;
-                try {
-                    startPage = int.Parse(parameters["startPage"]);
-                } catch (Exception) {
-                }
-
-                int startIndex = 1;
-                try {
-                    startIndex = int.Parse(parameters["startIndex"]);
-                } catch (Exception) {
-                }
-
-                // Lets try the find the latest startPage regarding the requested startPage (closest) in the cached states
-                List<MultiOpenSearchRequestState> temp = states.Where(m => int.Parse(m.Parameters["startPage"]) <= startPage).ToList();
-                temp = temp.OrderByDescending(m => int.Parse(m.Parameters["startPage"])).ToList();
-
-                List<MultiOpenSearchRequestState> temp2 = temp.Where(m => int.Parse(m.Parameters["startIndex"]) <= startIndex).ToList();
-                temp2 = temp2.OrderByDescending(m => int.Parse(m.Parameters["startIndex"])).ToList();
-
-                MultiOpenSearchRequestState state = temp2.FirstOrDefault();
-
-                // If not, useless and create new one with the entity pagination parameter unset (=1)
-                if (state.Entities == null) {
-                    foreach (IOpenSearchable entity in entities) {
-                        if (entity is IProxiedOpenSearchable) {
-                            entities2.Add(entity, ((IProxiedOpenSearchable)entity).GetProxyOpenSearchDescription().Url.FirstOrDefault(p => p.Type == type).IndexOffset);
-                        } else {
-                            entities2.Add(entity, entity.GetOpenSearchDescription().Url.FirstOrDefault(p => p.Type == type).IndexOffset);
-                        }
+            // If not, useless and create new one with the entity pagination parameter unset (=1)
+            if (state == null || cachedPageParameters.Key == null) {
+                foreach (IOpenSearchable entity in entities) {
+                    if (entity is IProxiedOpenSearchable) {
+                        cachedEntities.Add(entity, ((IProxiedOpenSearchable)entity).GetProxyOpenSearchDescription().Url.FirstOrDefault(p => p.Type == type).IndexOffset);
+                    } else {
+                        cachedEntities.Add(entity, entity.GetOpenSearchDescription().Url.FirstOrDefault(p => p.Type == type).IndexOffset);
                     }
-                    parameters2 = RemovePaginationParameters(parameters);
-                    return false;
                 }
-
-                //Set the OpenSearch params to the closest pagination params found
-                foreach (IOpenSearchable entity in state.Entities.Keys) {
-                    entities2.Add(entity, state.Entities[entity]);
-                }
-
-
-                parameters2 = new NameValueCollection(state.Parameters);
-
-                return true;
-
-            } finally {
-                _m.ReleaseMutex();
-
+                cachedParameters = RemovePaginationParameters(parameters);
+                return false;
             }
 
-            return false;
+
+            cachedEntities = cachedPageParameters.Value;
+            cachedParameters = new NameValueCollection(cachedPageParameters.Key);
+            return true;
 
         }
 
@@ -489,21 +464,25 @@ namespace Terradue.OpenSearch.Request {
         /// </summary>
         void CacheCurrentState() {
 
+
             try {
                 _m.WaitOne();
+                // Is there a cache entry for this entity ?
+                MultiOpenSearchRequestState state = (MultiOpenSearchRequestState)requestStatesCache.Get(MultiOpenSearchRequestState.GetHashCode(currentEntities.Keys).ToString());
 
-                MultiOpenSearchRequestState state = new MultiOpenSearchRequestState();
-                state.Entities = new Dictionary<IOpenSearchable, int>(currentEntities);
-                state.Parameters = new NameValueCollection(currentParameters);
-                state.Type = type;
+                // no, create it!
+                if (state == null) {
+                    state = new MultiOpenSearchRequestState(currentEntities.Keys);
+                }
 
+                // Let's put the new page state
+                state.SetState(currentParameters, currentEntities);
 
-
-                requestStatesCache.Add(state);
+                // finally, we cache the state
+                requestStatesCache.Set(state.GetHashCode().ToString(), state, new CacheItemPolicy(){ AbsoluteExpiration = DateTime.Now.AddMinutes(15) });
             } finally {
                 _m.ReleaseMutex();
             }
-
         }
 
         static NameValueCollection RemovePaginationParameters(NameValueCollection parameters) {
@@ -514,10 +493,80 @@ namespace Terradue.OpenSearch.Request {
         }
 
         /// Structure to hold a request state
-        struct MultiOpenSearchRequestState {
-            public Dictionary<IOpenSearchable, int> Entities;
-            public NameValueCollection Parameters;
-            public string Type;
+        class MultiOpenSearchRequestState {
+            
+            public ICollection<IOpenSearchable> Entities;
+
+            public MultiOpenSearchRequestState(ICollection<IOpenSearchable> entities) {
+                this.Entities = new List<IOpenSearchable>(entities);
+            }
+
+            private Dictionary<NameValueCollection, Dictionary<IOpenSearchable, int>> states = new Dictionary<NameValueCollection, Dictionary<IOpenSearchable, int>>(new NameValueCollectionEqualityComparer());
+
+            public static int GetHashCode(ICollection<IOpenSearchable> entities) {
+
+                int hc = 0;
+                foreach (var e in entities) {
+                    hc ^= e.GetHashCode();
+                    hc = (hc << 7) | (hc >> (32 - 7)); //rotale hc to the left to swipe over all bits
+                }
+                return hc;
+
+            }
+
+            new public int GetHashCode() {
+
+                return MultiOpenSearchRequestState.GetHashCode(Entities);
+
+            }
+
+            public void SetState(NameValueCollection nvc, Dictionary<IOpenSearchable, int> startIndexes) {
+                if (states.ContainsKey(nvc))
+                    states.Remove(nvc);
+                states.Add(new NameValueCollection(nvc), new Dictionary<IOpenSearchable, int>(startIndexes));
+            }
+
+            public KeyValuePair<NameValueCollection, Dictionary<IOpenSearchable, int>>  GetClosestPage(NameValueCollection parameters) {
+
+                // and with the same opensearch parameters
+                var keys = states.Keys.Where(s => OpenSearchFactory.PaginationFreeEqual(s, parameters) == true);
+
+                // if no such state, create new one with the entity pagination parameter unset (=1)
+                if (keys.Count() <= 0) {
+                    return new KeyValuePair<NameValueCollection, Dictionary<IOpenSearchable, int>>(null, null);
+                }
+
+                // if found, what was the startPage parameter requested (assume 1)
+                int targetStartPage = 1;
+                try {
+                    targetStartPage = int.Parse(parameters["startPage"]);
+                } catch (Exception) {
+                }
+
+                int targetStartIndex = 1;
+                try {
+                    targetStartIndex = int.Parse(parameters["startIndex"]);
+                } catch (Exception) {
+                }
+
+                // Lets try the find the latest startPage regarding the requested startPage (closest) in the cached states
+                var tempkeys1 = keys.Where(m => int.Parse(m["startPage"]) <= targetStartPage).ToList();
+                tempkeys1 = tempkeys1.OrderByDescending(m => int.Parse(m["startPage"])).ToList();
+
+                var tempkeys2 = tempkeys1.Where(m => int.Parse(m["startIndex"]) <= targetStartIndex).ToList();
+                tempkeys2 = tempkeys2.OrderByDescending(m => int.Parse(m["startIndex"])).ToList();
+
+                var key = tempkeys2.FirstOrDefault();
+
+                // If not, useless and create new one with the entity pagination parameter unset (=1)
+                if (key == null) {
+                    return new KeyValuePair<NameValueCollection, Dictionary<IOpenSearchable, int>>(null, null);
+                }
+
+                return new KeyValuePair<NameValueCollection, Dictionary<IOpenSearchable, int>>(key, states[key]);
+            }
+
+
         }
     }
 }

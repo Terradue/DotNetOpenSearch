@@ -19,13 +19,15 @@
 
 \namespace Terradue.OpenSearch
 @{
-    DotNetOpenSearch Software Package
+    Terradue.OpenSearch is a .Net library that provides an engine perform OpenSearch query from a class or an URL to multiple and custom types of results
 
-    \xrefitem sw_version "Versions" "Software Package Version" 1.11.15
+    \xrefitem sw_version "Versions" "Software Package Version" 1.12.1
 
     \xrefitem sw_link "Link" "Software Package Link" [DotNetOpenSearch](https://github.com/Terradue/DotNetOpenSearch)
 
     \xrefitem sw_license "License" "Software License" [GPLv3](https://github.com/DotNetOpenSearch/Terradue.OpenSearch/blob/master/LICENSE.txt)
+
+    \xrefitem sw_req "Require" "Software Dependencies" \ref Terradue.ServiceModel.Syndication
 
     \ingroup OpenSearch
 @}
@@ -47,8 +49,8 @@ using NuGet4Mono.Extensions;
 [assembly: AssemblyLicenseUrl("https://github.com/Terradue/DotNetOpenSearch/blob/master/LICENSE")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
-[assembly: AssemblyVersion("1.11.15.*")]
-[assembly: AssemblyInformationalVersion("1.11.15")]
+[assembly: AssemblyVersion("1.12.1")]
+[assembly: AssemblyInformationalVersion("1.12.1")]
 
 [assembly: log4net.Config.XmlConfigurator(ConfigFile = "log4net.config", Watch = true)]
 

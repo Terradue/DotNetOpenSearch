@@ -53,6 +53,7 @@
     <Reference Include="log4net">
       <HintPath>..\packages\log4net.2.0.5\lib\net40-full\log4net.dll</HintPath>
     </Reference>
+    <Reference Include="glib-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -70,7 +71,6 @@
     <Compile Include="Terradue\OpenSearch\Request\FileOpenSearchRequest.cs" />
     <Compile Include="Terradue\OpenSearch\Request\HttpOpenSearchRequest.cs" />
     <Compile Include="Terradue\OpenSearch\Request\MemoryOpenSearchRequest.cs" />
-    <Compile Include="Terradue\OpenSearch\Request\MultiAtomOpenSearchRequest.cs" />
     <Compile Include="Terradue\OpenSearch\Request\OpenSearchRequest.cs" />
     <Compile Include="Terradue\OpenSearch\Response\AtomOpenSearchResponse.cs" />
     <Compile Include="Terradue\OpenSearch\Response\HttpOpenSearchResponse.cs" />

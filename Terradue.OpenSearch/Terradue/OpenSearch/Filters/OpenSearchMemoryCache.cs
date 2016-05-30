@@ -26,17 +26,21 @@ namespace Terradue.OpenSearch.Filters {
             (System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         private MemoryCache cache;
-        private NameValueCollection config;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Terradue.OpenSearch.Filters.OpenSearchMemoryCache"/> class.
         /// </summary>
         /// <param name="name">Name.</param>
         /// <param name="config">Config.</param>
-        public OpenSearchMemoryCache(string name, NameValueCollection config) {
+        public OpenSearchMemoryCache(string name, NameValueCollection config = null) {
 
-            this.config = config;
-            cache = new MemoryCache(name, this.config);
+            cache = new MemoryCache(name, config);
+
+        }
+
+        public OpenSearchMemoryCache() {
+            
+            cache = new MemoryCache("opensearch");
 
         }
 

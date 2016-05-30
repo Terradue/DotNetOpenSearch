@@ -18,13 +18,13 @@ using Terradue.OpenSearch.Schema;
 
 /*!
 
-\defgroup OpenSearchable OpenSearchable
+\defgroup OpenSearch OpenSearch
 @{
 This is the internal interface for any real world entity to be processed in OpenSearch Engine
 
-\xrefitem cptype_int "Interfaces" "Interfaces"
+Combined with the OpenSearch extensions, the search interface offers many format to export results.
 
-\ingroup OpenSearch
+\xrefitem cptype_int "Interfaces" "Interfaces"
 
 \xrefitem norm "Normative References" "Normative References" [OpenSearch 1.1](http://www.opensearch.org/Specifications/OpenSearch/1.1)
 
@@ -135,7 +135,8 @@ namespace Terradue.OpenSearch {
         }
 
         public int GetHashCode(IOpenSearchable obj) {
-            return obj.GetType().Name.GetHashCode() + obj.Identifier.GetHashCode();
+            var osrobj = obj.Create(obj.DefaultMimeType, new NameValueCollection());
+            return osrobj.OpenSearchUrl.GetHashCode();
         }
 
         #endregion
