@@ -49,24 +49,6 @@ namespace Terradue.OpenSearch.Result {
             }
         }
 
-        public new DateTime LastUpdatedTime {
-            get {
-                return base.LastUpdatedTime.DateTime;
-            }
-            set {
-                base.LastUpdatedTime = new DateTimeOffset(value);
-            }
-        }
-
-        public new DateTime PublishDate {
-            get {
-                return base.PublishDate.DateTime;
-            }
-            set {
-                base.PublishDate = new DateTimeOffset(value);
-            }
-        }
-
         public string Identifier {
             get {
                 var identifier = ElementExtensions.ReadElementExtensions<string>("identifier", "http://purl.org/dc/elements/1.1/");
