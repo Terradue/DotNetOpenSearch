@@ -299,7 +299,7 @@ namespace Terradue.OpenSearch.Request {
 
                 entityParameters["startIndex"] = offset.ToString();
 
-                IOpenSearchResultCollection result = ose.Query((IOpenSearchable)entity, entityParameters);
+                IOpenSearchResultCollection result = ose.Query((IOpenSearchable)entity, entityParameters, typeof(TFeed));
 
                 try {
                     _m.WaitOne();
