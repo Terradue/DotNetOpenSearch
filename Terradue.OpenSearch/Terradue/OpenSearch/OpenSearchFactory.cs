@@ -244,8 +244,10 @@ namespace Terradue.OpenSearch {
         /// <param name="osd">Osd.</param>
         /// <param name="type">Type.</param>
         public static OpenSearchDescriptionUrl GetOpenSearchUrlByType(OpenSearchDescription osd, string type) {
-            if(type.Contains(";")) type = type.Split(";".ToCharArray())[0];
-            return osd.Url.FirstOrDefault(u => u.Type == type);
+			MimeType mime = MimeType.CreateFromContentType(type);
+			return osd.Url.FirstOrDefault(u => {
+				return MimeType.Equals(MimeType.CreateFromContentType(u.Type),mime);
+			});
         }
 
         /// <summary>

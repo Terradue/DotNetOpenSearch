@@ -97,6 +97,7 @@
     <Compile Include="Terradue\OpenSearch\Exception\ExceptionMessage.cs" />
     <Compile Include="Terradue\OpenSearch\Request\IllimitedOpenSearchRequest.cs" />
     <Compile Include="Terradue\OpenSearch\Result\OpenSearchResultItemComparer.cs" />
+    <Compile Include="Terradue\OpenSearch\MimeType.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
