@@ -14,6 +14,7 @@ using System.IO;
 using System.Diagnostics;
 using Terradue.OpenSearch.Request;
 using Terradue.OpenSearch.Response;
+using System.Text.RegularExpressions;
 
 namespace Terradue.OpenSearch.Filters {
 
@@ -119,6 +120,14 @@ namespace Terradue.OpenSearch.Filters {
                 log.DebugFormat("OpenSearch Cache [remove] reason {1} {0}", item.OpenSearchUrl, arguments.RemovedReason);
             }
         }
+
+		public void ClearCache(string pattern)
+		{
+			Regex regex = new Regex(pattern);
+			foreach (var k in cache.Where(i => regex.IsMatch(i.Key))) {
+				cache.Remove(k.Key);
+			}
+		}
     }
 
     /// <summary>
