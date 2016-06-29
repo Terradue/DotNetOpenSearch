@@ -6,6 +6,8 @@ using System.Xml.Serialization;
 using Terradue.OpenSearch.Schema;
 using System.Xml;
 using FluentAssertions;
+using Terradue.OpenSearch.Engine;
+using Mono.Addins;
 
 namespace Terradue.OpenSearch.Test {
 
@@ -47,6 +49,20 @@ namespace Terradue.OpenSearch.Test {
             osd2.ShouldBeEquivalentTo(osd);
 
         }
+
+		[Test]
+		public void TestOpenSearchDescriptionGetChunked()
+		{
+
+			AddinManager.Initialize();
+			AddinManager.Registry.Update(null);
+
+			var ose = new OpenSearchEngine();
+			ose.LoadPlugins();
+
+			var osd = OpenSearchFactory.FindOpenSearchable(ose, new Uri("https://data.terradue.com/gs/catalogue/aux/gtfeature/search"));
+
+		}
 
     }
 }
