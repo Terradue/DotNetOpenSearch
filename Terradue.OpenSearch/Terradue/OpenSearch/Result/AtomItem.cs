@@ -11,7 +11,7 @@ using System.Web;
 
 namespace Terradue.OpenSearch.Result {
 
-    public class AtomItem : SyndicationItem, IOpenSearchResultItem, IEquatable<AtomItem> {
+	public class AtomItem : SyndicationItem, IOpenSearchResultItem, IEquatable<AtomItem>, IAtomizable {
         public AtomItem() {
         }
 
@@ -145,5 +145,15 @@ namespace Terradue.OpenSearch.Result {
 
             return item;
         }
-    }
+
+		public AtomItem ToAtomItem(NameValueCollection parameters)
+		{
+			return new AtomItem(this);
+		}
+
+		public NameValueCollection GetOpenSearchParameters()
+		{
+			return new NameValueCollection();
+		}
+	}
 }
