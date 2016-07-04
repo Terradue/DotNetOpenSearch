@@ -160,9 +160,10 @@ namespace Terradue.OpenSearch
 					if (i.Identifier.Contains(parameters["q"])) return true;
 					if (i.Title != null && i.Title.Text != null && i.Title.Text.Contains(parameters["q"])) return true;
 					if (i.Summary != null && i.Summary.Text != null && i.Summary.Text.Contains(parameters["q"])) return true;
+					return false;
 				}
 
-				return false;
+				return true;
 
 			});
 		}
