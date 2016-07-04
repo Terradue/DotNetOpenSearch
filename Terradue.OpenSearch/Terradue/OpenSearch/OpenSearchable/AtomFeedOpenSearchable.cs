@@ -128,17 +128,17 @@ namespace Terradue.OpenSearch
 			PaginatedList<AtomItem> pds = new PaginatedList<AtomItem>();
 
 			int startIndex = 1;
-			if (parameters["startIndex"] != null)
+			if (!string.IsNullOrEmpty(parameters["startIndex"]))
 				startIndex = int.Parse(parameters["startIndex"]);
 
 			pds.AddRange(SearchInItem((IEnumerable < AtomItem > )feed.Items, parameters));
 
 			pds.PageNo = 1;
-			if (parameters["startPage"] != null)
+			if (!string.IsNullOrEmpty(parameters["startPage"]))
 				pds.PageNo = int.Parse(parameters["startPage"]);
 
 			pds.PageSize = 20;
-			if (parameters["count"] != null)
+			if (!string.IsNullOrEmpty(parameters["count"]))
 				pds.PageSize = int.Parse(parameters["count"]);
 
 			pds.StartIndex = startIndex - 1;
