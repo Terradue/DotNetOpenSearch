@@ -52,5 +52,3 @@ using NuGet4Mono.Extensions;
 [assembly: AssemblyVersion("1.12.8.*")]
 [assembly: AssemblyInformationalVersion("1.12.8")]
 
-[assembly: log4net.Config.XmlConfigurator(ConfigFile = "log4net.config", Watch = true)]
-
