@@ -321,6 +321,57 @@ namespace Terradue.OpenSearch.Test {
 
         }
 
+		[Test()]
+		public void StartIndexMultiOpenSearchableTest()
+		{
+
+			AddinManager.Initialize();
+			AddinManager.Registry.Update(null);
+
+			OpenSearchEngine ose = new OpenSearchEngine();
+			ose.LoadPlugins();
+
+			IOpenSearchable entity1 = TestOpenSearchable.GenerateNumberedItomFeed("A", 4, new TimeSpan(0));
+
+			List<IOpenSearchable> entities = new List<IOpenSearchable>();
+			entities.Add(entity1);
+
+			IOpenSearchable multiEntity = new MultiGenericOpenSearchable(entities, ose, true);
+
+			NameValueCollection nvc = new NameValueCollection();
+
+			nvc = new NameValueCollection();
+			nvc.Set("count", "2");
+			nvc.Set("startIndex", "5");
+
+			var osr = ose.Query(multiEntity, nvc, "atom");
+
+			Assert.AreEqual(4, osr.TotalResults);
+			Assert.AreEqual(0, osr.Count);
+
+
+			nvc.Set("count", "2");
+			nvc.Set("startIndex", "4");
+
+			osr = ose.Query(multiEntity, nvc, "atom");
+
+			Assert.AreEqual(4, osr.TotalResults);
+			Assert.AreEqual(1, osr.Count);
+			Assert.AreEqual("A4", osr.Items.First().Identifier);
+			Assert.AreEqual("A4", osr.Items.Last().Identifier);
+
+			nvc.Set("count", "2");
+			nvc.Set("startIndex", "3");
+
+			osr = ose.Query(multiEntity, nvc, "atom");
+
+			Assert.AreEqual(4, osr.TotalResults);
+			Assert.AreEqual(2, osr.Count);
+			Assert.AreEqual("A3", osr.Items.First().Identifier);
+			Assert.AreEqual("A4", osr.Items.Last().Identifier);
+
+		}
+
     }
 }
 

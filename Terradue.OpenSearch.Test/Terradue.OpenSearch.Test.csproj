@@ -93,7 +93,7 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="log4net.config" />
+    <None Include="Log4Net.config" />
     <None Include="app.config" />
   </ItemGroup>
   <ItemGroup>
@@ -101,5 +101,9 @@
       <Project>{997A44FD-EE4A-490A-855B-88305E0CD269}</Project>
       <Name>Terradue.OpenSearch</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="logs\" />
+    <Folder Include="bin\" />
   </ItemGroup>
 </Project>
