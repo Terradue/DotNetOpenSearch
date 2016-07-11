@@ -23,8 +23,8 @@ namespace Terradue.OpenSearch
 				foreach (var param in type.Split(';').Skip(1)) {
 
 					if (param.Contains("=")) {
-						if (type.Split('=')[0].Trim() == "charset") continue;
-						mimeType.parameters.Add(type.Split('=')[0].Trim(), type.Split('=')[1].Trim());
+						if (param.Split('=')[0].Trim() == "charset") continue;
+						mimeType.parameters.Add(param.Split('=')[0].Trim(), param.Split('=')[1].Trim());
 
 					}
 
