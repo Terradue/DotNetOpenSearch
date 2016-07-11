@@ -89,6 +89,7 @@
     <Compile Include="TestUnlimitedOpenSearchable.cs" />
     <Compile Include="TestItem.cs" />
     <Compile Include="TestAtom.cs" />
+    <Compile Include="MimeTypeTest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
