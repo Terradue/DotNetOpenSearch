@@ -112,14 +112,15 @@ namespace Terradue.OpenSearch
 
 		AtomFeed SearchInAtom(NameValueCollection parameters)
 		{
-			UriBuilder myUrl = new UriBuilder("file:///test");
+            var alternate = feed.Links.FirstOrDefault(l => l.RelationshipType == "alternate");
+            if(alternate == null) alternate = feed.Links.FirstOrDefault(l => l.RelationshipType == "self");
+			
 			string[] queryString = Array.ConvertAll(parameters.AllKeys, key => String.Format("{0}={1}", key, parameters[key]));
-			myUrl.Query = string.Join("&", queryString);
 
 			AtomFeed resultfeed = new AtomFeed("Discovery feed for " + this.Identifier,
 										 "This OpenSearch Service allows the discovery of the different items which are part of the " + this.Identifier + " collection" +
 										 "This search service is in accordance with the OGC 10-032r3 specification.",
-										 myUrl.Uri, myUrl.ToString(), DateTimeOffset.UtcNow);
+                                               alternate != null ? alternate.Uri : new Uri(feed.Id) , feed.Id, DateTimeOffset.UtcNow);
 
 			resultfeed.Generator = "Terradue Web Server";
 
@@ -155,6 +156,11 @@ namespace Terradue.OpenSearch
 		IEnumerable<AtomItem> SearchInItem(IEnumerable<AtomItem> items, NameValueCollection parameters)
 		{
 			return items.Where(i => {
+
+                if (!string.IsNullOrEmpty(parameters["uid"])) {
+                    if (i.Identifier.Equals(parameters["uid"])) return true;
+                    return false;
+                }
 
 				if (!string.IsNullOrEmpty(parameters["q"])) {
 					if (i.Identifier.Contains(parameters["q"])) return true;
