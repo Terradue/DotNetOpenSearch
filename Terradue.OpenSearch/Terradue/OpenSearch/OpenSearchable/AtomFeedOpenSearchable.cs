@@ -112,7 +112,7 @@ namespace Terradue.OpenSearch
 
 		AtomFeed SearchInAtom(NameValueCollection parameters)
 		{
-            var alternate = feed.Links.FirstOrDefault(l => l.RelationshipType == "alternate");
+            var alternate = (feed != null && feed.Links != null) ? feed.Links.FirstOrDefault(l => l.RelationshipType == "alternate") : null;
             if(alternate == null) alternate = feed.Links.FirstOrDefault(l => l.RelationshipType == "self");
 			
 			string[] queryString = Array.ConvertAll(parameters.AllKeys, key => String.Format("{0}={1}", key, parameters[key]));
