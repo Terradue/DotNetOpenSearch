@@ -90,12 +90,14 @@
     <Compile Include="TestItem.cs" />
     <Compile Include="TestAtom.cs" />
     <Compile Include="MimeTypeTest.cs" />
+    <Compile Include="TestOsddAttribute.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="Log4Net.config" />
     <None Include="app.config" />
+    <None Include="Samples\fedeo-osdd.xml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Terradue.OpenSearch\Terradue.OpenSearch.csproj">
@@ -106,5 +108,6 @@
   <ItemGroup>
     <Folder Include="logs\" />
     <Folder Include="bin\" />
+    <Folder Include="Samples\" />
   </ItemGroup>
 </Project>
