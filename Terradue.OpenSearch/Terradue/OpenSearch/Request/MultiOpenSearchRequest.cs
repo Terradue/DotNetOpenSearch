@@ -489,6 +489,7 @@ namespace Terradue.OpenSearch.Request {
 
             try {
                 _m.WaitOne();
+                _m2.WaitOne();
                 // Is there a cache entry for this entity ?
                 MultiOpenSearchRequestState state = (MultiOpenSearchRequestState)requestStatesCache.Get(MultiOpenSearchRequestState.GetHashCode(currentEntities.Keys).ToString());
 
@@ -504,6 +505,7 @@ namespace Terradue.OpenSearch.Request {
                 requestStatesCache.Set(state.GetHashCode().ToString(), state, new CacheItemPolicy(){ AbsoluteExpiration = DateTime.Now.AddMinutes(15) });
             } finally {
                 _m.ReleaseMutex();
+                _m2.ReleaseMutex();
             }
         }
 
@@ -558,7 +560,8 @@ namespace Terradue.OpenSearch.Request {
             public KeyValuePair<NameValueCollection, Dictionary<IOpenSearchable, int>>  GetClosestPage(NameValueCollection parameters) {
 
                 // and with the same opensearch parameters
-                var keys = states.Keys.Where(s => OpenSearchFactory.PaginationFreeEqual(s, parameters) == true);
+                var keys = states.Keys.Where(s => OpenSearchFactory.PaginationFreeEqual(s, parameters) == true).ToArray();
+                Dictionary<NameValueCollection, Dictionary<IOpenSearchable, int>> tempstate = new Dictionary<NameValueCollection, Dictionary<IOpenSearchable, int>>(states);
 
                 // if no such state, create new one with the entity pagination parameter unset (=1)
                 if (keys.Count() <= 0) {
@@ -594,7 +597,7 @@ namespace Terradue.OpenSearch.Request {
 
 
 
-				return new KeyValuePair<NameValueCollection, Dictionary<IOpenSearchable, int>>(key, states[key]);
+				return new KeyValuePair<NameValueCollection, Dictionary<IOpenSearchable, int>>(key, tempstate[key]);
             }
 
 
