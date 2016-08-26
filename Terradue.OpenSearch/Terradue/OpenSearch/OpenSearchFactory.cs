@@ -30,6 +30,11 @@ namespace Terradue.OpenSearch {
     /// functions for OpenSearch.
     /// </summary>
     public partial class OpenSearchFactory {
+
+
+        private static  log4net.ILog log = log4net.LogManager.GetLogger
+            (System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         /// <summary>
         /// Loads the OpenSearch description document.
         /// </summary>
@@ -153,10 +158,9 @@ namespace Terradue.OpenSearch {
             }
 
             //finalQueryParameters.Set("enableSourceproduct", "true");
-
             string[] queryString = Array.ConvertAll(finalQueryParameters.AllKeys, key => string.Format("{0}={1}", key, HttpUtility.UrlEncode(finalQueryParameters[key])));
             finalUrl.Query = string.Join("&", queryString);
-			
+
             return new OpenSearchUrl(finalUrl.Uri);
         }
 

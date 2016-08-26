@@ -27,6 +27,9 @@ namespace Terradue.OpenSearch
 	public class OpenSearchUrl : Uri
 	{
 
+        private static log4net.ILog log = log4net.LogManager.GetLogger
+            (System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         private int osdPageOffset = 1;
 
         private int osdIndexOffset = 1;
@@ -53,7 +56,7 @@ namespace Terradue.OpenSearch
         /// Initializes a new instance of the <see cref="Terradue.OpenSearch.OpenSearchUrl"/> class.
         /// </summary>
         /// <param name="url">URL.</param>
-        public OpenSearchUrl (Uri url) : base (url.ToString())
+        public OpenSearchUrl (Uri url) : base (url.AbsoluteUri)
         {
         }
 

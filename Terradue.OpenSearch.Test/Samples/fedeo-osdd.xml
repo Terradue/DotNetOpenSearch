@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:eo="http://a9.com/-/opensearch/extensions/eo/1.0/" xmlns:geo="http://a9.com/-/opensearch/extensions/geo/1.0/" xmlns:os="http://a9.com/-/spec/opensearch/1.1/" xmlns:param="http://a9.com/-/spec/opensearch/extensions/parameters/1.0/" xmlns:semantic="http://a9.com/-/opensearch/extensions/semantic/1.0/" xmlns:sru="http://a9.com/-/opensearch/extensions/sru/2.0/" xmlns:time="http://a9.com/-/opensearch/extensions/time/1.0/">
+	<ShortName>FEDEO</ShortName>
+	<Description>Provides interoperable access, following ISO/OGC interface guidelines, to Earth Observation metadata.</Description>
+	<Tags>FEDEO, ESA, Earth Observation, Digital Repository, HMA, HMA-S, HMA-SE</Tags>
+	<Url rel="self" template="http://fedeo.esa.int/opensearch/description.xml" type="application/opensearchdescription+xml" />
+	<Url rel="search" template="http://fedeo.esa.int/opensearch/description.xml?parentIdentifier=" type="application/opensearchdescription+xml" />
+	<Url indexOffset="1" pageOffset="1" rel="results" template="http://fedeo.esa.int/opensearch/request/?httpAccept=application/atom%2Bxml&amp;parentIdentifier={eo:parentIdentifier}&amp;query={searchTerms?}&amp;startRecord={startIndex?}&amp;startPage={startPage?}&amp;maximumRecords={count?}&amp;startDate={time:start?}&amp;endDate={time:end?}&amp;bbox={geo:box?}&amp;name={geo:name?}&amp;lat={geo:lat?}&amp;lon={geo:lon?}&amp;radius={geo:radius?}&amp;uid={geo:uid?}&amp;recordSchema={sru:recordSchema?}" type="application/atom+xml" />
+	<Url indexOffset="1" pageOffset="1" rel="results" template="http://fedeo.esa.int/opensearch/request/?httpAccept=application/sru%2Bxml&amp;parentIdentifier={eo:parentIdentifier}&amp;query={searchTerms?}&amp;startRecord={startIndex?}&amp;startPage={startPage?}&amp;maximumRecords={count?}&amp;startDate={time:start?}&amp;endDate={time:end?}&amp;bbox={geo:box?}&amp;name={geo:name?}&amp;lat={geo:lat?}&amp;lon={geo:lon?}&amp;radius={geo:radius?}&amp;uid={geo:uid?}&amp;recordSchema={sru:recordSchema?}" type="application/sru+xml" />
+	<Url indexOffset="1" pageOffset="1" rel="collection" template="http://fedeo.esa.int/opensearch/request/?httpAccept=application/atom%2Bxml&amp;parentIdentifier={eo:parentIdentifier?}&amp;subject={dc:subject?}&amp;query={searchTerms?}&amp;startRecord={startIndex?}&amp;startPage={startPage?}&amp;maximumRecords={count?}&amp;startDate={time:start?}&amp;endDate={time:end?}&amp;type={dc:type?}&amp;title={dc:title?}&amp;publisher={dc:publisher?}&amp;bbox={geo:box?}&amp;name={geo:name?}&amp;lat={geo:lat?}&amp;lon={geo:lon?}&amp;radius={geo:radius?}&amp;uid={geo:uid?}&amp;organisationName={eo:organisationName?}&amp;productType={eo:productType?}&amp;platform={eo:platform?}&amp;instrument={eo:instrument?}&amp;classifiedAs={semantic:classifiedAs?}&amp;recordSchema={sru:recordSchema?}" type="application/atom+xml">
+		<param:Parameter name="recordSchema" value="{sru:recordSchema}">
+			<param:Option label="ISO" value="iso" />
+		</param:Parameter>
+		<param:Parameter name="type" value="{dc:type}">
+			<param:Option label="dataset" value="dataset" />
+			<param:Option label="dataset series" value="collection" />
+			<param:Option label="service" value="service" />
+		</param:Parameter>
+		<param:Parameter name="parentIdentifier" value="{eo:parentIdentifier}">
+			<param:Option label="ESA:FEDEO" value="EOP:ESA:FEDEO" />
+			<Option xmlns="http://a9.com/-/spec/opensearch/extensions/parameters/1.0/" label="ESA:GPOD-EO" value="EOP:ESA:GPOD-EO" />
+			<Option xmlns="http://a9.com/-/spec/opensearch/extensions/parameters/1.0/" label="ESA:EO-VIRTUAL-ARCHIVE4" value="EOP:ESA:EO-VIRTUAL-ARCHIVE4" />
+			<Option xmlns="http://a9.com/-/spec/opensearch/extensions/parameters/1.0/" label="ESA:SMOS" value="EOP:ESA:SMOS" />
+			<Option xmlns="http://a9.com/-/spec/opensearch/extensions/parameters/1.0/" label="NASA:ECHO" value="EOP:NASA:ECHO" />
+			<Option xmlns="http://a9.com/-/spec/opensearch/extensions/parameters/1.0/" label="JAXA:CATS-I" value="EOP:JAXA:CATS-I" />
+			<Option xmlns="http://a9.com/-/spec/opensearch/extensions/parameters/1.0/" label="ESA:FEDEO:COLLECTIONS" value="EOP:ESA:FEDEO:COLLECTIONS" />
+			<Option xmlns="http://a9.com/-/spec/opensearch/extensions/parameters/1.0/" label="DLR:GEOSERVICE" value="EOP:DLR:GEOSERVICE" />
+		</param:Parameter>
+		<param:Parameter maxInclusive="50" minInclusive="0" name="maximumRecords" pattern="[0-9]+" value="{count}" />
+		<param:Parameter minInclusive="1" name="startRecord" pattern="[0-9]+" value="{startIndex}" />
+		<param:Parameter minInclusive="1" name="startPage" pattern="[0-9]+" value="{startPage}" />
+		<param:Parameter name="startDate" pattern="^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\.[0-9]+)?(Z|[\+\-][0-9]{2}:[0-9]{2})$" value="{time:start}" />
+		<param:Parameter name="endDate" pattern="^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\.[0-9]+)?(Z|[\+\-][0-9]{2}:[0-9]{2})$" value="{time:end}" />
+		<param:Parameter maxInclusive="90" minInclusive="-90" name="lat" value="{geo:lat}" />
+		<param:Parameter maxInclusive="180" minInclusive="-180" name="lon" value="{geo:lon}" />
+	</Url>
+	<Url indexOffset="1" pageOffset="1" rel="collection" template="http://fedeo.esa.int/opensearch/request/?httpAccept=application/sru%2Bxml&amp;parentIdentifier={eo:parentIdentifier?}&amp;subject={dc:subject?}&amp;query={searchTerms?}&amp;startRecord={startIndex?}&amp;startPage={startPage?}&amp;maximumRecords={count?}&amp;startDate={time:start?}&amp;endDate={time:end?}&amp;type={dc:type?}&amp;title={dc:title?}&amp;publisher={dc:publisher?}&amp;bbox={geo:box?}&amp;name={geo:name?}&amp;lat={geo:lat?}&amp;lon={geo:lon?}&amp;radius={geo:radius?}&amp;uid={geo:uid?}&amp;organisationName={eo:organisationName?}&amp;productType={eo:productType?}&amp;platform={eo:platform?}&amp;instrument={eo:instrument?}&amp;classifiedAs={semantic:classifiedAs?}&amp;recordSchema={sru:recordSchema?}" type="application/sru+xml">
+		<param:Parameter name="recordSchema" value="{sru:recordSchema}">
+			<param:Option label="ISO" value="iso" />
+		</param:Parameter>
+		<param:Parameter name="type" value="{dc:type}">
+			<param:Option label="dataset" value="dataset" />
+			<param:Option label="dataset series" value="collection" />
+			<param:Option label="service" value="service" />
+		</param:Parameter>
+		<param:Parameter name="parentIdentifier" value="{eo:parentIdentifier}">
+			<param:Option label="ESA:FEDEO" value="EOP:ESA:FEDEO" />
+			<Option xmlns="http://a9.com/-/spec/opensearch/extensions/parameters/1.0/" label="ESA:GPOD-EO" value="EOP:ESA:GPOD-EO" />
+			<Option xmlns="http://a9.com/-/spec/opensearch/extensions/parameters/1.0/" label="ESA:EO-VIRTUAL-ARCHIVE4" value="EOP:ESA:EO-VIRTUAL-ARCHIVE4" />
+			<Option xmlns="http://a9.com/-/spec/opensearch/extensions/parameters/1.0/" label="ESA:SMOS" value="EOP:ESA:SMOS" />
+			<Option xmlns="http://a9.com/-/spec/opensearch/extensions/parameters/1.0/" label="NASA:ECHO" value="EOP:NASA:ECHO" />
+			<Option xmlns="http://a9.com/-/spec/opensearch/extensions/parameters/1.0/" label="JAXA:CATS-I" value="EOP:JAXA:CATS-I" />
+			<Option xmlns="http://a9.com/-/spec/opensearch/extensions/parameters/1.0/" label="ESA:FEDEO:COLLECTIONS" value="EOP:ESA:FEDEO:COLLECTIONS" />
+			<Option xmlns="http://a9.com/-/spec/opensearch/extensions/parameters/1.0/" label="DLR:GEOSERVICE" value="EOP:DLR:GEOSERVICE" />
+		</param:Parameter>
+		<param:Parameter maxInclusive="50" minInclusive="0" name="maximumRecords" pattern="[0-9]+" value="{count}" />
+		<param:Parameter minInclusive="1" name="startRecord" pattern="[0-9]+" value="{startIndex}" />
+		<param:Parameter minInclusive="1" name="startPage" pattern="[0-9]+" value="{startPage}" />
+		<param:Parameter name="startDate" pattern="^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\.[0-9]+)?(Z|[\+\-][0-9]{2}:[0-9]{2})$" value="{time:start}" />
+		<param:Parameter name="endDate" pattern="^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\.[0-9]+)?(Z|[\+\-][0-9]{2}:[0-9]{2})$" value="{time:end}" />
+		<param:Parameter maxInclusive="90" minInclusive="-90" name="lat" value="{geo:lat}" />
+		<param:Parameter maxInclusive="180" minInclusive="-180" name="lon" value="{geo:lon}" />
+	</Url>
+	<Query eo:parentIdentifier="EOP:ESA:GPOD-EO:MER_RR__2P" role="example" time:end="2005-05-16T00:00:00Z" time:start="2004-05-16T00:00:00Z" />
+	<Query eo:parentIdentifier="EOP:ESA:GPOD-EO" role="example" />
+	<Query eo:parentIdentifier="EOP:ESA:EO-VIRTUAL-ARCHIVE4" role="example" />
+	<Query role="example" semantic:classifiedAs="http://www.eionet.europa.eu/gemet/concept/3650" />
+	<LongName>Earth Observation Catalogue</LongName>
+	<Image height="64" type="image/png" width="64">http://fedeo.esa.int/opensearch/images/esa_favicon.ico</Image>
+	<Image height="16" type="image/vnd.microsoft.icon" width="16">http://fedeo.esa.int/opensearch/images/esa_favicon.ico</Image>
+	<Developer>Spacebel s.a.</Developer>
+	<Attribution>Copyright 2014-2015, European Space Agency.</Attribution>
+	<SyndicationRight>open</SyndicationRight>
+	<AdultContent>false</AdultContent>
+	<Language>en-us</Language>
+	<OutputEncoding>UTF-8</OutputEncoding>
+	<InputEncoding>UTF-8</InputEncoding>
+</OpenSearchDescription>

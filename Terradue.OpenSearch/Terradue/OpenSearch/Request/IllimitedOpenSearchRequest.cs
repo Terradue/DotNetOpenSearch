@@ -47,6 +47,8 @@ namespace Terradue.OpenSearch.Request {
 
         IOpenSearchable entity;
 
+        static Mutex _m = new Mutex();
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Terradue.OpenSearch.Request.MultiOpenSearchRequest"/> class.
         /// </summary>
@@ -62,9 +64,17 @@ namespace Terradue.OpenSearch.Request {
             this.targetParameters = HttpUtility.ParseQueryString(url.Query);
             this.virtualParameters = RemovePaginationParameters(this.targetParameters);
 
+            try
+            {
+                _m.WaitOne();
 
-            // Ask the cache if a previous page request is present to save some requests
-            usingCache = GetClosestState(entity, type, this.targetParameters, out currentTotalResults, out this.currentParameters);
+                // Ask the cache if a previous page request is present to save some requests
+                usingCache = GetClosestState(entity, type, this.targetParameters, out currentTotalResults, out this.currentParameters);
+            }
+            finally
+            {
+                _m.ReleaseMutex();
+            }
 
 
         }
@@ -312,20 +322,30 @@ namespace Terradue.OpenSearch.Request {
         /// </summary>
         void CacheCurrentState() {
 
+            try
+            {
 
-            // Is tehre a cache entry for this entity ?
-            IllimitedOpenSearchRequestState state = (IllimitedOpenSearchRequestState)requestStatesCache.Get(IllimitedOpenSearchRequestState.GetHashCode(entity).ToString());
+                _m.WaitOne();
 
-            // no, create it!
-            if (state == null) {
-                state = new IllimitedOpenSearchRequestState(entity);
+                // Is tehre a cache entry for this entity ?
+                IllimitedOpenSearchRequestState state = (IllimitedOpenSearchRequestState)requestStatesCache.Get(IllimitedOpenSearchRequestState.GetHashCode(entity).ToString());
+
+                // no, create it!
+                if (state == null)
+                {
+                    state = new IllimitedOpenSearchRequestState(entity);
+                }
+
+                // Let's put the new page state
+                state.SetState(currentParameters, currentTotalResults);
+
+                // finally, we cache the state
+                requestStatesCache.Set(state.GetHashCode().ToString(), state, new CacheItemPolicy() { AbsoluteExpiration = DateTime.Now.AddMinutes(15) });
             }
-
-            // Let's put the new page state
-            state.SetState(currentParameters, currentTotalResults);
-
-            // finally, we cache the state
-            requestStatesCache.Set(state.GetHashCode().ToString(), state, new CacheItemPolicy(){ AbsoluteExpiration = DateTime.Now.AddMinutes(15) });
+            finally
+            {
+                _m.ReleaseMutex();
+            }
 
         }
 
@@ -367,7 +387,8 @@ namespace Terradue.OpenSearch.Request {
             public KeyValuePair<NameValueCollection, long> GetClosestPage(NameValueCollection parameters) {
                 
                 // and with the same opensearch parameters
-                var keys = states.Keys.Where(s => OpenSearchFactory.PaginationFreeEqual(s, parameters) == true);
+                var keys = states.Keys.Where(s => OpenSearchFactory.PaginationFreeEqual(s, parameters) == true).ToArray();
+                Dictionary<NameValueCollection, long> tempstate = new Dictionary<NameValueCollection, long>(states);
 
                 // if no such state, create new one with the entity pagination parameter unset (=1)
                 if (keys.Count() <= 0) {
@@ -401,7 +422,7 @@ namespace Terradue.OpenSearch.Request {
                     return new KeyValuePair<NameValueCollection, long>(null, 0);;
                 }
 
-                return new KeyValuePair<NameValueCollection, long>(key, states[key]);
+                return new KeyValuePair<NameValueCollection, long>(key, tempstate[key]);
             }
 
 

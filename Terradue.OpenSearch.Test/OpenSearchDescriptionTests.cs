@@ -50,20 +50,6 @@ namespace Terradue.OpenSearch.Test {
 
         }
 
-		[Test]
-		public void TestOpenSearchDescriptionGetChunked()
-		{
-
-			AddinManager.Initialize();
-			AddinManager.Registry.Update(null);
-
-			var ose = new OpenSearchEngine();
-			ose.LoadPlugins();
-
-			var osd = OpenSearchFactory.FindOpenSearchable(ose, new Uri("https://data.terradue.com/gs/catalogue/aux/gtfeature/search"));
-
-		}
-
     }
 }
 
