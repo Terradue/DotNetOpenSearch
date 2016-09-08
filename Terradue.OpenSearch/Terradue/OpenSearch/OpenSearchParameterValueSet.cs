@@ -102,7 +102,7 @@ namespace Terradue.OpenSearch {
                             if (identifierNamespaceUri != null) identifierLocalName = parts[1];
                         }
                     }
-                    paramDef = new OpenSearchParameterDefinition(identifier, identifierNamespaceUri, identifierLocalName, name, tempParameters.ContainsKey(name) ? tempParameters[name] : null);
+                    paramDef = new OpenSearchParameterDefinition(name, identifier, identifierNamespaceUri, identifierLocalName, tempParameters.ContainsKey(name) ? tempParameters[name] : null);
                     result.parametersByIdentifier[identifier] = paramDef;
                 } else { // parameter is fixed
                     paramDef = new OpenSearchParameterDefinition(name);
@@ -121,7 +121,7 @@ namespace Terradue.OpenSearch {
         /// <param name="name">The name of the parameter.</param>
         public void AddExtraParameter(string name) {
             if (parametersByName.ContainsKey(name)) return;
-            parametersByName.Add(name, new OpenSearchParameterDefinition(name));
+            parametersByName.Add(name, new OpenSearchParameterDefinition(name, null, null, null, null));
         }
 
         //---------------------------------------------------------------------------------------------------------------------
@@ -354,13 +354,13 @@ namespace Terradue.OpenSearch {
         /// <param name="identifierLocalName">The local name part of the fully qualified identifier of the parameter, e.g. "box".</param>
         /// <param name="name">The query string name of the parameter, e.g. "bbox".</param>
         /// <param name="parameter">An optional reference to the OpenSearch Parameter extension object that contains further information about the parameter, such as options for values.</param>
-        public OpenSearchParameterDefinition(string identifier, string identifierNamespaceUri, string identifierLocalName, string name, OpenSearchDescriptionUrlParameter parameter) {
+        public OpenSearchParameterDefinition(string name, string identifier, string identifierNamespaceUri, string identifierLocalName, OpenSearchDescriptionUrlParameter parameter) {
+            this.Name = name;
             this.Identifier = identifier;
             if (identifierNamespaceUri != null && identifierLocalName != null) {
                 this.IdentifierNamespaceUri = identifierNamespaceUri;
                 this.IdentifierLocalName = identifierLocalName;
             }
-            this.Name = name;
             this.Parameter = parameter;
         }
 
