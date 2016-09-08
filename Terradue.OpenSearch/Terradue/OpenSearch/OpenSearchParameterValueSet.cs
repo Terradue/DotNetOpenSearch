@@ -4,6 +4,9 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Web;
+using System.Xml;
+using System.Xml.Serialization;
 using Terradue.OpenSearch.Schema;
 
 namespace Terradue.OpenSearch {
@@ -22,6 +25,7 @@ namespace Terradue.OpenSearch {
         private Dictionary<string, OpenSearchParameterDefinition> parametersByName;
         private Dictionary<string, OpenSearchParameterDefinition> parametersByIdentifier;
         private Dictionary<OpenSearchParameterDefinition, string[]> values;
+        private NameTable nameTable;
 
         private static Regex urlRegex = new Regex(@"[^\?]+\?(.*)");
         private static Regex parameterDefinitionRegex = new Regex(@"([^=]+)=(\{([^\}\?]+)\??\}|.*)");
@@ -39,17 +43,18 @@ namespace Terradue.OpenSearch {
         /// <summary>Creates an OpenSearchParameterValueSet instance based on the specified OpenSearchDescriptionUrl object.</summary>
         /// <returns>The created OpenSearchParameterValueSet instance.</returns>
         /// <param name="osdUrl">An OpenSearchDescriptionUrl object from a deserialized OpenSearch description document.</param>
-        public static OpenSearchParameterValueSet FromOpenSearchDescription(OpenSearchDescriptionUrl osdUrl) {
-            return FromOpenSearchDescription(osdUrl.Template, osdUrl.Parameters);
+        public static OpenSearchParameterValueSet FromOpenSearchDescription(OpenSearchDescription osd, string format) {
+            OpenSearchDescriptionUrl osdUrl = osd.Url.Single(u => u.Type == format);
+            return FromOpenSearchDescription(osdUrl, osd.ExtraNamespace);
         }
 
         //---------------------------------------------------------------------------------------------------------------------
 
-        /// <summary>Creates an OpenSearchParameterValueSet instance based on the specified OpenSearch template.</summary>
+        /// <summary>Creates an OpenSearchParameterValueSet instance based on the specified OpenSearchDescriptionUrl object.</summary>
         /// <returns>The created OpenSearchParameterValueSet instance.</returns>
-        /// <param name="template">An OpenSearch template URL.</param>
-        public static OpenSearchParameterValueSet FromOpenSearchDescription(string template) {
-            return FromOpenSearchDescription(template, null);
+        /// <param name="osdUrl">An OpenSearchDescriptionUrl object from a deserialized OpenSearch description document.</param>
+        public static OpenSearchParameterValueSet FromOpenSearchDescription(OpenSearchDescriptionUrl osdUrl, XmlSerializerNamespaces namespaces = null) {
+            return FromOpenSearchDescription(osdUrl.Template, osdUrl.Parameters, namespaces);
         }
 
         //---------------------------------------------------------------------------------------------------------------------
@@ -58,17 +63,26 @@ namespace Terradue.OpenSearch {
         /// <returns>A new OpenSearchParameterValueSet instance.</returns>
         /// <param name="template">An OpenSearch template URL.</param>
         /// <param name="origParams">An array of objects containing parameter information as defined by the OpenSearch Parameter extension.</returns>
-        public static OpenSearchParameterValueSet FromOpenSearchDescription(string template, OpenSearchDescriptionUrlParameter[] origParams) {
+        public static OpenSearchParameterValueSet FromOpenSearchDescription(string template, OpenSearchDescriptionUrlParameter[] origParams = null, XmlSerializerNamespaces namespaces = null) {
+            OpenSearchParameterValueSet result = new OpenSearchParameterValueSet();
+
             Dictionary<string, OpenSearchDescriptionUrlParameter> tempParameters = new Dictionary<string, OpenSearchDescriptionUrlParameter>();
+            Dictionary<string, string> tempNamespaces = null;
             if (origParams != null) {
                 foreach (OpenSearchDescriptionUrlParameter origParam in origParams) tempParameters.Add(origParam.Name, origParam);
             }
 
-            OpenSearchParameterValueSet result = new OpenSearchParameterValueSet();
+            if (namespaces != null) {
+                result.nameTable = new NameTable();
+                tempNamespaces = new Dictionary<string, string>();
+                foreach (XmlQualifiedName qn in namespaces.ToArray()) {
+                    tempNamespaces.Add(qn.Name, result.nameTable.Add(qn.Namespace));
+                }
+            }
 
             // Make sure URL is valid
             Match match = urlRegex.Match(template);
-            if (!match.Success) throw new Exception(String.Format("Invalid URL template: {0}", template));
+            if (!match.Success) throw new OpenSearchException(String.Format("Invalid URL template: {0}", template));
 
             // Split by query string parameter and add parameter definitions to the internal dictionaries:
             // parameters can be settable (e.g. name={key}, name={prefix:key}) or fixed (name=value)
@@ -80,7 +94,15 @@ namespace Terradue.OpenSearch {
                 OpenSearchParameterDefinition paramDef;
                 if (match2.Groups[3].Success) { // parameter is settable
                     string identifier = match2.Groups[3].Value;
-                    paramDef = new OpenSearchParameterDefinition(identifier, name, tempParameters.ContainsKey(name) ? tempParameters[name] : null);
+                    string identifierNamespaceUri = null, identifierLocalName = null;
+                    if (tempNamespaces != null) {
+                        string[] parts = identifier.Split(':');
+                        if (parts.Length == 2) {
+                            identifierNamespaceUri = tempNamespaces.ContainsKey(parts[0]) ? tempNamespaces[parts[0]] : null;
+                            if (identifierNamespaceUri != null) identifierLocalName = parts[1];
+                        }
+                    }
+                    paramDef = new OpenSearchParameterDefinition(identifier, identifierNamespaceUri, identifierLocalName, name, tempParameters.ContainsKey(name) ? tempParameters[name] : null);
                     result.parametersByIdentifier[identifier] = paramDef;
                 } else { // parameter is fixed
                     paramDef = new OpenSearchParameterDefinition(name);
@@ -105,11 +127,18 @@ namespace Terradue.OpenSearch {
         //---------------------------------------------------------------------------------------------------------------------
 
         /// <summary>Sets the parameter values based on the values of another instance.</summary>
-        /// <remarks>Only matching parameters are taken into account. The match is made by the fully qualified identifier of the OpenSearch parameters. It is assumed that the namespace prefixes used for the identifiers are the same in both value sets.</remarks>
+        /// <remarks>Only matching parameters are taken into account. The match is made by the fully qualified identifier of the OpenSearch parameters. In the default case it is assumed that the namespace prefixes used for the identifiers refer to the same namespaces in both value sets, however, the namespaces can be verified fully.</remarks>
         /// <param name="source">The OpenSearchParameterValueSet that serves as source.</param>
-        public void TranslateFrom(OpenSearchParameterValueSet source) {
+        /// <param name="verifyNamespaces">If set to <c>true</c>, the parameters are matched by namespace URI and local name, rather than just prefix and local name. The default is <c>false</c>.</param>
+        public void TranslateFrom(OpenSearchParameterValueSet source, bool verifyNamespaces = false) {
             foreach (string identifier in parametersByIdentifier.Keys) {
-                string[] sourceValues = source.GetValuesByIdentifier(identifier);
+                OpenSearchParameterDefinition paramDef = parametersByIdentifier[identifier];
+                string[] sourceValues;
+                if (verifyNamespaces && paramDef.IdentifierNamespaceUri != null) {
+                    sourceValues = source.GetValuesByIdentifier(paramDef.IdentifierNamespaceUri, paramDef.IdentifierLocalName);
+                } else {
+                    sourceValues = source.GetValuesByIdentifier(identifier);
+                }
                 if (sourceValues != null) this.values[parametersByIdentifier[identifier]] = sourceValues;
             }
         }
@@ -141,8 +170,8 @@ namespace Terradue.OpenSearch {
         /// <param name="name">The parameter name, as in the query string.</param>
         /// <param name="values">An array containing the values.</param>
         public void SetValuesByName(string name, IEnumerable<string> values) {
-            if (!parametersByName.ContainsKey(name)) throw new Exception(String.Format("Parameter \"{0}\" is unknown", name));
-            if (parametersByName[name].IsFixed) throw new Exception(String.Format("Parameter \"{0}\" has a fixed value", name));
+            if (!parametersByName.ContainsKey(name)) throw new OpenSearchException(String.Format("Parameter \"{0}\" is unknown", name));
+            if (parametersByName[name].IsFixed) throw new OpenSearchException(String.Format("Parameter \"{0}\" has a fixed value", name));
             this.values[parametersByName[name]] = values.ToArray();
         }
 
@@ -157,12 +186,40 @@ namespace Terradue.OpenSearch {
 
         //---------------------------------------------------------------------------------------------------------------------
 
+        /// <summary>Sets the value for the OpenSearch parameter specified by its identifier namespace URI and local name.</summary>
+        /// <param name="namespaceUri">The namespace URI part of the fully qualified identifier of this parameter as defined in the OpenSearch description URL template, e.g. "http://a9.com/-/opensearch/extensions/geo/1.0/".</param>
+        /// <param name="localName">The local name part of the fully qualified identifier of this parameter as defined in the OpenSearch description URL template, e.g. "box".</param>
+        /// <param name="value">The value.</param>
+        public void SetValueByIdentifier(string namespaceUri, string localName, string value) {
+            SetValuesByIdentifier(namespaceUri, localName, new string[] {value});
+        }
+
+        //---------------------------------------------------------------------------------------------------------------------
+
         /// <summary>Sets multiple values for the OpenSearch parameter specified by its identifier.</summary>
         /// <param name="identifier">The parameter identifier, i.e. the fully qualified identifier between the curly brackets in the OpenSearch description URL template, e.g. "geo:box".</param>
         /// <param name="values">An array containing the values.</param>
         public void SetValuesByIdentifier(string identifier, IEnumerable<string> values) {
-            if (!parametersByIdentifier.ContainsKey(identifier)) throw new Exception(String.Format("Parameter with identifier \"{0}\" is unknown", identifier));
+            if (!parametersByIdentifier.ContainsKey(identifier)) throw new OpenSearchException(String.Format("Parameter with identifier \"{0}\" is unknown", identifier));
             this.values[parametersByIdentifier[identifier]] = values.ToArray();
+        }
+
+        //---------------------------------------------------------------------------------------------------------------------
+
+        /// <summary>Sets multiple values for the OpenSearch parameter specified by its identifier namespace URI and local name.</summary>
+        /// <param name="namespaceUri">The namespace URI part of the fully qualified identifier of this parameter as defined in the OpenSearch description URL template, e.g. "http://a9.com/-/opensearch/extensions/geo/1.0/".</param>
+        /// <param name="localName">The local name part of the fully qualified identifier of this parameter as defined in the OpenSearch description URL template, e.g. "box".</param>
+        /// <param name="value">The value.</param>
+        public void SetValuesByIdentifier(string namespaceUri, string localName, IEnumerable<string> values) {
+            if (namespaceUri == null) throw new ArgumentNullException("namespaceUri");
+            if (localName == null) throw new ArgumentNullException("localName");
+            if (nameTable == null) throw new OpenSearchException("No namespace information available");
+            string namespaceUri2 = nameTable.Get(namespaceUri);
+            bool valid = (namespaceUri2 != null);
+
+            OpenSearchParameterDefinition paramDef = valid ? parametersByIdentifier.Values.SingleOrDefault(p => namespaceUri2.Equals(p.IdentifierNamespaceUri) && localName == p.IdentifierLocalName) : null;
+            if (paramDef == null) throw new OpenSearchException(String.Format("Parameter {{{0}}}.{1} is unknown", namespaceUri, localName));
+            this.values[paramDef] = values.ToArray();
         }
 
         //---------------------------------------------------------------------------------------------------------------------
@@ -172,7 +229,9 @@ namespace Terradue.OpenSearch {
         /// <param name="name">The parameter name, as in the query string.</param>
         public string[] GetValuesByName(string name) {
             if (!parametersByName.ContainsKey(name)) return null;
-            return values[parametersByName[name]];
+            OpenSearchParameterDefinition paramDef = parametersByName[name];
+            if (!values.ContainsKey(paramDef)) return null;
+            return values[paramDef];
         }
 
         //---------------------------------------------------------------------------------------------------------------------
@@ -182,7 +241,24 @@ namespace Terradue.OpenSearch {
         /// <param name="identifier">The parameter identifier, i.e. the fully qualified identifier between the curly brackets in the OpenSearch description URL template, e.g. "geo:box".</param>
         public string[] GetValuesByIdentifier(string identifier) {
             if (!parametersByIdentifier.ContainsKey(identifier)) return null;
-            return values[parametersByIdentifier[identifier]];
+            OpenSearchParameterDefinition paramDef = parametersByIdentifier[identifier];
+            if (!values.ContainsKey(paramDef)) return null;
+            return values[paramDef];
+        }
+
+        //---------------------------------------------------------------------------------------------------------------------
+
+        /// <summary>Returns the values of the parameter specified by its identifier namespace URI and local name.</summary>
+        /// <returns>An array containing the values.</returns>
+        /// <param name="namespaceUri">The namespace URI part of the fully qualified identifier of this parameter as defined in the OpenSearch description URL template, e.g. "http://a9.com/-/opensearch/extensions/geo/1.0/".</param>
+        /// <param name="localName">The local name part of the fully qualified identifier of this parameter as defined in the OpenSearch description URL template, e.g. "box".</param>
+        public string[] GetValuesByIdentifier(string namespaceUri, string localName) {
+            namespaceUri = nameTable.Get(namespaceUri);
+            if (namespaceUri == null) return null;
+            
+            OpenSearchParameterDefinition paramDef = parametersByIdentifier.Values.SingleOrDefault(p => namespaceUri.Equals(p.IdentifierNamespaceUri) && localName == p.IdentifierLocalName);
+            if (paramDef == null || !values.ContainsKey(paramDef)) return null;
+            return values[paramDef];
         }
 
         //---------------------------------------------------------------------------------------------------------------------
@@ -221,7 +297,7 @@ namespace Terradue.OpenSearch {
                     continue;
                 }
                 foreach (string value in values[paramDef]) {
-                    result.Append(String.Format("{2}{0}={1}", paramDef.Name, value, first ? String.Empty : "&"));
+                    result.Append(String.Format("{2}{0}={1}", paramDef.Name, HttpUtility.HtmlEncode(value), first ? String.Empty : "&"));
                     first = false;
                 }
             }
@@ -247,8 +323,18 @@ namespace Terradue.OpenSearch {
 
         //---------------------------------------------------------------------------------------------------------------------
 
-        /// <summary>Gets or sets (protected) the fully qualified identifier of this parameter, e.g. "geo:box".</summary>
+        /// <summary>Gets or sets (protected) the fully qualified identifier of this parameter as defined in the OpenSearch description URL template, e.g. "geo:box".</summary>
         public string Identifier { get; protected set; }
+
+        //---------------------------------------------------------------------------------------------------------------------
+
+        /// <summary>Gets or sets (protected) the namespace URI part of the fully qualified identifier of this parameter as defined in the OpenSearch description URL template, e.g. "http://a9.com/-/opensearch/extensions/geo/1.0/".</summary>
+        public string IdentifierNamespaceUri { get; protected set; }
+
+        //---------------------------------------------------------------------------------------------------------------------
+
+        /// <summary>Gets or sets (protected) the local name part of the fully qualified identifier of this parameter as defined in the OpenSearch description URL template, e.g. "box".</summary>
+        public string IdentifierLocalName { get; protected set; }
 
         //---------------------------------------------------------------------------------------------------------------------
 
@@ -264,10 +350,16 @@ namespace Terradue.OpenSearch {
 
         /// <summary>Creates an instance of an OpenSearchParameterDefinition.</summary>
         /// <param name="identifier">The fully qualified identifier of the parameter, e.g. "geo:box".</param>
+        /// <param name="identifierNamespaceUri">The namespace URI part of the fully qualified identifier of the parameter, e.g. "http://a9.com/-/opensearch/extensions/geo/1.0/".</param>
+        /// <param name="identifierLocalName">The local name part of the fully qualified identifier of the parameter, e.g. "box".</param>
         /// <param name="name">The query string name of the parameter, e.g. "bbox".</param>
         /// <param name="parameter">An optional reference to the OpenSearch Parameter extension object that contains further information about the parameter, such as options for values.</param>
-        public OpenSearchParameterDefinition(string identifier, string name, OpenSearchDescriptionUrlParameter parameter) {
+        public OpenSearchParameterDefinition(string identifier, string identifierNamespaceUri, string identifierLocalName, string name, OpenSearchDescriptionUrlParameter parameter) {
             this.Identifier = identifier;
+            if (identifierNamespaceUri != null && identifierLocalName != null) {
+                this.IdentifierNamespaceUri = identifierNamespaceUri;
+                this.IdentifierLocalName = identifierLocalName;
+            }
             this.Name = name;
             this.Parameter = parameter;
         }
