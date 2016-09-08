@@ -349,10 +349,10 @@ namespace Terradue.OpenSearch {
         //---------------------------------------------------------------------------------------------------------------------
 
         /// <summary>Creates an instance of an OpenSearchParameterDefinition.</summary>
+        /// <param name="name">The query string name of the parameter, e.g. "bbox".</param>
         /// <param name="identifier">The fully qualified identifier of the parameter, e.g. "geo:box".</param>
         /// <param name="identifierNamespaceUri">The namespace URI part of the fully qualified identifier of the parameter, e.g. "http://a9.com/-/opensearch/extensions/geo/1.0/".</param>
         /// <param name="identifierLocalName">The local name part of the fully qualified identifier of the parameter, e.g. "box".</param>
-        /// <param name="name">The query string name of the parameter, e.g. "bbox".</param>
         /// <param name="parameter">An optional reference to the OpenSearch Parameter extension object that contains further information about the parameter, such as options for values.</param>
         public OpenSearchParameterDefinition(string name, string identifier, string identifierNamespaceUri, string identifierLocalName, OpenSearchDescriptionUrlParameter parameter) {
             this.Name = name;
