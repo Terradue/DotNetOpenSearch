@@ -32,6 +32,12 @@ namespace Terradue.OpenSearch {
 
         //---------------------------------------------------------------------------------------------------------------------
 
+        /// <summary>Gets or sets (protected) the content type (MIME type) of search results for this parameter value set.</summary>
+        /// <remarks>The property value is <em>null</em> if this instance was not created from an OpenSearchDescriptionUrl object.</remarks>
+        public string ContentType { get; protected set; }
+
+        //---------------------------------------------------------------------------------------------------------------------
+
         protected OpenSearchParameterValueSet() {
             parametersByName = new Dictionary<string, OpenSearchParameterDefinition>();
             parametersByIdentifier = new Dictionary<string, OpenSearchParameterDefinition>();
@@ -44,7 +50,8 @@ namespace Terradue.OpenSearch {
         /// <returns>The created OpenSearchParameterValueSet instance.</returns>
         /// <param name="osdUrl">An OpenSearchDescriptionUrl object from a deserialized OpenSearch description document.</param>
         public static OpenSearchParameterValueSet FromOpenSearchDescription(OpenSearchDescription osd, string format) {
-            OpenSearchDescriptionUrl osdUrl = osd.Url.Single(u => u.Type == format);
+            OpenSearchDescriptionUrl osdUrl = osd.Url.SingleOrDefault(u => u.Type == format);
+            if (osdUrl == null) throw new OpenSearchException(String.Format("No OpenSearch description URL found for format \"{0}\"", format));
             return FromOpenSearchDescription(osdUrl, osd.ExtraNamespace);
         }
 
@@ -54,7 +61,9 @@ namespace Terradue.OpenSearch {
         /// <returns>The created OpenSearchParameterValueSet instance.</returns>
         /// <param name="osdUrl">An OpenSearchDescriptionUrl object from a deserialized OpenSearch description document.</param>
         public static OpenSearchParameterValueSet FromOpenSearchDescription(OpenSearchDescriptionUrl osdUrl, XmlSerializerNamespaces namespaces = null) {
-            return FromOpenSearchDescription(osdUrl.Template, osdUrl.Parameters, namespaces);
+            OpenSearchParameterValueSet result = FromOpenSearchDescription(osdUrl.Template, osdUrl.Parameters, namespaces);
+            result.ContentType = osdUrl.Type;
+            return result;
         }
 
         //---------------------------------------------------------------------------------------------------------------------
