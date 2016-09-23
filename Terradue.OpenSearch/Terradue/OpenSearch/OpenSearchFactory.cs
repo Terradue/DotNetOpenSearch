@@ -345,7 +345,7 @@ namespace Terradue.OpenSearch {
         /// </summary>
         /// <returns>The open search description.</returns>
         /// <param name="baseUrl">Base URL.</param>
-        public static IOpenSearchable FindOpenSearchable(OpenSearchEngine ose, Uri baseUrl, string mimeType = null) {
+        public static IOpenSearchable FindOpenSearchable(OpenSearchEngine ose, Uri baseUrl, string mimeType = null, bool soft = false) {
 
             OpenSearchUrl url = new OpenSearchUrl(baseUrl);
             OpenSearchDescription openSearchDescription = null;
@@ -366,7 +366,7 @@ namespace Terradue.OpenSearch {
             } catch (InvalidOperationException ex) {
                 if (!(ex.InnerException is FileNotFoundException) && !(ex.InnerException is SecurityException) && !(ex.InnerException is UriFormatException)) {
                     openSearchDescription = ose.AutoDiscoverFromQueryUrl(new OpenSearchUrl(baseUrl));
-                    urlBasedOpenSearchableFactory = new UrlBasedOpenSearchableFactory(ose);
+                    urlBasedOpenSearchableFactory = new UrlBasedOpenSearchableFactory(ose, soft);
                     result = urlBasedOpenSearchableFactory.Create(url);
                     if (string.IsNullOrEmpty(mimeType))
                         return result;
@@ -391,7 +391,7 @@ namespace Terradue.OpenSearch {
             if (openSearchDescription == null) {
                 throw new EntryPointNotFoundException(string.Format("No OpenSearch description found around {0}", baseUrl));
             }
-            urlBasedOpenSearchableFactory = new UrlBasedOpenSearchableFactory(ose);
+            urlBasedOpenSearchableFactory = new UrlBasedOpenSearchableFactory(ose, soft);
             result = urlBasedOpenSearchableFactory.Create(openSearchDescription);
             return result;
         }
@@ -694,18 +694,24 @@ namespace Terradue.OpenSearch {
     /// </summary>
     public class UrlBasedOpenSearchableFactory : IOpenSearchableFactory {
         OpenSearchEngine ose;
+        readonly bool soft;
 
-        public UrlBasedOpenSearchableFactory(OpenSearchEngine ose) {
+        public UrlBasedOpenSearchableFactory(OpenSearchEngine ose, bool soft = false) {
+            this.soft = soft;
             this.ose = ose;
         }
 
         #region IOpenSearchableFactory implementation
 
         public IOpenSearchable Create(OpenSearchUrl url) {
+            if ( soft)
+                return new SoftGenericOpenSearchable(url, ose);
             return new GenericOpenSearchable(url, ose);
         }
 
         public IOpenSearchable Create(OpenSearchDescription osd) {
+            if (soft)
+                return new SoftGenericOpenSearchable(osd, ose);
             return new GenericOpenSearchable(osd, ose);
         }
 
