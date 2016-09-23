@@ -26,7 +26,7 @@ namespace Terradue.OpenSearch.Test {
             return new QuerySettings(osee.DiscoveryContentType, osee.ReadNative);
         }
 
-        public OpenSearchRequest Create(string type, NameValueCollection parameters) {
+        public OpenSearchRequest Create(QuerySettings querySettings, NameValueCollection parameters) {
             UriBuilder url = new UriBuilder("dummy://localhost");
             url.Path += Identifier + "/search";
             var array = (from key in parameters.AllKeys

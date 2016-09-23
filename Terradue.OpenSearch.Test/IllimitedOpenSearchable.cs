@@ -32,7 +32,7 @@ namespace Terradue.OpenSearch.Test {
             return new QuerySettings(osee.DiscoveryContentType, osee.ReadNative);
         }
 
-        public OpenSearchRequest Create(string type, NameValueCollection parameters) {
+        public OpenSearchRequest Create(QuerySettings querySettings, NameValueCollection parameters) {
             UriBuilder url = new UriBuilder("dummy://localhost");
             url.Path += "illtest/search";
             var array = (from key in parameters.AllKeys
@@ -41,7 +41,7 @@ namespace Terradue.OpenSearch.Test {
                 .ToArray();
             url.Query = string.Join("&", array);
 
-            IllimitedOpenSearchRequest<AtomFeed, AtomItem> request = new IllimitedOpenSearchRequest<AtomFeed, AtomItem>(ose, entity, type, new OpenSearchUrl(url.Uri));
+            IllimitedOpenSearchRequest<AtomFeed, AtomItem> request = new IllimitedOpenSearchRequest<AtomFeed, AtomItem>(ose, entity, querySettings.PreferredContentType, new OpenSearchUrl(url.Uri));
 
             return request;
         }

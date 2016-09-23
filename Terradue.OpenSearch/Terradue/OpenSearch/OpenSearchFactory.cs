@@ -57,7 +57,7 @@ namespace Terradue.OpenSearch {
         /// <returns>The request URL for template.</returns>
         /// <param name="remoteUrlTemplate">Remote URL template.</param>
         /// <param name="searchParameters">Search parameters.</param>
-        public static OpenSearchUrl BuildRequestUrlForTemplate(OpenSearchDescriptionUrl remoteUrlTemplate, NameValueCollection searchParameters) {
+        public static OpenSearchUrl BuildRequestUrlForTemplate(OpenSearchDescriptionUrl remoteUrlTemplate, NameValueCollection searchParameters, bool forceUnspecifiedParameters = false) {
             // container for the final query url
             UriBuilder finalUrl = new UriBuilder(remoteUrlTemplate.Template);
             // parameters for final query
@@ -67,21 +67,27 @@ namespace Terradue.OpenSearch {
             NameValueCollection remoteParametersDef = HttpUtility.ParseQueryString(finalUrl.Query);
 
             // For each parameter requested
-            foreach (string parameter in searchParameters.AllKeys) {
-                if (remoteParametersDef[parameter] == null)
+            foreach (string parameter_id in searchParameters.AllKeys) {
+                if (remoteParametersDef[parameter_id] == null)
+                {
+                    // if forced, set the param
+                    if (forceUnspecifiedParameters)
+                    {
+                        finalQueryParameters.Set(parameter_id, searchParameters[parameter_id]);
+                    }
                     continue;
+                }
                 // first find the defintion of the parameter in the url template
-                foreach (var key in remoteParametersDef.GetValues(parameter)) {
+                foreach (var key in remoteParametersDef.GetValues(parameter_id)) {
                     Match matchParamDef = Regex.Match(key, @"^{([^?]+)\??}$");
                     // If parameter does not exist, continue
                     if (!matchParamDef.Success)
                         continue;
                     // We have the parameter defintion
                     string paramDef = matchParamDef.Groups[1].Value;
-                    string paramValue = searchParameters[parameter];
+                    string paramValue = searchParameters[parameter_id];
 
-                    if (!string.IsNullOrEmpty(paramValue))
-                        finalQueryParameters.Set(parameter, paramValue);
+                    finalQueryParameters.Set(parameter_id, paramValue);
                 }
 
             }
@@ -99,13 +105,13 @@ namespace Terradue.OpenSearch {
         /// <param name="remoteUrlTemplate">Remote URL template.</param>
         /// <param name="searchParameters">Search parameters.</param>
         /// <param name="urlTemplateDef">URL template def.</param>
-        public static OpenSearchUrl BuildRequestUrlForTemplate(OpenSearchDescriptionUrl remoteUrlTemplate, NameValueCollection searchParameters, NameValueCollection urlTemplateDef) {
+        public static OpenSearchUrl BuildRequestUrlForTemplate(OpenSearchDescriptionUrl remoteUrlTemplate, NameValueCollection searchParameters, NameValueCollection requestUrlTemplateDef, bool forceUnspecifiedParameters = false) {
             // container for the final query url
             UriBuilder finalUrl = new UriBuilder(remoteUrlTemplate.Template);
             // parameters for final query
             NameValueCollection finalQueryParameters = new NameValueCollection();
 
-            // Parse the possible parametrs of the remote urls
+            // Parse the possible parameters of the remote url template
             NameValueCollection remoteParametersDef = HttpUtility.ParseQueryString(finalUrl.Query);
 
             // control duplicates
@@ -122,28 +128,35 @@ namespace Terradue.OpenSearch {
                     //throw new OpenSearchException(string.Format("Url template [{0}] from OpenSearch Description cannot contains duplicates parameter definition: {1}", finalUrl, key));
             }
 
-            // For each parameter requested
-            foreach (string parameter in searchParameters.AllKeys) {
-                if (urlTemplateDef[parameter] == null)
+            // For each parameter id set for search
+            foreach (string parameter_id in searchParameters.AllKeys) {
+                // skip if parameter is not in the template unless it is forced
+                if (requestUrlTemplateDef[parameter_id] == null)
+                {
+                    // if forced, set the param
+                    if (forceUnspecifiedParameters)
+                    {
+                        finalQueryParameters.Set(parameter_id, searchParameters[parameter_id]);
+                    }
                     continue;
+                }
                 // first find the defintion of the parameter in the url template
-                foreach (var key in urlTemplateDef.GetValues(parameter)) {
+                foreach (var key in requestUrlTemplateDef.GetValues(parameter_id)) {
                     Match matchParamDef = Regex.Match(key, @"^{([^?]+)\??}$");
-                    // If parameter does not exist, continue
+                    // If parameter is not respecting OpenSearch template spec, skip
                     if (!matchParamDef.Success)
                         continue;
                     // We have the parameter defintion
                     string paramDef = matchParamDef.Groups[1].Value;
-                    string paramValue = searchParameters[parameter];
+                    string paramValue = searchParameters[parameter_id];
 
-                    // Find the paramdef in the remote URl template
+                    // Find the paramdef in the remote URL template
                     foreach (string keyDef in remoteParametersDef.AllKeys) {
                         foreach (var key2 in remoteParametersDef.GetValues(keyDef)) {
                             Match remoteMatchParamDef = Regex.Match(key2, @"^{(" + paramDef + @")\??}$");
-                            // if martch is successful
+                            // if match is successful
                             if (remoteMatchParamDef.Success) {
                                 // then add the parameter with the right key
-                                if (!string.IsNullOrEmpty(paramValue))
                                 finalQueryParameters.Set(keyDef, paramValue);
                             }
                         }
@@ -152,11 +165,11 @@ namespace Terradue.OpenSearch {
 
             }
 
+            // All other remote query parameters
             foreach (string parameter in remoteParametersDef.AllKeys) {
                 Match matchParamDef = Regex.Match(remoteParametersDef[parameter], @"^{([^?]+)\??}$");
                 // If parameter does not exist, continue
                 if (!matchParamDef.Success && !string.IsNullOrEmpty(parameter))
-                    if (!string.IsNullOrEmpty(remoteParametersDef[parameter]))
                     finalQueryParameters.Set(parameter, remoteParametersDef[parameter]);
             }
 

@@ -69,7 +69,7 @@ namespace Terradue.OpenSearch.Request {
                 _m.WaitOne();
 
                 // Ask the cache if a previous page request is present to save some requests
-                usingCache = GetClosestState(entity, type, this.targetParameters, out currentTotalResults, out this.currentParameters);
+                usingCache = GetClosestState(entity, type, this.targetParameters, out currentTotalResults, out this.currentParameters, ose);
             }
             finally
             {
@@ -279,7 +279,7 @@ namespace Terradue.OpenSearch.Request {
         /// <param name="parameters">Parameters.</param>
         /// <param name="entities2">Entities2.</param>
         /// <param name="parameters2">Parameters2.</param>
-        public static bool GetClosestState(IOpenSearchable entity, string type, NameValueCollection parameters, out long totalResults, out NameValueCollection parameters2) {
+        public static bool GetClosestState(IOpenSearchable entity, string type, NameValueCollection parameters, out long totalResults, out NameValueCollection parameters2, OpenSearchEngine ose) {
 
             totalResults = 0;
             int currentStartIndex = 1;
@@ -294,7 +294,7 @@ namespace Terradue.OpenSearch.Request {
             parameters2[OpenSearchFactory.ReverseTemplateOpenSearchParameters(OpenSearchFactory.GetBaseOpenSearchParameter())["startIndex"]] = currentStartIndex.ToString();
 
             // Find the request states with the same combination of opensearchable items
-            IllimitedOpenSearchRequestState state = (IllimitedOpenSearchRequestState)requestStatesCache.Get(IllimitedOpenSearchRequestState.GetHashCode(entity).ToString());
+            IllimitedOpenSearchRequestState state = (IllimitedOpenSearchRequestState)requestStatesCache.Get(IllimitedOpenSearchRequestState.GetHashCode(entity, ose).ToString());
 
             // if no such state, return false
             if (state == null) {
@@ -328,12 +328,12 @@ namespace Terradue.OpenSearch.Request {
                 _m.WaitOne();
 
                 // Is tehre a cache entry for this entity ?
-                IllimitedOpenSearchRequestState state = (IllimitedOpenSearchRequestState)requestStatesCache.Get(IllimitedOpenSearchRequestState.GetHashCode(entity).ToString());
+                IllimitedOpenSearchRequestState state = (IllimitedOpenSearchRequestState)requestStatesCache.Get(IllimitedOpenSearchRequestState.GetHashCode(entity, ose).ToString());
 
                 // no, create it!
                 if (state == null)
                 {
-                    state = new IllimitedOpenSearchRequestState(entity);
+                    state = new IllimitedOpenSearchRequestState(entity, ose);
                 }
 
                 // Let's put the new page state
@@ -359,22 +359,24 @@ namespace Terradue.OpenSearch.Request {
         /// Structure to hold a request state
         class IllimitedOpenSearchRequestState {
             public IOpenSearchable Entity;
+            readonly OpenSearchEngine ose;
 
-            public IllimitedOpenSearchRequestState(IOpenSearchable entity) {
+            public IllimitedOpenSearchRequestState(IOpenSearchable entity, OpenSearchEngine ose) {
+                this.ose = ose;
                 this.Entity = entity;
             }
 
             private Dictionary<NameValueCollection, long> states = new Dictionary<NameValueCollection, long>(new NameValueCollectionEqualityComparer());
 
-            public static int GetHashCode(IOpenSearchable entity) {
+            public static int GetHashCode(IOpenSearchable entity, OpenSearchEngine ose) {
 
-                return new OpenSearchableComparer().GetHashCode(entity);
+                return new OpenSearchableComparer(ose).GetHashCode(entity);
 
             }
 
             public int GetHashCode() {
 
-                return IllimitedOpenSearchRequestState.GetHashCode(Entity);
+                return IllimitedOpenSearchRequestState.GetHashCode(Entity, ose);
 
             }
 
