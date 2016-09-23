@@ -101,6 +101,7 @@
     <Compile Include="MimeTypeTest.cs" />
     <Compile Include="TestOsddAttribute.cs" />
     <Compile Include="ParametersTest.cs" />
+    <Compile Include="querySettings.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -59,27 +59,27 @@ namespace Terradue.OpenSearch.Request {
         /// <param name="entity">IOpenSearchable Entity.</param>
         /// <param name="type">MimeType of the request.</param>
         /// <param name="parameters">Parameters of the request.</param>
-        public static OpenSearchRequest Create(IOpenSearchable entity, string mimeType, NameValueCollection parameters) {
+        public static OpenSearchRequest Create(IOpenSearchable entity, QuerySettings querySettings, NameValueCollection parameters) {
 
 
             OpenSearchDescription osd = entity.GetOpenSearchDescription();
 
-            OpenSearchDescriptionUrl url = OpenSearchFactory.GetOpenSearchUrlByType(osd, mimeType);
+            OpenSearchDescriptionUrl url = OpenSearchFactory.GetOpenSearchUrlByType(osd, querySettings.PreferredContentType);
 
-            if (url == null) throw new InvalidOperationException(string.Format("Could not find a URL template for entity {0} with type {1}", entity.Identifier, mimeType));
+            if (url == null) throw new InvalidOperationException(string.Format("Could not find a URL template for entity {0} with type {1}", entity.Identifier, querySettings.PreferredContentType));
 
-            OpenSearchUrl queryUrl = OpenSearchFactory.BuildRequestUrlForTemplate(url, parameters, entity.GetOpenSearchParameters(mimeType));
+            OpenSearchUrl queryUrl = OpenSearchFactory.BuildRequestUrlForTemplate(url, parameters, entity.GetOpenSearchParameters(querySettings.PreferredContentType), querySettings.ForceUnspecifiedParameters);
 
             OpenSearchRequest request = null;
 
             switch (queryUrl.Scheme) {
                 case "http":
                 case "https":
-                    request = new HttpOpenSearchRequest(queryUrl, mimeType);
+                    request = new HttpOpenSearchRequest(queryUrl, querySettings.PreferredContentType);
                     ((HttpOpenSearchRequest)request).TimeOut = 60000;
                     break;
                 case "file":
-                    request = new FileOpenSearchRequest(queryUrl, mimeType);
+                    request = new FileOpenSearchRequest(queryUrl, querySettings.PreferredContentType);
                     break;
             }
 
