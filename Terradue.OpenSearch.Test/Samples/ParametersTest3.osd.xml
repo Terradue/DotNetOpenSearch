@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<OpenSearchDescription xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:os="http://a9.com/-/spec/opensearch/1.1/" xmlns:param="http://a9.com/-/spec/opensearch/extensions/parameters/1.0/" xmlns:geo3="http://a9.com/-/opensearch/extensions/geo/1.0/" xmlns:time3="http://a9.com/-/opensearch/extensions/time/1.0/" xmlns:dct3="http://purl.org/dc/terms/" xmlns:eop3="http://www.opengis.net/eop/2.0" xmlns:t23="http://www.terradue.com/opensearch" xmlns="http://a9.com/-/spec/opensearch/1.1/">
+  <ShortName>All Dataset</ShortName>
+  <Description>This Service searches for Earth Observation Features in the index va4-envisat. There are several URL templates that return the results in different formats.This search service is in accordance with the OGC 10-032r3 specification.</Description>
+  <Contact>info@terradue.com</Contact>
+  <Url type="application/atom+xml" template="http://testhost.com/search?format=atom&amp;count3={count?}&amp;startPage3={startPage?}&amp;startIndex3={startIndex?}&amp;q3={searchTerms?}&amp;start3={time3:start?}&amp;stop3={time3:end?}&amp;trel3={time3:relation?}&amp;bbox3={geo3:box?}&amp;uid3={geo3:uid?}" rel="results" pageOffset="1" indexOffset="1">
+    <param:Parameter name="count3" value="{count?}" minimum="0" title="number of search results per page desired" maxInclusive="200"/>
+    <param:Parameter name="startPage3" value="{startPage?}" minimum="0" title="page number of the set of search results desired"/>
+    <param:Parameter name="startIndex3" value="{startIndex?}" minimum="0" title="index of the first search result desired"/>
+    <param:Parameter name="q3" value="{searchTerms?}" minimum="0" title="EO Free Text Search">
+      <atom:link xmlns:atom="http://www.w3.org/2005/Atom" atom:href="https://data2.terradue.com/doc/freetextsearch.html" atom:rel="profile" atom:title="EO Free Text Search Reference"/>
+    </param:Parameter>
+    <param:Parameter name="start3" value="{time3:start?}" minimum="0" title="start of the temporal interval (RFC-3339)" minInclusive="2002-08-26T14:28:15.8070000Z" maxInclusive="2012-04-08T10:32:28.0000000Z"/>
+    <param:Parameter name="stop3" value="{time3:end?}" minimum="0" title="stop of the temporal interval (RFC-3339)" minInclusive="2002-08-26T14:28:15.8070000Z" maxInclusive="2012-04-08T10:32:28.0000000Z"/>
+    <param:Parameter name="bbox3" value="{geo3:box?}" minimum="0" title="Rectangular bounding box"/>
+  </Url>
+  <Url type="application/json" template="http://testhost.com/search?format=json&amp;count3={count?}&amp;startPage3={startPage?}&amp;startIndex3={startIndex?}&amp;q3={searchTerms?}&amp;start3={time3:start?}&amp;stop3={time3:end?}&amp;trel3={time3:relation?}&amp;bbox3={geo3:box?}&amp;uid3={geo3:uid?}" rel="results" pageOffset="1" indexOffset="1">
+    <param:Parameter name="count3" value="{count?}" minimum="0" title="number of search results per page desired" maxInclusive="200"/>
+    <param:Parameter name="startPage3" value="{startPage?}" minimum="0" title="page number of the set of search results desired"/>
+    <param:Parameter name="startIndex3" value="{startIndex?}" minimum="0" title="index of the first search result desired"/>
+    <param:Parameter name="q3" value="{searchTerms?}" minimum="0" title="EO Free Text Search">
+      <atom:link xmlns:atom="http://www.w3.org/2005/Atom" atom:href="https://data2.terradue.com/doc/freetextsearch.html" atom:rel="profile" atom:title="EO Free Text Search Reference"/>
+    </param:Parameter>
+    <param:Parameter name="start3" value="{time3:start?}" minimum="0" title="start of the temporal interval (RFC-3339)" minInclusive="2002-08-26T14:28:15.8070000Z" maxInclusive="2012-04-08T10:32:28.0000000Z"/>
+    <param:Parameter name="stop3" value="{time3:end?}" minimum="0" title="stop of the temporal interval (RFC-3339)" minInclusive="2002-08-26T14:28:15.8070000Z" maxInclusive="2012-04-08T10:32:28.0000000Z"/>
+    <param:Parameter name="bbox3" value="{geo3:box?}" minimum="0" title="Rectangular bounding box"/>
+  </Url>
+  <Url type="application/opensearchdescription+xml" template="https://data2.terradue.com:443/eop/va4-envisat/dataset/description" rel="self" pageOffset="1" indexOffset="1"/>
+  <Developer>Terradue GeoSpatial Development Team</Developer>
+  <Attribution>Terradue</Attribution>
+  <SyndicationRight>open</SyndicationRight>
+  <AdultContent>false</AdultContent>
+  <Language>en-us</Language>
+  <OutputEncoding>UTF-8</OutputEncoding>
+  <InputEncoding>UTF-8</InputEncoding>
+</OpenSearchDescription>
