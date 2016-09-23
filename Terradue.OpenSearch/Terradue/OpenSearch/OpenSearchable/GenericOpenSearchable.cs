@@ -51,7 +51,7 @@ namespace Terradue.OpenSearch {
 
         #region IOpenSearchable implementation
 
-        public QuerySettings GetQuerySettings(OpenSearchEngine ose) {
+        public virtual QuerySettings GetQuerySettings(OpenSearchEngine ose) {
             string defaultMimeType = this.DefaultMimeType;
             if (defaultMimeType.Contains(";"))
                 defaultMimeType = defaultMimeType.Split(';')[0];
@@ -62,7 +62,7 @@ namespace Terradue.OpenSearch {
             return new QuerySettings(this.DefaultMimeType, osee.ReadNative);
         }
 
-        public OpenSearchRequest Create(string type, NameValueCollection parameters) {
+        public OpenSearchRequest Create(QuerySettings querySettings, NameValueCollection parameters) {
             NameValueCollection nvc;
             if (url != null)
                 nvc = HttpUtility.ParseQueryString(url.Query);
@@ -73,7 +73,7 @@ namespace Terradue.OpenSearch {
                 return false;
             });
             
-            return OpenSearchRequest.Create(this, type, nvc);
+            return OpenSearchRequest.Create(this, querySettings, nvc);
         }
 
         public string Identifier {
@@ -105,9 +105,9 @@ namespace Terradue.OpenSearch {
                 if (totalResults <= 0) {
                     NameValueCollection @params = new NameValueCollection();
                     @params.Set("count", "0");
-                    var request = this.Create("application/atom+xml", @params );
-                    var iosr = request.GetResponse();
                     var querySettings = this.GetQuerySettings(ose);
+                    var request = this.Create(querySettings , @params );
+                    var iosr = request.GetResponse();
                     var results = querySettings.ReadNative.Invoke(iosr);
                     try { 
                         totalResults = results.TotalResults;

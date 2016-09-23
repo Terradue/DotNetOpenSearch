@@ -50,12 +50,20 @@ namespace Terradue.OpenSearch {
         /// <summary>Gets or sets the function that returns the in the OpenSearch result in the format preferred by the IOpenSearchable using these QuerySettings.</summary>
         public ReadNativeFunction ReadNative { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether the query shall force anyway the parameters that are not declared in the 
+        /// OpenSearch Description of the entity.
+        /// </summary>
+        /// <value><c>true</c> to force unassigned parameters; otherwise, <c>false</c>.</value>
+        public bool ForceUnspecifiedParameters { get; set; }
+
         /// <summary>Creates a new instance of QuerySettings with the specified parameters.</summary>
         /// <param name="preferredContentType">The preferred content type.</param>
         /// <param name="readNative">The function to be called to obtain the formatted OpenSearch result.</param>
         public QuerySettings(string preferredContentType, ReadNativeFunction readNative) {
             this.PreferredContentType = preferredContentType;
             this.ReadNative = readNative;
+            this.ForceUnspecifiedParameters = false;
         }
 
     }
@@ -79,7 +87,7 @@ namespace Terradue.OpenSearch {
         /// </summary>
         /// <param name="mimetype">Mime-Type requested to the OpenSearchable entity</param>
         /// <param name="parameters">Parameters of the request</param>
-        OpenSearchRequest Create(string mimetype, NameValueCollection parameters);
+        OpenSearchRequest Create(QuerySettings querySettings, NameValueCollection parameters);
 
         /// <summary>
         /// Get the local identifier.
@@ -126,16 +134,23 @@ namespace Terradue.OpenSearch {
     /// OpenSearchable comparer.
     /// </summary>
     public class OpenSearchableComparer : IEqualityComparer<IOpenSearchable> {
+        readonly OpenSearchEngine ose;
+
+        public OpenSearchableComparer(OpenSearchEngine ose)
+        {
+            this.ose = ose;
+        }
+
         #region IEqualityComparer implementation
 
         public bool Equals(IOpenSearchable x, IOpenSearchable y) {
-            var osrx = x.Create(x.DefaultMimeType, new NameValueCollection());
-            var osry = y.Create(y.DefaultMimeType, new NameValueCollection());
+            var osrx = x.Create(x.GetQuerySettings(ose), new NameValueCollection());
+            var osry = y.Create(y.GetQuerySettings(ose), new NameValueCollection());
             return osrx.OpenSearchUrl.Equals(osry.OpenSearchUrl);
         }
 
         public int GetHashCode(IOpenSearchable obj) {
-            var osrobj = obj.Create(obj.DefaultMimeType, new NameValueCollection());
+            var osrobj = obj.Create(obj.GetQuerySettings(ose), new NameValueCollection());
             return osrobj.OpenSearchUrl.GetHashCode();
         }
 
