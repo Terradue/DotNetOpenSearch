@@ -25,6 +25,9 @@ namespace Terradue.OpenSearch.Request {
     /// </summary>
     public class HttpOpenSearchRequest : OpenSearchRequest {
 
+        private log4net.ILog log = log4net.LogManager.GetLogger
+            (System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         string contentType;
 
         int timeOut = 10000;
@@ -77,6 +80,8 @@ namespace Terradue.OpenSearch.Request {
                         ((HttpWebRequest)httpWebRequest).Accept = contentType;
                     }
                     httpWebRequest.Timeout = timeOut;
+
+                    log.DebugFormat("Querying {0}", this.OpenSearchUrl);
 
                     HttpWebResponse webResponse = (HttpWebResponse)httpWebRequest.GetResponse();
 
