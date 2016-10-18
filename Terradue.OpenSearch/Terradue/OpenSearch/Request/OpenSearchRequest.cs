@@ -68,7 +68,7 @@ namespace Terradue.OpenSearch.Request {
 
             if (url == null) throw new InvalidOperationException(string.Format("Could not find a URL template for entity {0} with type {1}", entity.Identifier, querySettings.PreferredContentType));
 
-            OpenSearchUrl queryUrl = OpenSearchFactory.BuildRequestUrlForTemplate(url, parameters, entity.GetOpenSearchParameters(querySettings.PreferredContentType), querySettings.ForceUnspecifiedParameters);
+            OpenSearchUrl queryUrl = OpenSearchFactory.BuildRequestUrlForTemplate(url, parameters, entity.GetOpenSearchParameters(querySettings.PreferredContentType), querySettings);
 
             OpenSearchRequest request = null;
 
