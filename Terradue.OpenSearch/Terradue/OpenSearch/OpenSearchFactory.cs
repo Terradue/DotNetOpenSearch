@@ -80,7 +80,8 @@ namespace Terradue.OpenSearch {
                     string paramDef = matchParamDef.Groups[1].Value;
                     string paramValue = searchParameters[parameter];
 
-                    finalQueryParameters.Set(parameter, paramValue);
+                    if (!string.IsNullOrEmpty(paramValue))
+                        finalQueryParameters.Set(parameter, paramValue);
                 }
 
             }
@@ -142,6 +143,7 @@ namespace Terradue.OpenSearch {
                             // if martch is successful
                             if (remoteMatchParamDef.Success) {
                                 // then add the parameter with the right key
+                                if (!string.IsNullOrEmpty(paramValue))
                                 finalQueryParameters.Set(keyDef, paramValue);
                             }
                         }
@@ -154,6 +156,7 @@ namespace Terradue.OpenSearch {
                 Match matchParamDef = Regex.Match(remoteParametersDef[parameter], @"^{([^?]+)\??}$");
                 // If parameter does not exist, continue
                 if (!matchParamDef.Success && !string.IsNullOrEmpty(parameter))
+                    if (!string.IsNullOrEmpty(remoteParametersDef[parameter]))
                     finalQueryParameters.Set(parameter, remoteParametersDef[parameter]);
             }
 
@@ -566,14 +569,6 @@ namespace Terradue.OpenSearch {
             if (uri != null)
                 feed.Links.Add(new SyndicationLink(uri, "search", "OpenSearch Description link", "application/opensearchdescription+xml", 0));
 
-            foreach (IOpenSearchResultItem item in feed.Items) {
-                matchLinks = item.Links.Where(l => l.RelationshipType == "search").ToArray();
-                foreach (var link in matchLinks) {
-                    item.Links.Remove(link);
-                }
-                if (url != null)
-                    item.Links.Add(new SyndicationLink(new Uri(url.Template), "search", "OpenSearch Description link", "application/opensearchdescription+xml", 0));
-            }
 
         }
 
