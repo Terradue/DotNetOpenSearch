@@ -57,6 +57,12 @@ namespace Terradue.OpenSearch {
         /// <value><c>true</c> to force unassigned parameters; otherwise, <c>false</c>.</value>
         public bool ForceUnspecifiedParameters { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether the query shall not propagate null or empty parameters of the query string part of the url. 
+        /// </summary>
+        /// <value><c>true</c> if skip null or empty query string parameters; otherwise, <c>false</c>.</value>
+        public bool SkipNullOrEmptyQueryStringParameters { get; set; }
+
         /// <summary>Creates a new instance of QuerySettings with the specified parameters.</summary>
         /// <param name="preferredContentType">The preferred content type.</param>
         /// <param name="readNative">The function to be called to obtain the formatted OpenSearch result.</param>
@@ -64,6 +70,7 @@ namespace Terradue.OpenSearch {
             this.PreferredContentType = preferredContentType;
             this.ReadNative = readNative;
             this.ForceUnspecifiedParameters = false;
+            this.SkipNullOrEmptyQueryStringParameters = false;
         }
 
     }

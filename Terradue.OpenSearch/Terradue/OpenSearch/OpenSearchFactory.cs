@@ -57,7 +57,7 @@ namespace Terradue.OpenSearch {
         /// <returns>The request URL for template.</returns>
         /// <param name="remoteUrlTemplate">Remote URL template.</param>
         /// <param name="searchParameters">Search parameters.</param>
-        public static OpenSearchUrl BuildRequestUrlForTemplate(OpenSearchDescriptionUrl remoteUrlTemplate, NameValueCollection searchParameters, bool forceUnspecifiedParameters = false) {
+        public static OpenSearchUrl BuildRequestUrlForTemplate(OpenSearchDescriptionUrl remoteUrlTemplate, NameValueCollection searchParameters, QuerySettings querySettings) {
             // container for the final query url
             UriBuilder finalUrl = new UriBuilder(remoteUrlTemplate.Template);
             // parameters for final query
@@ -71,9 +71,10 @@ namespace Terradue.OpenSearch {
                 if (remoteParametersDef[parameter_id] == null)
                 {
                     // if forced, set the param
-                    if (forceUnspecifiedParameters)
+                    if (querySettings.ForceUnspecifiedParameters)
                     {
-                        finalQueryParameters.Set(parameter_id, searchParameters[parameter_id]);
+                        if (!(querySettings.SkipNullOrEmptyQueryStringParameters && string.IsNullOrEmpty(searchParameters[parameter_id])))
+                            finalQueryParameters.Set(parameter_id, searchParameters[parameter_id]);
                     }
                     continue;
                 }
@@ -87,7 +88,8 @@ namespace Terradue.OpenSearch {
                     string paramDef = matchParamDef.Groups[1].Value;
                     string paramValue = searchParameters[parameter_id];
 
-                    finalQueryParameters.Set(parameter_id, paramValue);
+                    if ( !(querySettings.SkipNullOrEmptyQueryStringParameters && string.IsNullOrEmpty(paramValue)))
+                        finalQueryParameters.Set(parameter_id, paramValue);
                 }
 
             }
@@ -105,7 +107,7 @@ namespace Terradue.OpenSearch {
         /// <param name="remoteUrlTemplate">Remote URL template.</param>
         /// <param name="searchParameters">Search parameters.</param>
         /// <param name="urlTemplateDef">URL template def.</param>
-        public static OpenSearchUrl BuildRequestUrlForTemplate(OpenSearchDescriptionUrl remoteUrlTemplate, NameValueCollection searchParameters, NameValueCollection requestUrlTemplateDef, bool forceUnspecifiedParameters = false) {
+        public static OpenSearchUrl BuildRequestUrlForTemplate(OpenSearchDescriptionUrl remoteUrlTemplate, NameValueCollection searchParameters, NameValueCollection requestUrlTemplateDef, QuerySettings querySettings) {
             // container for the final query url
             UriBuilder finalUrl = new UriBuilder(remoteUrlTemplate.Template);
             // parameters for final query
@@ -124,8 +126,6 @@ namespace Terradue.OpenSearch {
                     remoteParametersDef.Remove(key);
                     remoteParametersDef.Add(key, value);
                 }
-                    // patch : do not throw an error anymore but simply remove suplicate
-                    //throw new OpenSearchException(string.Format("Url template [{0}] from OpenSearch Description cannot contains duplicates parameter definition: {1}", finalUrl, key));
             }
 
             // For each parameter id set for search
@@ -134,8 +134,9 @@ namespace Terradue.OpenSearch {
                 if (requestUrlTemplateDef[parameter_id] == null)
                 {
                     // if forced, set the param
-                    if (forceUnspecifiedParameters)
+                    if (querySettings.ForceUnspecifiedParameters)
                     {
+                        if (!(querySettings.SkipNullOrEmptyQueryStringParameters && string.IsNullOrEmpty(searchParameters[parameter_id])))
                         finalQueryParameters.Set(parameter_id, searchParameters[parameter_id]);
                     }
                     continue;
@@ -157,7 +158,8 @@ namespace Terradue.OpenSearch {
                             // if match is successful
                             if (remoteMatchParamDef.Success) {
                                 // then add the parameter with the right key
-                                finalQueryParameters.Set(keyDef, paramValue);
+                                if (!(querySettings.SkipNullOrEmptyQueryStringParameters && string.IsNullOrEmpty(paramValue)))
+                                    finalQueryParameters.Set(keyDef, paramValue);
                             }
                         }
                     }
@@ -170,7 +172,10 @@ namespace Terradue.OpenSearch {
                 Match matchParamDef = Regex.Match(remoteParametersDef[parameter], @"^{([^?]+)\??}$");
                 // If parameter does not exist, continue
                 if (!matchParamDef.Success && !string.IsNullOrEmpty(parameter))
-                    finalQueryParameters.Set(parameter, remoteParametersDef[parameter]);
+                {
+                    if (!(querySettings.SkipNullOrEmptyQueryStringParameters && string.IsNullOrEmpty(remoteParametersDef[parameter])))
+                        finalQueryParameters.Set(parameter, remoteParametersDef[parameter]);
+                }
             }
 
             //finalQueryParameters.Set("enableSourceproduct", "true");
