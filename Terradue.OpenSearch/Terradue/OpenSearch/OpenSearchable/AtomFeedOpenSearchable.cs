@@ -49,7 +49,7 @@ namespace Terradue.OpenSearch
 
 		}
 
-		public OpenSearchRequest Create(string mimetype, NameValueCollection parameters)
+        public OpenSearchRequest Create(QuerySettings querySettings, NameValueCollection parameters)
 		{
 			UriBuilder url = new UriBuilder("dummy://localhost");
 			url.Path += Identifier + "/search";
