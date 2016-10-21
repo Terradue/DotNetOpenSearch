@@ -139,6 +139,7 @@ namespace Terradue.OpenSearch.Test {
             if (parameters["startIndex"] != null)
                 startIndex = int.Parse(parameters["startIndex"]);
 
+            pds.StartIndex = startIndex;
             pds.AddRange(Items);
 
             pds.PageNo = 1;
@@ -148,8 +149,6 @@ namespace Terradue.OpenSearch.Test {
             pds.PageSize = 20;
             if (parameters["count"] != null)
                 pds.PageSize = int.Parse(parameters["count"]);
-
-            pds.StartIndex = startIndex - 1;
 
             if (this.Identifier != null)
                 feed.Identifier = this.Identifier;

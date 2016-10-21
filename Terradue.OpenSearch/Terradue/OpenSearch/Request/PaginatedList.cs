@@ -32,7 +32,7 @@ namespace Terradue.OpenSearch.Request
         #endregion
 
         public List<T> GetCurrentPage(){
-            return this.Skip<T>(StartIndex + ((PageNo - 1) * PageSize)).Take<T>(PageSize).ToList();
+            return this.Skip<T>((StartIndex -1) + ((PageNo - 1) * PageSize)).Take<T>(PageSize).ToList();
         }
     }
 }
