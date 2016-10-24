@@ -127,7 +127,7 @@ namespace Terradue.OpenSearch.Engine {
                 throw new ImpossibleSearchException(String.Format("No engine extension to query {0}", entity.Identifier));
 
             // 2) Create the request
-            OpenSearchRequest request = entity.Create(querySettings.PreferredContentType, parameters);
+            OpenSearchRequest request = entity.Create(querySettings, parameters);
 
             // 3) Apply the pre-search functions
             ApplyPreSearchFilters(ref request);
@@ -197,7 +197,7 @@ namespace Terradue.OpenSearch.Engine {
                 throw new ImpossibleSearchException(String.Format("No engine extension to query {0} in order to return {1}", entity.Identifier, resultType.FullName));
 
             // 2) Create the request
-            OpenSearchRequest request = entity.Create(querySettings.PreferredContentType, parameters);
+            OpenSearchRequest request = entity.Create(querySettings, parameters);
 
             // 3) Apply the pre-search functions
             ApplyPreSearchFilters(ref request);
@@ -244,7 +244,7 @@ namespace Terradue.OpenSearch.Engine {
                 throw new ImpossibleSearchException(String.Format("No engine extension to query {0}", entity.Identifier));
 
             // 2) Create the request
-            OpenSearchRequest request = entity.Create(querySettings.PreferredContentType, parameters);
+            OpenSearchRequest request = entity.Create(querySettings, parameters);
 
             // 3) Apply the pre-search functions
             ApplyPreSearchFilters(ref request);

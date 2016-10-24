@@ -26,7 +26,7 @@ namespace Terradue.OpenSearch.Test {
             return new QuerySettings(osee.DiscoveryContentType, osee.ReadNative);
         }
 
-        public OpenSearchRequest Create(string type, NameValueCollection parameters) {
+        public OpenSearchRequest Create(QuerySettings querySettings, NameValueCollection parameters) {
             UriBuilder url = new UriBuilder("dummy://localhost");
             url.Path += Identifier + "/search";
             var array = (from key in parameters.AllKeys
@@ -139,6 +139,7 @@ namespace Terradue.OpenSearch.Test {
             if (parameters["startIndex"] != null)
                 startIndex = int.Parse(parameters["startIndex"]);
 
+            pds.StartIndex = startIndex;
             pds.AddRange(Items);
 
             pds.PageNo = 1;
@@ -148,8 +149,6 @@ namespace Terradue.OpenSearch.Test {
             pds.PageSize = 20;
             if (parameters["count"] != null)
                 pds.PageSize = int.Parse(parameters["count"]);
-
-            pds.StartIndex = startIndex - 1;
 
             if (this.Identifier != null)
                 feed.Identifier = this.Identifier;

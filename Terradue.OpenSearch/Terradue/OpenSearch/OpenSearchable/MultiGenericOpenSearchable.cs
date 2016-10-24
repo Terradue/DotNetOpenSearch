@@ -103,11 +103,11 @@ namespace Terradue.OpenSearch {
             return OpenSearchFactory.MergeOpenSearchParameters(entities.ToArray(), "application/atom+xml");
         }
 
-        public OpenSearchRequest Create(string type, NameValueCollection parameters) {
+        public OpenSearchRequest Create(QuerySettings querySettings, NameValueCollection parameters) {
 
             OpenSearchUrl url = GetInternalOpenSearchUrl(parameters);
 
-            return new MultiOpenSearchRequest<AtomFeed, AtomItem>(ose, entities.ToArray(), type, url, concurrent, this);
+            return new MultiOpenSearchRequest<AtomFeed, AtomItem>(ose, entities.ToArray(), querySettings.PreferredContentType, url, concurrent, this);
 
         }
 
