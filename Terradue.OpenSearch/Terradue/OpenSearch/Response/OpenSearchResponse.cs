@@ -22,18 +22,22 @@ namespace Terradue.OpenSearch.Response
 	{
 
         protected T payload;
+        DateTime created;
 
         public OpenSearchResponse(){
+            created = DateTime.UtcNow;
         }
 
         public OpenSearchResponse(T obj){
             payload = obj;
+            created = DateTime.UtcNow;
         }
 
         public OpenSearchResponse(T obj, string contentType, TimeSpan requestTime){
             payload = obj;
             this.contentType = contentType;
             this.requestTime = requestTime;
+            created = DateTime.UtcNow;
         }
 
         readonly string contentType;
@@ -98,6 +102,14 @@ namespace Terradue.OpenSearch.Response
                 validity = value;
             }
         }
-	}
+
+        public DateTime Created
+        {
+            get
+            {
+                return created;
+            }
+        }
+    }
 }
 

@@ -121,13 +121,17 @@ namespace Terradue.OpenSearch.Filters {
             }
         }
 
-		public void ClearCache(string pattern)
+        public void ClearCache(string pattern, DateTime since)
 		{
 			Regex regex = new Regex(pattern);
 			foreach (var k in cache.Where(i => regex.IsMatch(i.Key))) {
-				cache.Remove(k.Key);
+                var cacheItem = cache.GetCacheItem(k.Key);
+                IOpenSearchResponse response = (IOpenSearchResponse)cacheItem.Value;
+                if ( response.Created < since )
+				    cache.Remove(k.Key);
 			}
 		}
+
     }
 
     /// <summary>
@@ -135,12 +139,15 @@ namespace Terradue.OpenSearch.Filters {
     /// </summary>
     public class OpenSearchResponseCacheItem : CacheItem {
 
-        public OpenSearchResponseCacheItem(OpenSearchUrl url, IOpenSearchResponse clonedResponse) : base(url.ToString(),clonedResponse) {
 
+        private DateTime created;
+
+        public OpenSearchResponseCacheItem(OpenSearchUrl url, IOpenSearchResponse clonedResponse) : base(url.ToString(),clonedResponse) {
+            created = DateTime.UtcNow;
         }
 
         internal OpenSearchResponseCacheItem(CacheItem item) : base(item.Key, item.Value) {
-
+            created = DateTime.UtcNow;
         }
 
         public OpenSearchUrl OpenSearchUrl {
@@ -152,6 +159,14 @@ namespace Terradue.OpenSearch.Filters {
         public IOpenSearchResponse OpenSearchResponse {
             get {
                 return (IOpenSearchResponse)base.Value;
+            }
+        }
+
+        public DateTime Created
+        {
+            get
+            {
+                return Created;
             }
         }
 

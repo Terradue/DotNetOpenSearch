@@ -30,6 +30,8 @@ namespace Terradue.OpenSearch.Response
 
         TimeSpan Validity { get; set; }
 
+        DateTime Created { get; }
+
 	}
 
 }
