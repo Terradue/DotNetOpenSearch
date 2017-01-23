@@ -126,9 +126,12 @@ namespace Terradue.OpenSearch.Filters {
 			Regex regex = new Regex(pattern);
 			foreach (var k in cache.Where(i => regex.IsMatch(i.Key))) {
                 var cacheItem = cache.GetCacheItem(k.Key);
-                IOpenSearchResponse response = (IOpenSearchResponse)cacheItem.Value;
-                if ( response.Created < since )
-				    cache.Remove(k.Key);
+                if (cacheItem != null)
+                {
+                    IOpenSearchResponse response = (IOpenSearchResponse)cacheItem.Value;
+                    if (response.Created < since)
+                        cache.Remove(k.Key);
+                }
 			}
 		}
 

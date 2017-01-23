@@ -80,21 +80,23 @@ namespace Terradue.OpenSearch.Request {
                         ((HttpWebRequest)httpWebRequest).Accept = contentType;
                     }
                     httpWebRequest.Timeout = timeOut;
+                    httpWebRequest.Proxy = null;
 
                     log.DebugFormat("Querying {0}", this.OpenSearchUrl);
 
-                    HttpWebResponse webResponse = (HttpWebResponse)httpWebRequest.GetResponse();
+                    using (HttpWebResponse webResponse = (HttpWebResponse)httpWebRequest.GetResponse())
+                    {
 
-                    using (var ms = new MemoryStream()) {
-                        webResponse.GetResponseStream().CopyTo(ms);
-                        ms.Flush();
-                        data = ms.ToArray();
+                        using (var ms = new MemoryStream())
+                        {
+                            webResponse.GetResponseStream().CopyTo(ms);
+                            ms.Flush();
+                            data = ms.ToArray();
+                        }
+
+                        response = new MemoryOpenSearchResponse(data, webResponse.ContentType, sw.Elapsed);
                     }
-                    
-                    response = new MemoryOpenSearchResponse(data, webResponse.ContentType, sw.Elapsed);
 
-                    webResponse.Close();
-                    webResponse.Dispose();
 
                     sw.Stop();
                     return response;
