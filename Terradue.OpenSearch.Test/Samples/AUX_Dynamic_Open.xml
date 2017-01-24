@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/" xmlns:prm="http://a9.com/-/spec/opensearch/extensions/parameters/1.0/" xmlns:eo="http://a9.com/-/spec/opensearch/extensions/eo/1.0/" xmlns:time="http://a9.com/-/opensearch/extensions/time/1.0/">
+  <ShortName>Collection Search</ShortName>
+  <Description>Search available auxiliary products.</Description>
+  <SyndicationRight>open</SyndicationRight>
+  <AdultContent>false</AdultContent>
+  <InputEncoding>UTF-8</InputEncoding>
+  <OutputEncoding>UTF-8</OutputEncoding>
+  <Url type="application/atom+xml" prm:method="GET" prm:enctype="application/x-www-form-urlencoded" template="http://sxcat.eox.at/opensearch/collections/AUX_Dynamic_Open/atom?count={count?}&amp;offset={startIndex?}&amp;start={time:start?}&amp;end={time:end?}&amp;trel={time:relation?}" rel="results" indexOffset="0" pageOffset="0">
+    <prm:Parameter name="count" value="{count}" minimum="0" maximum="1" maxInclusive="50" minInclusive="0"/>
+    <prm:Parameter name="offset" value="{startIndex}" minimum="0" maximum="1" minInclusive="0"/>
+    <prm:Parameter name="start" value="{time:start}" minimum="0" maximum="1" maxInclusive="2017-01-23T17:19:01Z" minInclusive="2010-06-01T00:00:57Z"/>
+    <prm:Parameter name="end" value="{time:end}" minimum="0" maximum="1" maxInclusive="2017-01-23T18:25:41Z" minInclusive="2010-06-01T01:07:37Z"/>
+    <prm:Parameter name="trel" value="{time:relation}" minimum="0" maximum="1">
+      <prm:Option label="intersects" value="intersects" />
+      <prm:Option label="contains" value="contains" />
+      <prm:Option label="during" value="during" />
+      <prm:Option label="disjoint" value="disjoint" />
+      <prm:Option label="equals" value="equals" />
+    </prm:Parameter>
+  </Url>
+  <Url type="application/atom+xml" prm:method="POST" prm:enctype="application/x-www-form-urlencoded" template="http://sxcat.eox.at/opensearch/collections/AUX_Dynamic_Open/atom" rel="results" indexOffset="0" pageOffset="0">
+    <prm:Parameter name="count" value="{count}" minimum="0" maximum="1" maxInclusive="50" minInclusive="0"/>
+    <prm:Parameter name="offset" value="{startIndex}" minimum="0" maximum="1" minInclusive="0"/>
+    <prm:Parameter name="start" value="{time:start}" minimum="0" maximum="1" maxInclusive="2017-01-23T17:19:01Z" minInclusive="2010-06-01T00:00:57Z"/>
+    <prm:Parameter name="end" value="{time:end}" minimum="0" maximum="1" maxInclusive="2017-01-23T18:25:41Z" minInclusive="2010-06-01T01:07:37Z"/>
+    <prm:Parameter name="trel" value="{time:relation}" minimum="0" maximum="1">
+      <prm:Option label="intersects" value="intersects" />
+      <prm:Option label="contains" value="contains" />
+      <prm:Option label="during" value="during" />
+      <prm:Option label="disjoint" value="disjoint" />
+      <prm:Option label="equals" value="equals" />
+    </prm:Parameter>
+  </Url>
+<Query role="example"/>
+</OpenSearchDescription>

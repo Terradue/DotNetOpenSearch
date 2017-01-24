@@ -12,3 +12,4 @@ Terradue.OpenSearch.userprefs
 build
 Terradue.OpenSearch/packages
 Terradue.OpenSearch.Test/packages
+/Terradue.OpenSearch.Test/out/TestOpenSearchDescriptionParametersDeser.xml

@@ -121,5 +121,6 @@
     <Folder Include="logs\" />
     <Folder Include="bin\" />
     <Folder Include="Samples\" />
+    <Folder Include="out\" />
   </ItemGroup>
 </Project>
