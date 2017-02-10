@@ -7,7 +7,6 @@
 //  Copyright (c) 2014 Terradue
 
 using System;
-using Mono.Addins;
 using System.Collections.Generic;
 using Terradue.ServiceModel.Syndication;
 using Terradue.OpenSearch.Response;

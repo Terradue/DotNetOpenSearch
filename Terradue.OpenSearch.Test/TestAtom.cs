@@ -1,6 +1,5 @@
 ﻿using System;
 using NUnit.Framework;
-using Mono.Addins;
 using Terradue.OpenSearch.Engine;
 using System.Collections.Specialized;
 
@@ -12,9 +11,6 @@ namespace Terradue.OpenSearch.Test {
 //        [Test]
         public void TestAtom1() {
 
-
-            AddinManager.Initialize();
-            AddinManager.Registry.Update(null);
 
             OpenSearchEngine ose = new OpenSearchEngine();
             ose.LoadPlugins();

@@ -7,7 +7,6 @@ using Terradue.OpenSearch.Schema;
 using System.Xml;
 using FluentAssertions;
 using Terradue.OpenSearch.Engine;
-using Mono.Addins;
 
 namespace Terradue.OpenSearch.Test {
 
@@ -49,6 +48,59 @@ namespace Terradue.OpenSearch.Test {
             osd2.ShouldBeEquivalentTo(osd);
 
         }
+
+        [Test]
+        public void TestOpenSearchDescriptionParametersDeser()
+        {
+
+            var serializer = new XmlSerializer(typeof(OpenSearchDescription));
+
+            OpenSearchDescription osd;
+
+            using (var xr = XmlReader.Create(new FileStream("../Samples/AUX_Dynamic_Open.xml", FileMode.Open, FileAccess.Read )))
+            {
+
+                osd = (OpenSearchDescription)serializer.Deserialize(xr);
+
+            }
+
+            Assert.AreEqual("intersects", osd.Url.FirstOrDefault(u => u.Type == "application/atom+xml").Parameters.First(p => p.Name == "trel").Options.FirstOrDefault(o => o.Label == "intersects").Value);
+
+            var stream = new MemoryStream();
+
+            using (var xw = XmlWriter.Create(stream))
+            {
+
+                serializer.Serialize(xw, osd);
+                xw.Flush();
+            }
+
+            stream.Seek(0, SeekOrigin.Begin);
+
+            OpenSearchDescription osd2;
+
+            using (var xr = XmlReader.Create(stream))
+            {
+
+                osd2 = (OpenSearchDescription)serializer.Deserialize(xr);
+
+            }
+
+            osd2.ExtraNamespace = osd.ExtraNamespace;
+
+            osd2.ShouldBeEquivalentTo(osd);
+
+            using (var xw = XmlWriter.Create(new FileStream("../out/TestOpenSearchDescriptionParametersDeser.xml", FileMode.Create, FileAccess.Write)))
+            {
+
+                serializer.Serialize(xw, osd);
+                xw.Flush();
+            }
+
+
+        }
+
+
 
     }
 }

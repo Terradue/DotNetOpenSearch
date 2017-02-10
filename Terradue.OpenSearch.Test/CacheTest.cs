@@ -2,7 +2,6 @@
 using System;
 using log4net.Config;
 using System.IO;
-using Mono.Addins;
 using Terradue.OpenSearch.Engine;
 using Terradue.OpenSearch.Filters;
 using System.Collections.Specialized;
@@ -21,9 +20,6 @@ namespace Terradue.OpenSearch.Test {
         public void RunBeforeTests()
         {
             XmlConfigurator.Configure(new FileInfo("../Log4Net.config"));
-
-            AddinManager.Initialize();
-            AddinManager.Registry.Update(null);
 
             ose = new OpenSearchEngine();
             ose.LoadPlugins();

@@ -7,14 +7,11 @@
 //  Copyright (c) 2014 Terradue
 
 using System;
-using Mono.Addins;
 using System.Collections.Generic;
 using Terradue.ServiceModel.Syndication;
 using Terradue.OpenSearch.Response;
 using Terradue.OpenSearch.Result;
 
-[assembly:AddinRoot("OpenSearchEngine", "1.0")]
-[assembly:AddinDescription("OpenSearch Engine")]
 namespace Terradue.OpenSearch {
     /// <summary>
     /// Set of methods and properties for implementing an OpenSearchEngineExtension.
@@ -23,7 +20,6 @@ namespace Terradue.OpenSearch {
     /// This is also a TypeExtensionPoint for declaring extensions and discovering them
     /// with mono.addins
     /// </description>
-    [TypeExtensionPoint()]
     public interface IOpenSearchEngineExtension {
 
         /// <summary>

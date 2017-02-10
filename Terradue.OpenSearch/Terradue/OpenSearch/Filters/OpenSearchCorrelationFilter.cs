@@ -100,16 +100,16 @@ namespace Terradue.OpenSearch.Filters {
         /// </summary>
         /// <returns>The minimum.</returns>
         /// <param name="searchParameters">Search parameters.</param>
-        public static int GetSpatialCover (NameValueCollection searchParameters){
+        public static double GetSpatialCover (NameValueCollection searchParameters){
 
             string value = searchParameters["spatialCover"];
             try {
-                int sc = int.Parse(value);
+                double sc = double.Parse(value);
                 if ( sc < 0 || sc > 100 )
-                    throw new FormatException(string.Format("Wrong format for param cor:spatial={0}. must be an integer betwenn 0 and 100", value));
+                    throw new FormatException(string.Format("Wrong format for param cor:spatial={0}. must be an non zero positive double betwenn 0 and 100", value));
                 return sc;
             } catch (Exception){
-                throw new FormatException(string.Format("Wrong format for param cor:spatial={0}. must be an integer", value));
+                throw new FormatException(string.Format("Wrong format for param cor:spatial={0}. must be an non zero positive double", value));
             }
 
         }

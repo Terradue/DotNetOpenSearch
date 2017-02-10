@@ -2,7 +2,6 @@
 using System;
 using log4net.Config;
 using System.IO;
-using Mono.Addins;
 using Terradue.OpenSearch.Engine;
 using Terradue.OpenSearch.Filters;
 using System.Collections.Specialized;

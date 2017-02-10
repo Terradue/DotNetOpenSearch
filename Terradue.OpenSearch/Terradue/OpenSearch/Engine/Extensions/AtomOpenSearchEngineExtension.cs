@@ -8,7 +8,6 @@
 
 using System;
 using System.Linq;
-using Mono.Addins;
 using Terradue.ServiceModel.Syndication;
 using System.Collections.Generic;
 using System.Xml;
@@ -25,8 +24,7 @@ namespace Terradue.OpenSearch.Engine.Extensions {
     /// <summary>
     /// Atom open search engine extension.
     /// </summary>
-    [Extension(typeof(IOpenSearchEngineExtension))]
-    [ExtensionNode("Atom", "Atom native query")]
+    [OpenSearchEngineExtension("Atom", "Atom native query")]
     public class AtomOpenSearchEngineExtension : OpenSearchEngineExtension<AtomFeed> {
         public AtomOpenSearchEngineExtension() {
         }
