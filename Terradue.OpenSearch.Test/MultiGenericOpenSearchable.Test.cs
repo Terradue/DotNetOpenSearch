@@ -1,6 +1,5 @@
 ﻿using System;
 using NUnit.Framework;
-using Mono.Addins;
 using Terradue.OpenSearch.Engine;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -21,9 +20,6 @@ namespace Terradue.OpenSearch.Test {
 
         [Test()]
         public void GenericProxiedOpenSearchableTest() {
-
-            AddinManager.Initialize();
-            AddinManager.Registry.Update(null);
 
             OpenSearchEngine ose = new OpenSearchEngine();
             ose.LoadPlugins();
@@ -200,9 +196,6 @@ namespace Terradue.OpenSearch.Test {
         [Test()]
         public void MultiLimitTwoTest() {
 
-            AddinManager.Initialize();
-            AddinManager.Registry.Update(null);
-
             OpenSearchEngine ose = new OpenSearchEngine();
             ose.LoadPlugins();
 
@@ -224,9 +217,6 @@ namespace Terradue.OpenSearch.Test {
 
         [Test()]
         public void PaginationMultiOpenSearchableTest() {
-
-            AddinManager.Initialize();
-            AddinManager.Registry.Update(null);
 
             OpenSearchEngine ose = new OpenSearchEngine();
             ose.LoadPlugins();
@@ -287,9 +277,6 @@ namespace Terradue.OpenSearch.Test {
         [Test()]
         public void SameMultiOpenSearchableTest() {
 
-            AddinManager.Initialize();
-            AddinManager.Registry.Update(null);
-
             OpenSearchEngine ose = new OpenSearchEngine();
             ose.LoadPlugins();
 
@@ -324,9 +311,6 @@ namespace Terradue.OpenSearch.Test {
 		[Test()]
 		public void StartIndexMultiOpenSearchableTest()
 		{
-
-			AddinManager.Initialize();
-			AddinManager.Registry.Update(null);
 
 			OpenSearchEngine ose = new OpenSearchEngine();
 			ose.LoadPlugins();

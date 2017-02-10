@@ -14,7 +14,6 @@ using System.Collections.Specialized;
 using System.Net;
 using System.Web;
 using System.Diagnostics;
-using Mono.Addins;
 using Terradue.ServiceModel.Syndication;
 using System.Xml.Serialization;
 using System.Xml;
@@ -25,6 +24,7 @@ using Terradue.OpenSearch.Schema;
 using System.Xml.Linq;
 using System.IO;
 using log4net;
+using System.Reflection;
 
 namespace Terradue.OpenSearch.Engine {
 
@@ -402,7 +402,7 @@ namespace Terradue.OpenSearch.Engine {
         /// <summary>
         /// Loads the plugins automatically based on Mono.Addins
         /// </summary>
-        public void LoadPlugins() {
+        /*public void LoadPlugins() {
 
             foreach (TypeExtensionNode node in AddinManager.GetExtensionNodes (typeof(IOpenSearchEngineExtension))) {
                 IOpenSearchEngineExtension osee = (IOpenSearchEngineExtension)node.CreateInstance();
@@ -410,7 +410,7 @@ namespace Terradue.OpenSearch.Engine {
                 this.RegisterExtension(osee);
             }
 
-        }
+        }*/
 
         /// <summary>
         /// Gets the first extension by content type ability.
@@ -495,6 +495,40 @@ namespace Terradue.OpenSearch.Engine {
             }
             newResults.ElementExtensions.Add(query.CreateReader());
      
+        }
+
+        public void LoadPlugins()
+        {
+            var extensionsTypes = new List<Type>();
+
+            List<Assembly> allAssemblies = new List<Assembly>();
+            string dirpath = Path.GetDirectoryName((new System.Uri(Assembly.GetExecutingAssembly().CodeBase)).AbsolutePath);
+
+            log.Debug(string.Format("Scan {0} for OpenSearch plugins",dirpath));
+            foreach (string dll in Directory.GetFiles(dirpath, "*.dll"))
+                allAssemblies.Add(Assembly.LoadFile(dll));
+
+            foreach (var assembly in allAssemblies)
+            {
+                foreach (var cl in assembly.GetTypes())
+                {
+                    var dnAttributes = cl.GetCustomAttributes(typeof(OpenSearchEngineExtensionAttribute), true);
+                    foreach (OpenSearchEngineExtensionAttribute dnAttribute in dnAttributes)
+                    {
+                        log.Debug(String.Format("Found {0} [{1}] in class {2}", dnAttribute.NodeName, dnAttribute.Description, cl.Name));
+                        try
+                        {
+                            IOpenSearchEngineExtension osee = Activator.CreateInstance(cl) as IOpenSearchEngineExtension;
+                            Type type = osee.GetTransformType();
+                            this.RegisterExtension(osee);
+                        }
+                        catch (Exception e)
+                        {
+                            log.Warn(string.Format("Impossible to load {0} : {1}. Skipping extension", cl.FullName, e.Message));
+                        }
+                    }
+                }
+            }
         }
 
         #region IOpenSearchableFactory implementation

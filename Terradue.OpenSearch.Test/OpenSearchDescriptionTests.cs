@@ -7,7 +7,6 @@ using Terradue.OpenSearch.Schema;
 using System.Xml;
 using FluentAssertions;
 using Terradue.OpenSearch.Engine;
-using Mono.Addins;
 
 namespace Terradue.OpenSearch.Test {
 
