@@ -63,6 +63,14 @@ namespace Terradue.OpenSearch {
         /// <value><c>true</c> if skip null or empty query string parameters; otherwise, <c>false</c>.</value>
         public bool SkipNullOrEmptyQueryStringParameters { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether this <see cref="T:Terradue.OpenSearch.QuerySettings"/> request is for opensearch ur only
+        /// URL only.
+        /// </summary>
+        /// <value><c>true</c> if open search URL only; otherwise, <c>false</c>.</value>
+        /// TODO to be removed for a more legant solution
+        public bool OpenSearchUrlOnly { get; set; }
+
         /// <summary>Creates a new instance of QuerySettings with the specified parameters.</summary>
         /// <param name="preferredContentType">The preferred content type.</param>
         /// <param name="readNative">The function to be called to obtain the formatted OpenSearch result.</param>
@@ -157,7 +165,10 @@ namespace Terradue.OpenSearch {
         }
 
         public int GetHashCode(IOpenSearchable obj) {
-            var osrobj = obj.Create(obj.GetQuerySettings(ose), new NameValueCollection());
+            QuerySettings querySettings = obj.GetQuerySettings(ose);
+            // TODO to be removed with a more elegant soltuion
+            querySettings.OpenSearchUrlOnly = true;
+            var osrobj = obj.Create(querySettings, new NameValueCollection());
             return osrobj.OpenSearchUrl.GetHashCode();
         }
 
