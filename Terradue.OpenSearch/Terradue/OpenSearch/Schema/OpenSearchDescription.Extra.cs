@@ -11,30 +11,38 @@ using System.Collections.Generic;
 namespace Terradue.OpenSearch.Schema
 {
     public partial class OpenSearchDescription
-	{
+    {
         OpenSearchDescriptionUrl defaultUrl = null;
 
-        public OpenSearchDescription(){
+        public OpenSearchDescription()
+        {
             ExtraNamespace.Add("", "http://a9.com/-/spec/opensearch/1.1/");
             ExtraNamespace.Add("param", "http://a9.com/-/spec/opensearch/extensions/parameters/1.0/");
         }
 
         [System.Xml.Serialization.XmlIgnore]
-        public OpenSearchDescriptionUrl DefaultUrl {
-            get {
+        public OpenSearchDescriptionUrl DefaultUrl
+        {
+            get
+            {
                 if (defaultUrl == null && Url.Count() > 0)
-                    return Url[0];
+                    defaultUrl = Url.FirstOrDefault(u => u.Type == "application/xml");
+                if (defaultUrl == null)
+                    return Url.First();
                 return defaultUrl;
             }
-            set {
+            set
+            {
                 defaultUrl = value;
             }
         }
 
         [System.Xml.Serialization.XmlIgnore]
-        public string[] ContentTypes {
-            get {
-                return Url.Select<OpenSearchDescriptionUrl, string>(u => u.Type).ToArray(); 
+        public string[] ContentTypes
+        {
+            get
+            {
+                return Url.Select<OpenSearchDescriptionUrl, string>(u => u.Type).ToArray();
             }
         }
 
@@ -42,12 +50,13 @@ namespace Terradue.OpenSearch.Schema
         public OpenSearchUrl Originator { get; set; }
 
 
-	}
+    }
 
     public partial class OpenSearchDescriptionUrl
     {
 
-        public NameValueCollection GetIdentifierDictionary() {
+        public NameValueCollection GetIdentifierDictionary()
+        {
 
             var nvc = HttpUtility.ParseQueryString(new Uri(this.Template).Query);
             return OpenSearchFactory.ReverseTemplateOpenSearchParameters(nvc);
