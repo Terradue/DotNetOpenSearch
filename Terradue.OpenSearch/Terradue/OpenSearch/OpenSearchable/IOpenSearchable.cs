@@ -166,8 +166,10 @@ namespace Terradue.OpenSearch {
 
         public int GetHashCode(IOpenSearchable obj) {
             QuerySettings querySettings = obj.GetQuerySettings(ose);
+            
             // TODO to be removed with a more elegant soltuion
-            querySettings.OpenSearchUrlOnly = true;
+            if(querySettings != null) querySettings.OpenSearchUrlOnly = true;
+            
             var osrobj = obj.Create(querySettings, new NameValueCollection());
             return osrobj.OpenSearchUrl.GetHashCode();
         }

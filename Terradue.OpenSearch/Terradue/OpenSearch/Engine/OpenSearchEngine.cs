@@ -315,7 +315,8 @@ namespace Terradue.OpenSearch.Engine {
             if (contentType == "application/opensearchdescription+xml")
                 contentType = "application/atom+xml";
 
-            osd.DefaultUrl = osd.Url.FirstOrDefault(u => u.Type.StartsWith(contentType));
+            var defaultUrl = osd.Url.FirstOrDefault(u => u.Type.Equals(contentType));
+            osd.DefaultUrl = defaultUrl ?? osd.Url.FirstOrDefault(u => u.Type.StartsWith(contentType));
 
             return osd;
         }
