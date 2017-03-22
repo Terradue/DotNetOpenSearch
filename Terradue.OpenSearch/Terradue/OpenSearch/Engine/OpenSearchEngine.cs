@@ -507,7 +507,16 @@ namespace Terradue.OpenSearch.Engine {
 
             log.Debug(string.Format("Scan {0} for OpenSearch plugins",dirpath));
             foreach (string dll in Directory.GetFiles(dirpath, "*.dll"))
-                allAssemblies.Add(Assembly.LoadFile(dll));
+            {
+                try
+                {
+                    allAssemblies.Add(Assembly.LoadFile(dll));
+                }
+                catch (Exception)
+                {
+                    // we do nothing if we cannot load the assembly in order to not stop the execution
+                }
+            }
 
             foreach (var assembly in allAssemblies)
             {
