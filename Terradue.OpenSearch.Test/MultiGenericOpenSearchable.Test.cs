@@ -356,6 +356,43 @@ namespace Terradue.OpenSearch.Test {
 
 		}
 
+        [Test()]
+        public void CatalogueMultiOpenSearchableTest()
+        {
+
+            OpenSearchEngine ose = new OpenSearchEngine();
+            ose.LoadPlugins();
+
+            IOpenSearchable entity1 = new GenericOpenSearchable(new OpenSearchUrl("https://catalog.terradue.com/hydro-co-floodmonitoring-apps/search?uid=floodmonitoring"), ose);
+            IOpenSearchable entity2 = new GenericOpenSearchable(new OpenSearchUrl("https://catalog.terradue.com/hydro-co-floodmonitoring-apps/search"), ose);
+            IOpenSearchable entity3 = new GenericOpenSearchable(new OpenSearchUrl("https://catalog.terradue.com/hydro-co-smallwaterbody-apps/search"), ose);
+
+            List<IOpenSearchable> entities = new List<IOpenSearchable>();
+            entities.Add(entity1);
+            entities.Add(entity2);
+            entities.Add(entity3);
+
+            IOpenSearchable multiEntity = new MultiGenericOpenSearchable(entities, ose, true);
+
+            NameValueCollection nvc = new NameValueCollection();
+
+            var osr = ose.Query(multiEntity, nvc, "atom");
+
+            nvc = new NameValueCollection();
+            //nvc.Set("count", "10");
+            nvc.Set("q", "1");
+
+            osr = ose.Query(multiEntity, nvc, "atom");
+
+
+            Assert.AreEqual(1, osr.Count);
+            Assert.AreEqual(1, osr.TotalResults);
+
+
+
+        }
+
+
     }
 }
 

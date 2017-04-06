@@ -266,29 +266,12 @@ namespace Terradue.OpenSearch.Request {
         /// </summary>
         private void ExecuteConcurrentRequest() {
 
-            //countdown = new CountdownEvent(currentEntities.Count);
             results = new Dictionary<IOpenSearchable, IOpenSearchResultCollection>();
-
-            //List<Task> request = new List<Task>();
 
             Parallel.ForEach<IOpenSearchable>(currentEntities.Keys.Distinct(new OpenSearchableComparer(ose)),
                                               entity => {
                 ExecuteOneRequest(entity);
             });
-
-            /*foreach (IOpenSearchable entity in currentEntities.Keys.Distinct(new OpenSearchableComparer())) {
-                if (concurrent) {
-                    request.Add(Task.Factory.StartNew(() => ExecuteOneRequest(entity)));
-                    //Thread queryThread = new Thread(new ParameterizedThreadStart(this.ExecuteOneRequest));
-                    //queryThread.Start(entity);
-                } else {
-
-                    ExecuteOneRequest(entity);
-                }
-            }*/
-
-            //Task.WaitAll(request.ToArray());
-            //countdown.Wait();
 
         }
 
@@ -392,16 +375,18 @@ namespace Terradue.OpenSearch.Request {
                 originalCount = ose.DefaultCount;
             }
 
+            // Case if all elements in first feed are already the right sorted results
             if (feed.Items.Count() >= originalCount) {
-
                 if (f1.Items.Count() != 0 && f2.Items.Count() != 0) {
                     if (f1.Items.Last().LastUpdatedTime >= f2.Items.First().LastUpdatedTime)
                         return feed;
                 }
-
             }
 
+
+            int common = f1.Items.Intersect(f2.Items, new OpenSearchResultItemComparer()).OrderBy(u => u.Id).OrderByDescending(u => u.SortKey).Count();
             feed.Items = f1.Items.Union(f2.Items, new OpenSearchResultItemComparer()).OrderBy(u => u.Id).OrderByDescending(u => u.SortKey);
+            totalResults -= common;
 
             feed.Items = feed.Items.Take(originalCount);
 
