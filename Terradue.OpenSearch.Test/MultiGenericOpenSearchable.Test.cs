@@ -392,6 +392,43 @@ namespace Terradue.OpenSearch.Test {
 
         }
 
+        [Test()]
+        public void CatalogueMultiOpenSearchableTest2()
+        {
+
+            OpenSearchEngine ose = new OpenSearchEngine();
+            ose.LoadPlugins();
+
+            IOpenSearchable entity1 = new GenericOpenSearchable(new OpenSearchUrl("https://catalog.terradue.com:443//sentinel1/series/GRD/search?format=atom&uid=S1A_IW_GRDH_1SDV_20160719T181151_20160719T181219_012221_012F93_3E0B"), ose);
+            IOpenSearchable entity2 = new GenericOpenSearchable(new OpenSearchUrl("https://catalog.terradue.com:443//sentinel1/series/GRD/search?format=atom&uid=S1A_IW_GRDH_1SDV_20160731T181152_20160731T181219_012396_013552_7CC6"), ose);
+            //IOpenSearchable entity3 = new GenericOpenSearchable(new OpenSearchUrl("https://catalog.terradue.com/hydro-co-smallwaterbody-apps/search"), ose);
+
+            List<IOpenSearchable> entities = new List<IOpenSearchable>();
+            entities.Add(entity1);
+            entities.Add(entity2);
+            //entities.Add(entity3);
+
+            IOpenSearchable multiEntity = new MultiGenericOpenSearchable(entities, ose, true);
+
+            NameValueCollection nvc = new NameValueCollection();
+
+            var osr = ose.Query(multiEntity, nvc, "atom");
+
+            nvc = new NameValueCollection();
+            //nvc.Set("count", "10");
+            //nvc.Set("q", "1");
+            nvc.Set("uid", "");
+
+            osr = ose.Query(multiEntity, nvc, "atom");
+
+            Assert.AreEqual(2, osr.TotalResults);
+            Assert.AreEqual(2, osr.Count);
+
+
+
+
+        }
+
 
     }
 }
