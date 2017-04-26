@@ -68,7 +68,9 @@ namespace Terradue.OpenSearch {
                 nvc = HttpUtility.ParseQueryString(url.Query);
             else
                 nvc = new NameValueCollection();
+            
             parameters.AllKeys.SingleOrDefault(k => {
+                if ( !string.IsNullOrEmpty(parameters[k]) && string.IsNullOrEmpty(nvc[k]))
                 nvc.Set(k, parameters[k]);
                 return false;
             });
