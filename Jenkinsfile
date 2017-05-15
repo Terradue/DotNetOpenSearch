@@ -41,9 +41,13 @@ echo ${params.NUGET_PUBLISH}'''
     }
     stage('Publish') {
       steps {
-        waitUntil() {
-          sh '''nuget push build/*.nupkg -ApiKey ${params.NUGET_API_KEY} -Source https://nuget.org/api/v2/package
+        when {
+                params.NUGET_PUBLISH
+            }
+                echo 'Deploying'
+                sh '''nuget push build/*.nupkg -ApiKey ${params.NUGET_API_KEY} -Source https://nuget.org/api/v2/package
 '''
+            }       
         }
         
       }
