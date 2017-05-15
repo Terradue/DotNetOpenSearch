@@ -32,7 +32,7 @@ pipeline {
           },
           "Test": {
             sh 'nunit-console4 *.Test/bin/*.Test.dll -xml build/TestResult.xml'
-            nunit(testResultsPattern: 'build/TestResult.xml')
+            
           }
         )
       }
@@ -51,4 +51,9 @@ pipeline {
         }
         
       }
+      post { 
+        always { 
+           nunit(testResultsPattern: 'build/TestResult.xml')
+        }
+    }
     }
