@@ -1,5 +1,5 @@
 pipeline {
-  properties([
+  options([
     parameters([
       string(name: 'NUGET_PUBLISH', defaultValue: 'false', description: 'If this parameter is set, the build will try to publish the artifact to NuGet.', ),
       string(name: 'NUGET_API_KEY', defaultValue: '', description: 'Head over to http://nuget.org/ and register for an account. Once you do that, click on "My Account" to see an API Key that was generated for you.', ),
