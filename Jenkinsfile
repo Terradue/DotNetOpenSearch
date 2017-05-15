@@ -8,7 +8,7 @@ pipeline {
   stages {
     stage('Init') {
       steps {
-        sh 'mkdir build'
+        sh "mkdir build"
         sh 'rm -rf packges */bin build'
         sh 'nuget restore'
         sh 'ls -la'
