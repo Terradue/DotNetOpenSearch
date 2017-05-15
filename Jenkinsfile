@@ -35,10 +35,11 @@ echo ${params.NUGET_PUBLISH}'''
       }
     }
     stage('Publish') {
-      steps {
-        when {
+    when {
                 params.NUGET_PUBLISH == true
             }
+      steps {
+        
                 echo 'Deploying'
                 sh '''nuget push build/*.nupkg -ApiKey ${params.NUGET_API_KEY} -Source https://nuget.org/api/v2/package
 '''
