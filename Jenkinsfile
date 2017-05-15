@@ -6,13 +6,15 @@ pipeline {
      }
   agent { node { label 'centos7-mono4' } }
   stages {
+    stage('Init') {
+        sh 'mkdir build'
+        sh 'rm -rf packges */bin build'
+        sh 'nuget restore'
+        sh 'ls -la'
+    }
     stage('Build') {
       steps {
-        echo "${params.DOTNET_CONFIG}"
-        sh '''ls -la
-rm -rf packges */bin build
-nuget restore
-mkdir build'''
+        echo "The library will be build in ${params.DOTNET_CONFIG}"
         sh 'xbuild /p:Configuration=${params.DOTNET_CONFIG}'
       }
     }
@@ -20,10 +22,10 @@ mkdir build'''
       steps {
         parallel(
           "Package": {
-            sh '''nuget4mono -g ${GIT_BRANCH} -p Terradue.OpenSearch/packages.config Terradue.OpenSearch/bin/Terradue.OpenSearch.dll
-cat *.nuspec
-nuget pack -OutputDirectory build
-echo ${params.NUGET_PUBLISH}'''
+            sh 'nuget4mono -g ${GIT_BRANCH} -p Terradue.OpenSearch/packages.config Terradue.OpenSearch/bin/Terradue.OpenSearch.dll'
+            sh 'cat *.nuspec'
+            sh 'nuget pack -OutputDirectory build'
+            sh 'echo ${params.NUGET_PUBLISH}'
             
           },
           "Test": {
@@ -43,8 +45,7 @@ echo ${params.NUGET_PUBLISH}'''
       steps {
         
                 echo 'Deploying'
-                sh '''nuget push build/*.nupkg -ApiKey ${params.NUGET_API_KEY} -Source https://nuget.org/api/v2/package
-'''
+                sh 'nuget push build/*.nupkg -ApiKey ${params.NUGET_API_KEY} -Source https://nuget.org/api/v2/package'
             }       
         }
         
