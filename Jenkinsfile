@@ -24,7 +24,7 @@ pipeline {
       steps {
         parallel(
           "Package": {
-            sh "nuget4mono -g ${env.GIT_BRANCH} -p Terradue.OpenSearch/packages.config Terradue.OpenSearch/bin/Terradue.OpenSearch.dll"
+            sh "nuget4mono -g ${env.BRANCH_NAME} -p Terradue.OpenSearch/packages.config Terradue.OpenSearch/bin/Terradue.OpenSearch.dll"
             sh 'cat *.nuspec'
             sh 'nuget pack -OutputDirectory build'
             sh "echo ${params.NUGET_PUBLISH}"
@@ -47,7 +47,6 @@ pipeline {
         sh 'nuget push build/*.nupkg -ApiKey ${params.NUGET_API_KEY} -Source https://nuget.org/api/v2/package'
       }       
     }
-        
   }
   post { 
     always { 
