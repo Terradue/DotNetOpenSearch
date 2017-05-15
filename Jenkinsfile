@@ -36,7 +36,9 @@ echo ${params.NUGET_PUBLISH}'''
     }
     stage('Publish') {
     when {
-                params.NUGET_PUBLISH == true
+                expression {
+                  return params.NUGET_PUBLISH
+                }
             }
       steps {
         
