@@ -6,7 +6,7 @@ pipeline {
      }
   agent { node { label 'centos7-mono4' } }
   stages {
-    stage('Init') 
+    stage('Init') {
       steps {
         sh 'mkdir build'
         sh 'rm -rf packges */bin build'
