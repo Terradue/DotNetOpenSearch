@@ -4,12 +4,7 @@ pipeline {
       string(name: 'NUGET_API_KEY', defaultValue: '', description: 'Head over to http://nuget.org/ and register for an account. Once you do that, click on "My Account" to see an API Key that was generated for you.', )
       choice(name: 'DOTNET_CONFIG', choices: "Debug\nRelease", description: 'Debug will produce symbols in the assmbly to be able to debug it at runtime. This is the recommended option for feature, hotfix testing or release candidate.<br/><strong>For publishing a release from master branch, please choose Release.</strong>', )
      }
-  agent {
-    docker {
-      image 'docker.terradue.com/c7-jenkins-mono4'
-    }
-    
-  }
+  agent { node { label 'centos7-mono4' } }
   stages {
     stage('Build') {
       steps {
