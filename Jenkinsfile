@@ -6,7 +6,6 @@ pipeline {
       string(name: 'DOTNET_CONFIG', defaultValue: 'Debug', choices: ['Debug', 'Release'], description: 'Debug will produce symbols in the assmbly to be able to debug it at runtime. This is the recommended option for feature, hotfix testing or release candidate.<br/><strong>For publishing a release from master branch, please choose Release.</strong>', ),
      ]}
   }
-  ])
   agent {
     docker {
       image 'docker.terradue.com/c7-jenkins-mono4'
