@@ -47,5 +47,3 @@ echo ${params.NUGET_PUBLISH}'''
         
       }
     }
-  }
-}
