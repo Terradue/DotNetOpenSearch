@@ -17,23 +17,22 @@ pipeline {
     stage('Build') {
       steps {
         echo "The library will be build in ${params.DOTNET_CONFIG}"
-        sh 'xbuild /p:Configuration=${params.DOTNET_CONFIG}'
+        sh "xbuild /p:Configuration=${params.DOTNET_CONFIG}"
       }
     }
     stage('Package') {
       steps {
         parallel(
           "Package": {
-            sh 'nuget4mono -g ${GIT_BRANCH} -p Terradue.OpenSearch/packages.config Terradue.OpenSearch/bin/Terradue.OpenSearch.dll'
+            sh "nuget4mono -g ${GIT_BRANCH} -p Terradue.OpenSearch/packages.config Terradue.OpenSearch/bin/Terradue.OpenSearch.dll"
             sh 'cat *.nuspec'
             sh 'nuget pack -OutputDirectory build'
-            sh 'echo ${params.NUGET_PUBLISH}'
+            sh "echo ${params.NUGET_PUBLISH}"
             
           },
           "Test": {
             sh 'nunit-console4 *.Test/bin/*.Test.dll -xml build/TestResult.xml'
             nunit(testResultsPattern: 'build/TestResult.xml')
-            
           }
         )
       }
