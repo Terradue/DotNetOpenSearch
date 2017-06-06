@@ -488,7 +488,7 @@ namespace Terradue.OpenSearch.Engine {
                         if (osparam.Contains(":"))
                             query.Add(new XAttribute(XName.Get(osparam.Split(':')[1], osd.ExtraNamespace.ToArray().First(n => n.Name == osparam.Split(':')[0]).Namespace), request.Parameters[key]));
                         else {
-                            query.Add(new XAttribute(XName.Get(osparam, osd.ExtraNamespace.ToArray().First(n => n.Name == "os").Namespace), request.Parameters[key]));
+                            query.Add(new XAttribute(XName.Get(osparam, "http://a9.com/-/spec/opensearch/1.1/"), request.Parameters[key]));
                         }
                     } catch {
                     }
