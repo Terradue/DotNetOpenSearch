@@ -479,6 +479,7 @@ namespace Terradue.OpenSearch.Engine {
                     continue;
                 query.Add(new XAttribute(XNamespace.Xmlns + ns.Name, ns.Namespace));
             }
+            query.Add(new XAttribute(XNamespace.Xmlns + "os", "http://a9.com/-/spec/opensearch/1.1/"));
             var osUrl = OpenSearchFactory.GetOpenSearchUrlByType(osd, request.ContentType);
             var osparams = OpenSearchFactory.GetOpenSearchParameters(osUrl);
             foreach (var key in request.Parameters.AllKeys) {
