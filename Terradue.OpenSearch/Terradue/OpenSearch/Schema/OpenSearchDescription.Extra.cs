@@ -16,7 +16,7 @@ namespace Terradue.OpenSearch.Schema
 
         public OpenSearchDescription()
         {
-            ExtraNamespace.Add("", "http://a9.com/-/spec/opensearch/1.1/");
+            ExtraNamespace.Add("os", "http://a9.com/-/spec/opensearch/1.1/");
             ExtraNamespace.Add("param", "http://a9.com/-/spec/opensearch/extensions/parameters/1.0/");
         }
 
