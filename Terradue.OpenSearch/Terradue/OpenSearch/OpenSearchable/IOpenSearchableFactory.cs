@@ -29,6 +29,8 @@ namespace Terradue.OpenSearch {
         /// <param name="osd">OPenSearchDescription</param>
         IOpenSearchable Create(OpenSearchDescription osd);
 
+        OpenSearchableFactorySettings Settings { get; }
+
     }
 }
 

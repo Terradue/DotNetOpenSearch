@@ -29,7 +29,7 @@ namespace Terradue.OpenSearch {
         /// </summary>
         /// <param name="url">The query URL</param>
         /// <param name="ose">An OpenSearchEngine instance, preferably with registered extensions able to read the query url</param>
-        public SoftGenericOpenSearchable(OpenSearchUrl url, OpenSearchEngine ose) : base(url, ose) {
+        public SoftGenericOpenSearchable(OpenSearchUrl url, OpenSearchableFactorySettings settings) : base(url, settings) {
         }
 
         /// <summary>
@@ -37,7 +37,7 @@ namespace Terradue.OpenSearch {
         /// </summary>
         /// <param name="osd">The OpenSearchDescription describing the OpenSearchable entity to represent</param>
         /// <param name="ose">An OpenSearchEngine instance, preferably with registered extensions able to read the query url</param>
-        public SoftGenericOpenSearchable(OpenSearchDescription osd, OpenSearchEngine ose) : base(osd, ose) {
+        public SoftGenericOpenSearchable(OpenSearchDescription osd, OpenSearchableFactorySettings settings) : base(osd, settings) {
         }
 
         #region IOpenSearchable implementation

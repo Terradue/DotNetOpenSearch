@@ -25,17 +25,17 @@ namespace Terradue.OpenSearch {
     public class GenericOpenSearchable : IOpenSearchable {
         protected OpenSearchDescription osd;
         protected OpenSearchUrl url;
-        protected OpenSearchEngine ose;
+        readonly OpenSearchableFactorySettings settings;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Terradue.OpenSearch.GenericOpenSearchable"/> class from a quaery Url
         /// </summary>
         /// <param name="url">The query URL</param>
         /// <param name="ose">An OpenSearchEngine instance, preferably with registered extensions able to read the query url</param>
-        public GenericOpenSearchable(OpenSearchUrl url, OpenSearchEngine ose) {
+        public GenericOpenSearchable(OpenSearchUrl url, OpenSearchableFactorySettings settings) {
+            this.settings = settings;
             this.url = url;
-            this.ose = ose;
-            this.osd = ose.AutoDiscoverFromQueryUrl(url);
+            this.osd = settings.OpenSearchEngine.AutoDiscoverFromQueryUrl(url);
         }
 
         /// <summary>
@@ -43,9 +43,9 @@ namespace Terradue.OpenSearch {
         /// </summary>
         /// <param name="osd">The OpenSearchDescription describing the OpenSearchable entity to represent</param>
         /// <param name="ose">An OpenSearchEngine instance, preferably with registered extensions able to read the query url</param>
-        public GenericOpenSearchable(OpenSearchDescription osd, OpenSearchEngine ose) {
+        public GenericOpenSearchable(OpenSearchDescription osd, OpenSearchableFactorySettings settings) {
+            this.settings = settings;
             this.osd = osd;
-            this.ose = ose;
             url = null;
         }
 
@@ -86,7 +86,7 @@ namespace Terradue.OpenSearch {
 
         public OpenSearchDescription GetOpenSearchDescription() {
             if (osd == null)
-                this.osd = ose.AutoDiscoverFromQueryUrl(url);
+                this.osd = settings.OpenSearchEngine.AutoDiscoverFromQueryUrl(url);
             return osd;
         }
 
@@ -107,7 +107,7 @@ namespace Terradue.OpenSearch {
                 if (totalResults <= 0) {
                     NameValueCollection @params = new NameValueCollection();
                     @params.Set("count", "0");
-                    var querySettings = this.GetQuerySettings(ose);
+                    var querySettings = this.GetQuerySettings(settings.OpenSearchEngine);
                     var request = this.Create(querySettings , @params );
                     var iosr = request.GetResponse();
                     var results = querySettings.ReadNative.Invoke(iosr);

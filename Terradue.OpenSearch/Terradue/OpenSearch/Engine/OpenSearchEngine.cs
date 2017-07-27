@@ -549,7 +549,7 @@ namespace Terradue.OpenSearch.Engine {
         /// </summary>
         /// <param name="url">URL to either a search or a description</param>
         public IOpenSearchable Create(OpenSearchUrl url) {
-            return new GenericOpenSearchable(url, this);
+            return new GenericOpenSearchable(url, Settings);
         }
 
         /// <summary>
@@ -558,7 +558,13 @@ namespace Terradue.OpenSearch.Engine {
         /// <param name="url">URL to either a search or a description</param>
         /// <param name="osd">Osd.</param>
         public IOpenSearchable Create(OpenSearchDescription osd) {
-            return new GenericOpenSearchable(osd, this);
+            return new GenericOpenSearchable(osd, Settings);
+        }
+
+        public OpenSearchableFactorySettings Settings {
+            get {
+                return new OpenSearchableFactorySettings(this);
+            }            
         }
 
         #endregion
