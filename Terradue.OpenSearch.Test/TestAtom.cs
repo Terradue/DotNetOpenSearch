@@ -15,7 +15,7 @@ namespace Terradue.OpenSearch.Test {
             OpenSearchEngine ose = new OpenSearchEngine();
             ose.LoadPlugins();
 
-            GenericOpenSearchable entity = new GenericOpenSearchable(new OpenSearchUrl("https://ngeopro.magellium.fr/remote/S1_SAR_IW_SINGLE_POL/description"), ose);
+            IOpenSearchable entity = ose.Create(new OpenSearchUrl("https://ngeopro.magellium.fr/remote/S1_SAR_IW_SINGLE_POL/description"));
             NameValueCollection nvc = new NameValueCollection();
 
             var osr = ose.Query(entity, nvc, "atom");

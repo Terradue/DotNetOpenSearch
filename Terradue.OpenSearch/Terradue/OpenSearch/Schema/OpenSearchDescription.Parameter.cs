@@ -279,5 +279,18 @@ namespace Terradue.OpenSearch.Schema {
             }
         }
     }
+
+	public class OpenSearchDescriptionUrlParameterOptionComparer : IEqualityComparer<OpenSearchDescriptionUrlParameterOption>
+	{
+        public int GetHashCode(OpenSearchDescriptionUrlParameterOption obj)
+        {
+            return obj.Label.GetHashCode();
+        }
+
+        bool IEqualityComparer<OpenSearchDescriptionUrlParameterOption>.Equals(OpenSearchDescriptionUrlParameterOption x, OpenSearchDescriptionUrlParameterOption y)
+        {
+            return x.Label == y.Label;
+        }
+    }
    
 }

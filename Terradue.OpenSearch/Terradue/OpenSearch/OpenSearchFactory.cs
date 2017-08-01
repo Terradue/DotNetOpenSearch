@@ -151,6 +151,8 @@ namespace Terradue.OpenSearch {
                     string paramDef = matchParamDef.Groups[1].Value;
                     string paramValue = searchParameters[parameter_id];
 
+
+
                     // Find the paramdef in the remote URL template
                     foreach (string keyDef in remoteParametersDef.AllKeys) {
                         foreach (var key2 in remoteParametersDef.GetValues(keyDef)) {
@@ -350,7 +352,7 @@ namespace Terradue.OpenSearch {
         /// </summary>
         /// <returns>The open search description.</returns>
         /// <param name="baseUrl">Base URL.</param>
-        public static IOpenSearchable FindOpenSearchable(OpenSearchEngine ose, Uri baseUrl, string mimeType = null, bool soft = false) {
+        public static IOpenSearchable FindOpenSearchable(OpenSearchableFactorySettings settings, Uri baseUrl, string mimeType = null) {
 
             OpenSearchUrl url = new OpenSearchUrl(baseUrl);
             OpenSearchDescription openSearchDescription = null;
@@ -370,8 +372,8 @@ namespace Terradue.OpenSearch {
                 openSearchDescription.DefaultUrl = openSearchDescriptionUrl;
             } catch (InvalidOperationException ex) {
                 if (!(ex.InnerException is FileNotFoundException) && !(ex.InnerException is SecurityException) && !(ex.InnerException is UriFormatException)) {
-                    openSearchDescription = ose.AutoDiscoverFromQueryUrl(new OpenSearchUrl(baseUrl));
-                    urlBasedOpenSearchableFactory = new UrlBasedOpenSearchableFactory(ose, soft);
+                    openSearchDescription = settings.OpenSearchEngine.AutoDiscoverFromQueryUrl(new OpenSearchUrl(baseUrl));
+                    urlBasedOpenSearchableFactory = new UrlBasedOpenSearchableFactory(settings);
                     result = urlBasedOpenSearchableFactory.Create(url);
                     if (string.IsNullOrEmpty(mimeType))
                         return result;
@@ -396,7 +398,7 @@ namespace Terradue.OpenSearch {
             if (openSearchDescription == null) {
                 throw new EntryPointNotFoundException(string.Format("No OpenSearch description found around {0}", baseUrl));
             }
-            urlBasedOpenSearchableFactory = new UrlBasedOpenSearchableFactory(ose, soft);
+            urlBasedOpenSearchableFactory = new UrlBasedOpenSearchableFactory(settings);
             result = urlBasedOpenSearchableFactory.Create(openSearchDescription);
             return result;
         }
@@ -690,27 +692,26 @@ namespace Terradue.OpenSearch {
     /// URL based open searchable factory.
     /// </summary>
     public class UrlBasedOpenSearchableFactory : IOpenSearchableFactory {
-        OpenSearchEngine ose;
-        readonly bool soft;
 
-        public UrlBasedOpenSearchableFactory(OpenSearchEngine ose, bool soft = false) {
-            this.soft = soft;
-            this.ose = ose;
+        public UrlBasedOpenSearchableFactory(OpenSearchableFactorySettings settings) {
+            Settings = settings;
         }
 
         #region IOpenSearchableFactory implementation
 
         public IOpenSearchable Create(OpenSearchUrl url) {
-            if ( soft)
-                return new SoftGenericOpenSearchable(url, ose);
-            return new GenericOpenSearchable(url, ose);
+            if ( Settings.Soft )
+                return new SoftGenericOpenSearchable(url, Settings);
+            return new GenericOpenSearchable(url, Settings);
         }
 
         public IOpenSearchable Create(OpenSearchDescription osd) {
-            if (soft)
-                return new SoftGenericOpenSearchable(osd, ose);
-            return new GenericOpenSearchable(osd, ose);
+            if ( Settings.Soft )
+                return new SoftGenericOpenSearchable(osd, Settings);
+            return new GenericOpenSearchable(osd, Settings);
         }
+
+        public OpenSearchableFactorySettings Settings { get; private set; }
 
         #endregion
     }

@@ -24,10 +24,10 @@ namespace Terradue.OpenSearch.Test
             XmlSerializer ser = new XmlSerializer(typeof(OpenSearchDescription));
             var osd = (OpenSearchDescription)ser.Deserialize(XmlReader.Create(new FileStream("../Samples/fedeo-osdd.xml", FileMode.Open, FileAccess.Read)));
 
-            GenericOpenSearchable os = new GenericOpenSearchable(osd, new OpenSearchEngine());
-
             OpenSearchEngine ose = new OpenSearchEngine();
             ose.LoadPlugins();
+
+            IOpenSearchable os = ose.Create(osd);
 
             var url = new OpenSearchUrl("http://fedeo.esa.int/opensearch/request/?httpAccept=application/atom%2Bxml&parentIdentifier=urn:eop:DLR:EOWEB:Geohazard.Supersite.TerraSAR-X_SSC&startDate=2014-01-01T00:00:00Z&endDate=2015-04-20T00:00:00Z&recordSchema=om");
             NameValueCollection parameters = new NameValueCollection();

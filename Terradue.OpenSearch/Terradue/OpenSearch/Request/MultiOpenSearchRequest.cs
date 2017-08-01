@@ -207,7 +207,7 @@ namespace Terradue.OpenSearch.Request {
                 if (count == 0) {
                     ExecuteConcurrentRequest();
                     MergeResults();
-                    feed = new TFeed();
+                    feed.Items = new List<TItem>();
                 }
 
 
@@ -352,8 +352,8 @@ namespace Terradue.OpenSearch.Request {
 
 				log.DebugFormat("[multi] [{1}] TR:{0}", f1.TotalResults, f1.Identifier);
 
-                if (f1.Items.Count() == 0)
-                    continue;
+                //if (f1.Items.Count() == 0)
+                    //continue;
                 feed = Merge(feed, f1, key);
 
             }
@@ -366,7 +366,7 @@ namespace Terradue.OpenSearch.Request {
         /// <param name="f2">F2.</param>
         TFeed Merge(TFeed f1, TFeed f2, IOpenSearchable os) {
 
-            TFeed feed = (TFeed)f1.Clone();
+            TFeed tfeed = (TFeed)f1.Clone();
 
             int originalCount;
             try {
@@ -376,23 +376,24 @@ namespace Terradue.OpenSearch.Request {
             }
 
             // Case if all elements in first feed are already the right sorted results
-            if (feed.Items.Count() >= originalCount) {
+            if (tfeed.Items.Count() >= originalCount) {
                 if (f1.Items.Count() != 0 && f2.Items.Count() != 0) {
                     if (f1.Items.Last().LastUpdatedTime >= f2.Items.First().LastUpdatedTime)
-                        return feed;
+                        return tfeed;
                 }
             }
 
-
             int common = f1.Items.Intersect(f2.Items, new OpenSearchResultItemComparer()).OrderBy(u => u.Id).OrderByDescending(u => u.SortKey).Count();
-            feed.Items = f1.Items.Union(f2.Items, new OpenSearchResultItemComparer()).OrderBy(u => u.Id).OrderByDescending(u => u.SortKey);
+            tfeed.Items = f1.Items.Union(f2.Items, new OpenSearchResultItemComparer()).OrderBy(u => u.Id).OrderByDescending(u => u.SortKey);
             totalResults -= common;
 
-            feed.Items = feed.Items.Take(originalCount);
-
-
+            tfeed.Items = tfeed.Items.Take(originalCount);
+            foreach (var ext in f2.ElementExtensions.Where(e => e.OuterNamespace != "http://a9.com/-/spec/opensearch/1.1/"))
+            {
+                tfeed.ElementExtensions.Add(ext);
+            }
                 
-            return (TFeed)feed.Clone();
+            return (TFeed)tfeed.Clone();
         }
 
         /// <summary>
