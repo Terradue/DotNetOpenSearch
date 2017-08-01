@@ -28,6 +28,7 @@ namespace Terradue.OpenSearch {
         /// </summary>
         /// <returns>OpenSearchDescription with local references</returns>
         OpenSearchDescription GetProxyOpenSearchDescription();
+
 	}
         
 }
