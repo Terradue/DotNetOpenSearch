@@ -14,5 +14,7 @@ namespace Terradue.OpenSearch
 
         public bool Soft;
 
+        public System.Net.ICredentials Credentials;
+
     }
 }

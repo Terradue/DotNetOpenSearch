@@ -35,7 +35,7 @@ namespace Terradue.OpenSearch {
         public GenericOpenSearchable(OpenSearchUrl url, OpenSearchableFactorySettings settings) {
             this.settings = settings;
             this.url = url;
-            this.osd = settings.OpenSearchEngine.AutoDiscoverFromQueryUrl(url);
+            this.osd = settings.OpenSearchEngine.AutoDiscoverFromQueryUrl(url, settings);
         }
 
         /// <summary>

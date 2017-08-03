@@ -71,6 +71,8 @@ namespace Terradue.OpenSearch {
         /// TODO to be removed for a more legant solution
         public bool OpenSearchUrlOnly { get; set; }
 
+        public System.Net.ICredentials Credentials { get; set; }
+
         /// <summary>Creates a new instance of QuerySettings with the specified parameters.</summary>
         /// <param name="preferredContentType">The preferred content type.</param>
         /// <param name="readNative">The function to be called to obtain the formatted OpenSearch result.</param>
@@ -81,6 +83,14 @@ namespace Terradue.OpenSearch {
             this.SkipNullOrEmptyQueryStringParameters = false;
         }
 
+        public QuerySettings(OpenSearchableFactorySettings settings)
+        {
+            this.PreferredContentType = "applcation/atom+xml";
+            this.ReadNative = settings.OpenSearchEngine.GetExtensionByContentTypeAbility(this.PreferredContentType).ReadNative;
+			this.ForceUnspecifiedParameters = false;
+			this.SkipNullOrEmptyQueryStringParameters = false;
+            this.Credentials = settings.Credentials;
+        }
     }
 
     /// <summary>

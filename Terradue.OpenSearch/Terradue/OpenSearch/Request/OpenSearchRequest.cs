@@ -13,11 +13,13 @@ using System.Web;
 using Terradue.OpenSearch.Response;
 using Terradue.OpenSearch.Schema;
 
-namespace Terradue.OpenSearch.Request {
+namespace Terradue.OpenSearch.Request
+{
     /// <summary>
     /// Base class to represent an OpenSearch request.
     /// </summary>
-    public abstract class OpenSearchRequest {
+    public abstract class OpenSearchRequest
+    {
         OpenSearchUrl url;
 
         string contentType;
@@ -26,7 +28,8 @@ namespace Terradue.OpenSearch.Request {
         /// Initializes a new instance of the <see cref="Terradue.OpenSearch.OpenSearchRequest"/> class.
         /// </summary>
         /// <param name="url">URL.</param>
-        protected OpenSearchRequest(OpenSearchUrl url, string contentType) {
+        protected OpenSearchRequest(OpenSearchUrl url, string contentType)
+        {
             this.url = url;
             this.contentType = contentType;
         }
@@ -35,16 +38,20 @@ namespace Terradue.OpenSearch.Request {
         /// Gets the parameters of the request.
         /// </summary>
         /// <value>The parameters.</value>
-        public NameValueCollection Parameters {
-            get {
+        public NameValueCollection Parameters
+        {
+            get
+            {
                 return url.SearchAttributes;
             }
         }
 
-        public abstract NameValueCollection OriginalParameters { get; set;  }
+        public abstract NameValueCollection OriginalParameters { get; set; }
 
-        public string ContentType {
-            get {
+        public string ContentType
+        {
+            get
+            {
                 return contentType;
             }
         }
@@ -59,7 +66,8 @@ namespace Terradue.OpenSearch.Request {
         /// <param name="entity">IOpenSearchable Entity.</param>
         /// <param name="type">MimeType of the request.</param>
         /// <param name="parameters">Parameters of the request.</param>
-        public static OpenSearchRequest Create(IOpenSearchable entity, QuerySettings querySettings, NameValueCollection parameters) {
+        public static OpenSearchRequest Create(IOpenSearchable entity, QuerySettings querySettings, NameValueCollection parameters)
+        {
 
 
             OpenSearchDescription osd = entity.GetOpenSearchDescription();
@@ -72,11 +80,13 @@ namespace Terradue.OpenSearch.Request {
 
             OpenSearchRequest request = null;
 
-            switch (queryUrl.Scheme) {
+            switch (queryUrl.Scheme)
+            {
                 case "http":
                 case "https":
                     request = new HttpOpenSearchRequest(queryUrl, querySettings.PreferredContentType);
                     ((HttpOpenSearchRequest)request).TimeOut = 600000;
+                    ((HttpOpenSearchRequest)request).Credentials = querySettings.Credentials;
                     break;
                 case "file":
                     request = new FileOpenSearchRequest(queryUrl, querySettings.PreferredContentType);
@@ -90,15 +100,21 @@ namespace Terradue.OpenSearch.Request {
         }
 
 
-        public static OpenSearchRequest Create(OpenSearchUrl queryUrl) {
+        public static OpenSearchRequest Create(OpenSearchUrl queryUrl, QuerySettings querySettings = null)
+        {
 
             OpenSearchRequest request = null;
 
-            switch (queryUrl.Scheme) {
+            switch (queryUrl.Scheme)
+            {
                 case "http":
                 case "https":
                     request = new HttpOpenSearchRequest(queryUrl);
                     ((HttpOpenSearchRequest)request).TimeOut = 600000;
+                    if (querySettings != null)
+                    {
+                        ((HttpOpenSearchRequest)request).Credentials = querySettings.Credentials;
+                    }
                     break;
                 case "file":
                     request = new FileOpenSearchRequest(queryUrl, "");
@@ -109,11 +125,14 @@ namespace Terradue.OpenSearch.Request {
 
         }
 
-        public virtual OpenSearchUrl OpenSearchUrl {
-            get {
+        public virtual OpenSearchUrl OpenSearchUrl
+        {
+            get
+            {
                 return url;
             }
-            protected set {
+            protected set
+            {
                 url = value;
             }
         }

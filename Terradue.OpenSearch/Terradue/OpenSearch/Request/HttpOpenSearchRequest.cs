@@ -81,6 +81,7 @@ namespace Terradue.OpenSearch.Request {
                     }
                     httpWebRequest.Timeout = timeOut;
                     httpWebRequest.Proxy = null;
+                    httpWebRequest.Credentials = Credentials;
 
                     log.DebugFormat("Querying {0}", this.OpenSearchUrl);
 
@@ -128,6 +129,8 @@ namespace Terradue.OpenSearch.Request {
                 originalParameters = value;
             }
         }
+
+        public ICredentials Credentials { get; set; }
 
         #endregion
     }
