@@ -275,12 +275,12 @@ namespace Terradue.OpenSearch.Engine {
         /// </summary>
         /// <returns>An OpenSearchDescription</returns>
         /// <param name="url">URL.</param>
-        public OpenSearchDescription AutoDiscoverFromQueryUrl(OpenSearchUrl url) {
+        public OpenSearchDescription AutoDiscoverFromQueryUrl(OpenSearchUrl url, OpenSearchableFactorySettings settings = null) {
 
             OpenSearchDescription osd = null;
             OpenSearchUrl descriptionUrl = null;
 
-            OpenSearchRequest request = OpenSearchRequest.Create(url);
+            OpenSearchRequest request = OpenSearchRequest.Create(url, new QuerySettings(settings));
 
             ApplyPreSearchFilters(ref request);
 
@@ -330,7 +330,7 @@ namespace Terradue.OpenSearch.Engine {
 
             OpenSearchDescription osd;
 
-            OpenSearchRequest request = OpenSearchRequest.Create(url);
+            OpenSearchRequest request = OpenSearchRequest.Create(url, new QuerySettings(this.Settings));
 
             ApplyPreSearchFilters(ref request);
 
