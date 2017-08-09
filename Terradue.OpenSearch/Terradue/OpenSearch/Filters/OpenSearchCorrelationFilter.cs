@@ -35,7 +35,7 @@ namespace Terradue.OpenSearch.Filters {
             if (factory != null) {
                 this.factory = factory;
             } else {
-                this.factory = ose;
+                this.factory = new UrlBasedOpenSearchableFactory(new OpenSearchableFactorySettings(ose));
             }
         }
 

@@ -82,6 +82,7 @@ namespace Terradue.OpenSearch.Request {
                     httpWebRequest.Timeout = timeOut;
                     httpWebRequest.Proxy = null;
                     httpWebRequest.Credentials = Credentials;
+                    httpWebRequest.PreAuthenticate = true;
 
                     log.DebugFormat("Querying {0}", this.OpenSearchUrl);
 

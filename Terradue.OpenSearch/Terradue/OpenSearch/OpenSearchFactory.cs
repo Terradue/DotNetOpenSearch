@@ -694,7 +694,7 @@ namespace Terradue.OpenSearch {
     public class UrlBasedOpenSearchableFactory : IOpenSearchableFactory {
 
         public UrlBasedOpenSearchableFactory(OpenSearchableFactorySettings settings) {
-            Settings = settings;
+            Settings = (OpenSearchableFactorySettings)settings.Clone();
         }
 
         #region IOpenSearchableFactory implementation
