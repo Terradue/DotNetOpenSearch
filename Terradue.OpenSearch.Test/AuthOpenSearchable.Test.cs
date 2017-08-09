@@ -26,9 +26,9 @@ namespace Terradue.OpenSearch.Test {
             OpenSearchEngine ose = new OpenSearchEngine();
             ose.LoadPlugins();
 
-			UrlBasedOpenSearchableFactory factory = new UrlBasedOpenSearchableFactory(new OpenSearchableFactorySettings(ose));
-
-            factory.Settings.Credentials = new System.Net.NetworkCredential("demo1", "Demo199++");
+            var settings = new OpenSearchableFactorySettings(ose);
+            settings.Credentials = new System.Net.NetworkCredential("demo1", "Demo199++");
+			UrlBasedOpenSearchableFactory factory = new UrlBasedOpenSearchableFactory(settings);
 
             IOpenSearchable entity1 = factory.Create(new OpenSearchUrl("https://catalog.terradue.com/demo1/search"));
 
@@ -40,6 +40,8 @@ namespace Terradue.OpenSearch.Test {
             nvc.Set("count", "10");
 
             osr = ose.Query(entity1, nvc, "atom");
+
+            OpenSearchFactory.FindOpenSearchable(settings, new Uri("https://catalog.terradue.com/demo1/search"), null);
 
 
         }

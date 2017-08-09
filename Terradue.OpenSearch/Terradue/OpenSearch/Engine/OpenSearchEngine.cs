@@ -293,7 +293,7 @@ namespace Terradue.OpenSearch.Engine {
                 contentType = contentType.Split(';')[0];
 
             if (contentType == "application/opensearchdescription+xml") {
-                osd = this.LoadOpenSearchDescriptionDocument(url);
+                osd = this.LoadOpenSearchDescriptionDocument(url, settings);
                 descriptionUrl = url;
             } else {
 
@@ -338,17 +338,10 @@ namespace Terradue.OpenSearch.Engine {
 
             ApplyPostSearchFilters(request, ref response);
 
-            if (response.ObjectType != typeof(byte[]))
-                throw new InvalidOperationException("The OpenSearch Description document did not return byte[] body");
-
             try {
-                XmlSerializer ser = new XmlSerializer(typeof(OpenSearchDescription));
-                Stream stream = new MemoryStream((byte[])response.GetResponseObject());
-                osd = (OpenSearchDescription)ser.Deserialize(XmlReader.Create(stream));
-                stream.Flush();
-                stream.Close();
+                osd = OpenSearchFactory.ReadOpenSearchDescriptionDocument(response);
             } catch (Exception e) {
-                throw new Exception("Exception querying OpenSearch description at " + url.ToString() + " : " + e.Message, e);
+                throw new InvalidOperationException("Exception reading OpenSearch description at " + url.ToString() + " : " + e.Message, e);
             } 
 
             return osd;
