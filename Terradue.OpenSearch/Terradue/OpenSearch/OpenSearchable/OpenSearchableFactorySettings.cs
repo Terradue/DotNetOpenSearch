@@ -1,8 +1,9 @@
-﻿using Terradue.OpenSearch.Engine;
+﻿using System;
+using Terradue.OpenSearch.Engine;
 
 namespace Terradue.OpenSearch
 {
-    public class OpenSearchableFactorySettings
+    public class OpenSearchableFactorySettings : System.ICloneable
     {
 
         public OpenSearchableFactorySettings(OpenSearchEngine ose){
@@ -16,5 +17,13 @@ namespace Terradue.OpenSearch
 
         public System.Net.ICredentials Credentials;
 
+        public object Clone()
+        {
+            return new OpenSearchableFactorySettings(OpenSearchEngine)
+            {
+                Soft = this.Soft,
+                Credentials = this.Credentials
+            };
+        }
     }
 }

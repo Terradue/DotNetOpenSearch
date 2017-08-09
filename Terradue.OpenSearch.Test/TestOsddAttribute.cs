@@ -27,7 +27,9 @@ namespace Terradue.OpenSearch.Test
             OpenSearchEngine ose = new OpenSearchEngine();
             ose.LoadPlugins();
 
-            IOpenSearchable os = ose.Create(osd);
+			UrlBasedOpenSearchableFactory factory = new UrlBasedOpenSearchableFactory(new OpenSearchableFactorySettings(ose));
+
+			IOpenSearchable os = factory.Create(osd);
 
             var url = new OpenSearchUrl("http://fedeo.esa.int/opensearch/request/?httpAccept=application/atom%2Bxml&parentIdentifier=urn:eop:DLR:EOWEB:Geohazard.Supersite.TerraSAR-X_SSC&startDate=2014-01-01T00:00:00Z&endDate=2015-04-20T00:00:00Z&recordSchema=om");
             NameValueCollection parameters = new NameValueCollection();

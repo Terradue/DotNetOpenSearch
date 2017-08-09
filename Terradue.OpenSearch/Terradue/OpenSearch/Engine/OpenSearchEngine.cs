@@ -31,7 +31,7 @@ namespace Terradue.OpenSearch.Engine {
     /// <summary>
     /// The engine for making OpenSearch request
     /// </summary>
-    public sealed partial class OpenSearchEngine : IOpenSearchableFactory {
+    public sealed partial class OpenSearchEngine {
 
         public const int DEFAULT_COUNT = 20;
         public const int DEFAULT_MAXCOUNT = 100;
@@ -280,7 +280,7 @@ namespace Terradue.OpenSearch.Engine {
             OpenSearchDescription osd = null;
             OpenSearchUrl descriptionUrl = null;
 
-            OpenSearchRequest request = OpenSearchRequest.Create(url, new QuerySettings(settings));
+            OpenSearchRequest request = OpenSearchRequest.Create(url, new QuerySettings("*/*", null, settings));
 
             ApplyPreSearchFilters(ref request);
 
@@ -307,7 +307,7 @@ namespace Terradue.OpenSearch.Engine {
                 if (descriptionUrl == null)
                     throw new ImpossibleSearchException("No Opensearch Description link found in results of " + url.ToString());
 
-                osd = LoadOpenSearchDescriptionDocument(descriptionUrl);
+                osd = LoadOpenSearchDescriptionDocument(descriptionUrl, settings);
             }
 
             osd.Originator = descriptionUrl;
@@ -326,11 +326,11 @@ namespace Terradue.OpenSearch.Engine {
         /// </summary>
         /// <returns>The open search description document.</returns>
         /// <param name="url">URL.</param>
-        public OpenSearchDescription LoadOpenSearchDescriptionDocument(OpenSearchUrl url) {
+        public OpenSearchDescription LoadOpenSearchDescriptionDocument(OpenSearchUrl url, OpenSearchableFactorySettings settings = null) {
 
             OpenSearchDescription osd;
 
-            OpenSearchRequest request = OpenSearchRequest.Create(url, new QuerySettings(this.Settings));
+            OpenSearchRequest request = OpenSearchRequest.Create(url, new QuerySettings("*/*", null, settings));
 
             ApplyPreSearchFilters(ref request);
 
@@ -542,32 +542,34 @@ namespace Terradue.OpenSearch.Engine {
             }
         }
 
-        #region IOpenSearchableFactory implementation
+        //#region IOpenSearchableFactory implementation
 
-        /// <summary>
-        /// Create an IOpenSearchable from an OpenSearchUrl
-        /// </summary>
-        /// <param name="url">URL to either a search or a description</param>
-        public IOpenSearchable Create(OpenSearchUrl url) {
-            return new GenericOpenSearchable(url, Settings);
-        }
+        ///// <summary>
+        ///// Create an IOpenSearchable from an OpenSearchUrl
+        ///// </summary>
+        ///// <param name="url">URL to either a search or a description</param>
+        //public IOpenSearchable Create(OpenSearchUrl url) {
+        //    return new GenericOpenSearchable(url, Settings);
+        //}
 
-        /// <summary>
-        /// Create an IOpenSearchable from an OpenSearchUrl
-        /// </summary>
-        /// <param name="url">URL to either a search or a description</param>
-        /// <param name="osd">Osd.</param>
-        public IOpenSearchable Create(OpenSearchDescription osd) {
-            return new GenericOpenSearchable(osd, Settings);
-        }
+        ///// <summary>
+        ///// Create an IOpenSearchable from an OpenSearchUrl
+        ///// </summary>
+        ///// <param name="url">URL to either a search or a description</param>
+        ///// <param name="osd">Osd.</param>
+        //public IOpenSearchable Create(OpenSearchDescription osd) {
+        //    return new GenericOpenSearchable(osd, Settings);
+        //}
 
-        public OpenSearchableFactorySettings Settings {
-            get {
-                return new OpenSearchableFactorySettings(this);
-            }            
-        }
+        //private OpenSearchableFactorySettings Settings
 
-        #endregion
+        //public OpenSearchableFactorySettings Settings {
+        //    get {
+        //        return new OpenSearchableFactorySettings(this);
+        //    }            
+        //}
+
+        //#endregion
     }
 }
 

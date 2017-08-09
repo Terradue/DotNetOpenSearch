@@ -59,7 +59,7 @@ namespace Terradue.OpenSearch {
             if (osee == null)
                 return null;
 
-            return new QuerySettings(this.DefaultMimeType, osee.ReadNative);
+            return new QuerySettings(this.DefaultMimeType, osee.ReadNative, settings);
         }
 
         public OpenSearchRequest Create(QuerySettings querySettings, NameValueCollection parameters) {

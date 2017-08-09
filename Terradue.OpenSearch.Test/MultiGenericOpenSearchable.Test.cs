@@ -363,9 +363,11 @@ namespace Terradue.OpenSearch.Test {
             OpenSearchEngine ose = new OpenSearchEngine();
             ose.LoadPlugins();
 
-            IOpenSearchable entity1 = ose.Create(new OpenSearchUrl("https://catalog.terradue.com/hydro-co-floodmonitoring-apps/search?uid=floodmonitoring"));
-            IOpenSearchable entity2 = ose.Create(new OpenSearchUrl("https://catalog.terradue.com/hydro-co-floodmonitoring-apps/search"));
-            IOpenSearchable entity3 = ose.Create(new OpenSearchUrl("https://catalog.terradue.com/hydro-co-smallwaterbody-apps/search"));
+            UrlBasedOpenSearchableFactory factory = new UrlBasedOpenSearchableFactory(new OpenSearchableFactorySettings(ose));
+
+            IOpenSearchable entity1 = factory.Create(new OpenSearchUrl("https://catalog.terradue.com/hydro-co-floodmonitoring-apps/search?uid=floodmonitoring"));
+            IOpenSearchable entity2 = factory.Create(new OpenSearchUrl("https://catalog.terradue.com/hydro-co-floodmonitoring-apps/search"));
+            IOpenSearchable entity3 = factory.Create(new OpenSearchUrl("https://catalog.terradue.com/hydro-co-smallwaterbody-apps/search"));
 
             List<IOpenSearchable> entities = new List<IOpenSearchable>();
             entities.Add(entity1);
@@ -399,8 +401,10 @@ namespace Terradue.OpenSearch.Test {
             OpenSearchEngine ose = new OpenSearchEngine();
             ose.LoadPlugins();
 
-            IOpenSearchable entity1 = ose.Create(new OpenSearchUrl("https://catalog.terradue.com:443//sentinel1/series/GRD/search?format=atom&uid=S1A_IW_GRDH_1SDV_20160719T181151_20160719T181219_012221_012F93_3E0B"));
-            IOpenSearchable entity2 = ose.Create(new OpenSearchUrl("https://catalog.terradue.com:443//sentinel1/series/GRD/search?format=atom&uid=S1A_IW_GRDH_1SDV_20160731T181152_20160731T181219_012396_013552_7CC6"));
+			UrlBasedOpenSearchableFactory factory = new UrlBasedOpenSearchableFactory(new OpenSearchableFactorySettings(ose));
+
+			IOpenSearchable entity1 = factory.Create(new OpenSearchUrl("https://catalog.terradue.com:443//sentinel1/series/GRD/search?format=atom&uid=S1A_IW_GRDH_1SDV_20160719T181151_20160719T181219_012221_012F93_3E0B"));
+            IOpenSearchable entity2 = factory.Create(new OpenSearchUrl("https://catalog.terradue.com:443//sentinel1/series/GRD/search?format=atom&uid=S1A_IW_GRDH_1SDV_20160731T181152_20160731T181219_012396_013552_7CC6"));
             //IOpenSearchable entity3 = new GenericOpenSearchable(new OpenSearchUrl("https://catalog.terradue.com/hydro-co-smallwaterbody-apps/search"), ose);
 
             List<IOpenSearchable> entities = new List<IOpenSearchable>();
