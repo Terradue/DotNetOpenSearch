@@ -24,15 +24,17 @@ using Terradue.OpenSearch.Response;
 using Terradue.OpenSearch.Schema;
 using Terradue.OpenSearch.Request;
 
-namespace Terradue.OpenSearch {
+namespace Terradue.OpenSearch
+{
     /// <summary>
     /// OpenSearch factory. Helper class with a set of static class with the most common manipulation
     /// functions for OpenSearch.
     /// </summary>
-    public partial class OpenSearchFactory {
+    public partial class OpenSearchFactory
+    {
 
 
-        private static  log4net.ILog log = log4net.LogManager.GetLogger
+        private static log4net.ILog log = log4net.LogManager.GetLogger
             (System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         /// <summary>
@@ -40,15 +42,19 @@ namespace Terradue.OpenSearch {
         /// </summary>
         /// <returns>The OpenSearch description document.</returns>
         /// <param name="url">URL.</param>
-        public static OpenSearchDescription LoadOpenSearchDescriptionDocument(OpenSearchUrl url) {
-            try {
-                XmlSerializer ser = new XmlSerializer(typeof(OpenSearchDescription));
-                using (XmlReader reader = XmlReader.Create(url.ToString())){
-                    return (OpenSearchDescription)ser.Deserialize(reader);
-                }
-            } catch (Exception e) {
-                throw new InvalidOperationException("Exception querying OpenSearch description at " + url.ToString() + " : " + e.Message, e);
-            }
+        public static OpenSearchDescription ReadOpenSearchDescriptionDocument(IOpenSearchResponse response)
+        {
+
+            OpenSearchDescription osd = null;
+            if (response.ObjectType != typeof(byte[]))
+                throw new InvalidOperationException("The OpenSearch Description document did not return byte[] body");
+
+            XmlSerializer ser = new XmlSerializer(typeof(OpenSearchDescription));
+            Stream stream = new MemoryStream((byte[])response.GetResponseObject());
+            osd = (OpenSearchDescription)ser.Deserialize(XmlReader.Create(stream));
+            stream.Flush();
+            stream.Close();
+            return osd;
         }
 
         /// <summary>
@@ -57,7 +63,8 @@ namespace Terradue.OpenSearch {
         /// <returns>The request URL for template.</returns>
         /// <param name="remoteUrlTemplate">Remote URL template.</param>
         /// <param name="searchParameters">Search parameters.</param>
-        public static OpenSearchUrl BuildRequestUrlForTemplate(OpenSearchDescriptionUrl remoteUrlTemplate, NameValueCollection searchParameters, QuerySettings querySettings) {
+        public static OpenSearchUrl BuildRequestUrlForTemplate(OpenSearchDescriptionUrl remoteUrlTemplate, NameValueCollection searchParameters, QuerySettings querySettings)
+        {
             // container for the final query url
             UriBuilder finalUrl = new UriBuilder(remoteUrlTemplate.Template);
             // parameters for final query
@@ -67,7 +74,8 @@ namespace Terradue.OpenSearch {
             NameValueCollection remoteParametersDef = HttpUtility.ParseQueryString(finalUrl.Query);
 
             // For each parameter requested
-            foreach (string parameter_id in searchParameters.AllKeys) {
+            foreach (string parameter_id in searchParameters.AllKeys)
+            {
                 if (remoteParametersDef[parameter_id] == null)
                 {
                     // if forced, set the param
@@ -79,7 +87,8 @@ namespace Terradue.OpenSearch {
                     continue;
                 }
                 // first find the defintion of the parameter in the url template
-                foreach (var key in remoteParametersDef.GetValues(parameter_id)) {
+                foreach (var key in remoteParametersDef.GetValues(parameter_id))
+                {
                     Match matchParamDef = Regex.Match(key, @"^{([^?]+)\??}$");
                     // If parameter does not exist, continue
                     if (!matchParamDef.Success)
@@ -88,7 +97,7 @@ namespace Terradue.OpenSearch {
                     string paramDef = matchParamDef.Groups[1].Value;
                     string paramValue = searchParameters[parameter_id];
 
-                    if ( !(querySettings.SkipNullOrEmptyQueryStringParameters && string.IsNullOrEmpty(paramValue)))
+                    if (!(querySettings.SkipNullOrEmptyQueryStringParameters && string.IsNullOrEmpty(paramValue)))
                         finalQueryParameters.Set(parameter_id, paramValue);
                 }
 
@@ -107,7 +116,8 @@ namespace Terradue.OpenSearch {
         /// <param name="remoteUrlTemplate">Remote URL template.</param>
         /// <param name="searchParameters">Search parameters.</param>
         /// <param name="urlTemplateDef">URL template def.</param>
-        public static OpenSearchUrl BuildRequestUrlForTemplate(OpenSearchDescriptionUrl remoteUrlTemplate, NameValueCollection searchParameters, NameValueCollection requestUrlTemplateDef, QuerySettings querySettings) {
+        public static OpenSearchUrl BuildRequestUrlForTemplate(OpenSearchDescriptionUrl remoteUrlTemplate, NameValueCollection searchParameters, NameValueCollection requestUrlTemplateDef, QuerySettings querySettings)
+        {
             // container for the final query url
             UriBuilder finalUrl = new UriBuilder(remoteUrlTemplate.Template);
             // parameters for final query
@@ -117,11 +127,13 @@ namespace Terradue.OpenSearch {
             NameValueCollection remoteParametersDef = HttpUtility.ParseQueryString(finalUrl.Query);
 
             // control duplicates
-            foreach (string key in remoteParametersDef.AllKeys) {
+            foreach (string key in remoteParametersDef.AllKeys)
+            {
                 if (string.IsNullOrEmpty(key))
                     continue;
                 int count = remoteParametersDef.GetValues(key).Count();
-                if (count > 1) {
+                if (count > 1)
+                {
                     var value = remoteParametersDef.GetValues(key)[0];
                     remoteParametersDef.Remove(key);
                     remoteParametersDef.Add(key, value);
@@ -129,7 +141,8 @@ namespace Terradue.OpenSearch {
             }
 
             // For each parameter id set for search
-            foreach (string parameter_id in searchParameters.AllKeys) {
+            foreach (string parameter_id in searchParameters.AllKeys)
+            {
                 // skip if parameter is not in the template unless it is forced
                 if (requestUrlTemplateDef[parameter_id] == null)
                 {
@@ -137,12 +150,13 @@ namespace Terradue.OpenSearch {
                     if (querySettings.ForceUnspecifiedParameters)
                     {
                         if (!(querySettings.SkipNullOrEmptyQueryStringParameters && string.IsNullOrEmpty(searchParameters[parameter_id])))
-                        finalQueryParameters.Set(parameter_id, searchParameters[parameter_id]);
+                            finalQueryParameters.Set(parameter_id, searchParameters[parameter_id]);
                     }
                     continue;
                 }
                 // first find the defintion of the parameter in the url template
-                foreach (var key in requestUrlTemplateDef.GetValues(parameter_id)) {
+                foreach (var key in requestUrlTemplateDef.GetValues(parameter_id))
+                {
                     Match matchParamDef = Regex.Match(key, @"^{([^?]+)\??}$");
                     // If parameter is not respecting OpenSearch template spec, skip
                     if (!matchParamDef.Success)
@@ -154,11 +168,14 @@ namespace Terradue.OpenSearch {
 
 
                     // Find the paramdef in the remote URL template
-                    foreach (string keyDef in remoteParametersDef.AllKeys) {
-                        foreach (var key2 in remoteParametersDef.GetValues(keyDef)) {
+                    foreach (string keyDef in remoteParametersDef.AllKeys)
+                    {
+                        foreach (var key2 in remoteParametersDef.GetValues(keyDef))
+                        {
                             Match remoteMatchParamDef = Regex.Match(key2, @"^{(" + paramDef + @")\??}$");
                             // if match is successful
-                            if (remoteMatchParamDef.Success) {
+                            if (remoteMatchParamDef.Success)
+                            {
                                 // then add the parameter with the right key
                                 if (!(querySettings.SkipNullOrEmptyQueryStringParameters && string.IsNullOrEmpty(paramValue)))
                                     finalQueryParameters.Set(keyDef, paramValue);
@@ -170,7 +187,8 @@ namespace Terradue.OpenSearch {
             }
 
             // All other remote query parameters
-            foreach (string parameter in remoteParametersDef.AllKeys) {
+            foreach (string parameter in remoteParametersDef.AllKeys)
+            {
                 Match matchParamDef = Regex.Match(remoteParametersDef[parameter], @"^{([^?]+)\??}$");
                 // If parameter does not exist, continue
                 if (!matchParamDef.Success && !string.IsNullOrEmpty(parameter))
@@ -193,7 +211,8 @@ namespace Terradue.OpenSearch {
         /// <returns>The request URL from template name parameters.</returns>
         /// <param name="remoteUrlTemplate">Remote URL template.</param>
         /// <param name="templateSearchParameters">Template search parameters.</param>
-        public static string BuildRequestUrlFromTemplateNameParameters(OpenSearchUrl remoteUrlTemplate, NameValueCollection templateSearchParameters) {
+        public static string BuildRequestUrlFromTemplateNameParameters(OpenSearchUrl remoteUrlTemplate, NameValueCollection templateSearchParameters)
+        {
             // container for the final query url
             UriBuilder finalUrl = new UriBuilder(remoteUrlTemplate);
             // parameters for final query
@@ -203,16 +222,20 @@ namespace Terradue.OpenSearch {
             NameValueCollection remoteParametersDef = HttpUtility.ParseQueryString(remoteUrlTemplate.Query);
 
             // For each parameter requested
-            foreach (string parameter in templateSearchParameters.AllKeys) {
-           
+            foreach (string parameter in templateSearchParameters.AllKeys)
+            {
+
                 string value = templateSearchParameters[parameter];
 
                 // Find the paramdef in the remote URl template
-                foreach (string keyDef in remoteParametersDef.AllKeys) {
-                    foreach (string key2 in remoteParametersDef.GetValues(keyDef)) {
+                foreach (string keyDef in remoteParametersDef.AllKeys)
+                {
+                    foreach (string key2 in remoteParametersDef.GetValues(keyDef))
+                    {
                         Match remoteMatchParamDef = Regex.Match(key2, @"^{(" + parameter + @")\??}$");
                         // if martch is successful
-                        if (remoteMatchParamDef.Success) {
+                        if (remoteMatchParamDef.Success)
+                        {
                             // then add the parameter with the right key
                             finalQueryParameters.Add(keyDef, value);
                         }
@@ -231,15 +254,16 @@ namespace Terradue.OpenSearch {
         /// Gets the base open search parameter.
         /// </summary>
         /// <returns>The base open search parameter.</returns>
-        public static NameValueCollection GetBaseOpenSearchParameter() {
+        public static NameValueCollection GetBaseOpenSearchParameter()
+        {
             NameValueCollection nvc = new NameValueCollection();
-			
+
             nvc.Add("count", "{count?}");
             nvc.Add("startPage", "{startPage?}");
             nvc.Add("startIndex", "{startIndex?}");
             nvc.Add("q", "{searchTerms?}");
             nvc.Add("lang", "{language?}");
-			
+
             return nvc;
         }
 
@@ -249,7 +273,8 @@ namespace Terradue.OpenSearch {
         /// <returns>The parameter name from identifier.</returns>
         /// <param name="parameters">Parameters.</param>
         /// <param name="id">Identifier.</param>
-        public static string GetParamNameFromId(NameValueCollection parameters, string id) {
+        public static string GetParamNameFromId(NameValueCollection parameters, string id)
+        {
 
             string param = parameters[id];
             if (param == null)
@@ -270,11 +295,13 @@ namespace Terradue.OpenSearch {
         /// <returns>The open search URL by type.</returns>
         /// <param name="osd">Osd.</param>
         /// <param name="type">Type.</param>
-        public static OpenSearchDescriptionUrl GetOpenSearchUrlByType(OpenSearchDescription osd, string type) {
-			MimeType mime = MimeType.CreateFromContentType(type);
-			return osd.Url.FirstOrDefault(u => {
-				return MimeType.Equals(MimeType.CreateFromContentType(u.Type),mime);
-			});
+        public static OpenSearchDescriptionUrl GetOpenSearchUrlByType(OpenSearchDescription osd, string type)
+        {
+            MimeType mime = MimeType.CreateFromContentType(type);
+            return osd.Url.FirstOrDefault(u =>
+            {
+                return MimeType.Equals(MimeType.CreateFromContentType(u.Type), mime);
+            });
         }
 
         /// <summary>
@@ -283,7 +310,8 @@ namespace Terradue.OpenSearch {
         /// <returns>The open search URL by rel.</returns>
         /// <param name="osd">Osd.</param>
         /// <param name="rel">Rel.</param>
-        public static OpenSearchDescriptionUrl GetOpenSearchUrlByRel(OpenSearchDescription osd, string rel) {
+        public static OpenSearchDescriptionUrl GetOpenSearchUrlByRel(OpenSearchDescription osd, string rel)
+        {
             return osd.Url.FirstOrDefault(u => u.Relation == rel);
         }
 
@@ -293,7 +321,8 @@ namespace Terradue.OpenSearch {
         /// <returns><c>true</c>, if free equal was paginationed, <c>false</c> otherwise.</returns>
         /// <param name="parameters">Parameters.</param>
         /// <param name="parameters2">Parameters2.</param>
-        public static bool PaginationFreeEqual(NameValueCollection parameters, NameValueCollection parameters2) {
+        public static bool PaginationFreeEqual(NameValueCollection parameters, NameValueCollection parameters2)
+        {
 
             NameValueCollection nvc1 = new NameValueCollection(parameters);
             NameValueCollection nvc2 = new NameValueCollection(parameters2);
@@ -305,7 +334,7 @@ namespace Terradue.OpenSearch {
             nvc2.Remove(ReverseTemplateOpenSearchParameters(GetBaseOpenSearchParameter())["startIndex"]);
 
             return nvc1.AllKeys.OrderBy(key => key)
-					.SequenceEqual(nvc2.AllKeys.OrderBy(key => key))
+                    .SequenceEqual(nvc2.AllKeys.OrderBy(key => key))
             && nvc1.AllKeys.All(key => nvc1[key] == nvc2[key]);
 
         }
@@ -316,25 +345,30 @@ namespace Terradue.OpenSearch {
         /// <returns>The open search parameters.</returns>
         /// <param name="entities">Entities.</param>
         /// <param name="contentType">Content type.</param>
-        public static NameValueCollection MergeOpenSearchParameters(IOpenSearchable[] entities, string contentType) {
+        public static NameValueCollection MergeOpenSearchParameters(IOpenSearchable[] entities, string contentType)
+        {
 
             NameValueCollection nvc = new NameValueCollection();
 
-            foreach (IOpenSearchable entity in entities) {
+            foreach (IOpenSearchable entity in entities)
+            {
 
                 NameValueCollection nvc2 = entity.GetOpenSearchParameters(contentType);
                 int i = 1;
-                foreach (string param in nvc2.Keys) {
+                foreach (string param in nvc2.Keys)
+                {
 
                     if (nvc2[param] == nvc[param])
                         continue;
 
-                    if (nvc[param] == null) {
+                    if (nvc[param] == null)
+                    {
                         nvc.Add(param, nvc2[param]);
                         continue;
                     }
 
-                    if (nvc[param] != null) {
+                    if (nvc[param] != null)
+                    {
                         nvc.Add(param + i++, nvc2[param]);
                         continue;
                     }
@@ -352,27 +386,36 @@ namespace Terradue.OpenSearch {
         /// </summary>
         /// <returns>The open search description.</returns>
         /// <param name="baseUrl">Base URL.</param>
-        public static IOpenSearchable FindOpenSearchable(OpenSearchableFactorySettings settings, Uri baseUrl, string mimeType = null) {
+        public static IOpenSearchable FindOpenSearchable(OpenSearchableFactorySettings settings, Uri baseUrl, string mimeType = null)
+        {
 
             OpenSearchUrl url = new OpenSearchUrl(baseUrl);
             OpenSearchDescription openSearchDescription = null;
             UrlBasedOpenSearchableFactory urlBasedOpenSearchableFactory;
             IOpenSearchable result;
-            try {
-                openSearchDescription = OpenSearchFactory.LoadOpenSearchDescriptionDocument(url);
+            try
+            {
+                openSearchDescription = settings.OpenSearchEngine.LoadOpenSearchDescriptionDocument(url, settings);
                 OpenSearchDescriptionUrl openSearchDescriptionUrl;
-                if (mimeType == null) {
+                if (mimeType == null)
+                {
                     openSearchDescriptionUrl = openSearchDescription.Url.First<OpenSearchDescriptionUrl>();
-                } else {
+                }
+                else
+                {
                     openSearchDescriptionUrl = openSearchDescription.Url.FirstOrDefault((OpenSearchDescriptionUrl u) => u.Type == mimeType);
                 }
-                if (openSearchDescriptionUrl == null) {
+                if (openSearchDescriptionUrl == null)
+                {
                     throw new InvalidOperationException("Impossible to find an OpenSearchable link for the type " + mimeType);
                 }
                 openSearchDescription.DefaultUrl = openSearchDescriptionUrl;
-            } catch (InvalidOperationException ex) {
-                if (!(ex.InnerException is FileNotFoundException) && !(ex.InnerException is SecurityException) && !(ex.InnerException is UriFormatException)) {
-                    openSearchDescription = settings.OpenSearchEngine.AutoDiscoverFromQueryUrl(new OpenSearchUrl(baseUrl));
+            }
+            catch (InvalidOperationException ex)
+            {
+                if (!(ex.InnerException is FileNotFoundException) && !(ex.InnerException is SecurityException) && !(ex.InnerException is UriFormatException))
+                {
+                    openSearchDescription = settings.OpenSearchEngine.AutoDiscoverFromQueryUrl(new OpenSearchUrl(baseUrl), settings);
                     urlBasedOpenSearchableFactory = new UrlBasedOpenSearchableFactory(settings);
                     result = urlBasedOpenSearchableFactory.Create(url);
                     if (string.IsNullOrEmpty(mimeType))
@@ -383,19 +426,26 @@ namespace Terradue.OpenSearch {
 
                     return result;
                 }
-                try {
+                try
+                {
                     url = new OpenSearchUrl(new Uri(baseUrl, "/description"));
-                    openSearchDescription = OpenSearchFactory.LoadOpenSearchDescriptionDocument(url);
-                } catch {
-                    try {
+                    openSearchDescription = settings.OpenSearchEngine.LoadOpenSearchDescriptionDocument(url, settings);
+                }
+                catch
+                {
+                    try
+                    {
                         url = new OpenSearchUrl(new Uri(baseUrl, "/OSDD"));
-                        openSearchDescription = OpenSearchFactory.LoadOpenSearchDescriptionDocument(url);
-                    } catch {
+                        openSearchDescription = settings.OpenSearchEngine.LoadOpenSearchDescriptionDocument(url, settings);
+                    }
+                    catch
+                    {
                         throw new EntryPointNotFoundException(string.Format("No OpenSearch description found around {0}", baseUrl));
                     }
                 }
             }
-            if (openSearchDescription == null) {
+            if (openSearchDescription == null)
+            {
                 throw new EntryPointNotFoundException(string.Format("No OpenSearch description found around {0}", baseUrl));
             }
             urlBasedOpenSearchableFactory = new UrlBasedOpenSearchableFactory(settings);
@@ -410,7 +460,8 @@ namespace Terradue.OpenSearch {
         /// <param name="entity">Entity.</param>
         /// <param name="mimeType">MIME type.</param>
         /// <param name="paramName">Parameter name.</param>
-        public static string GetIdFromParamName(IOpenSearchable entity, string mimeType, string paramName) {
+        public static string GetIdFromParamName(IOpenSearchable entity, string mimeType, string paramName)
+        {
 
             NameValueCollection nvc = entity.GetOpenSearchParameters(mimeType);
             NameValueCollection revNvc = ReverseTemplateOpenSearchParameters(nvc);
@@ -423,7 +474,8 @@ namespace Terradue.OpenSearch {
         /// </summary>
         /// <returns>The open search parameters.</returns>
         /// <param name="osUrl">Os URL.</param>
-        public static NameValueCollection GetOpenSearchParameters(OpenSearchDescriptionUrl osUrl) {
+        public static NameValueCollection GetOpenSearchParameters(OpenSearchDescriptionUrl osUrl)
+        {
             Uri finalUrl = new Uri(osUrl.Template);
             return HttpUtility.ParseQueryString(finalUrl.Query);
         }
@@ -433,13 +485,16 @@ namespace Terradue.OpenSearch {
         /// </summary>
         /// <returns>The template open search parameters.</returns>
         /// <param name="osdParam">Osd parameter.</param>
-        public static NameValueCollection ReverseTemplateOpenSearchParameters(NameValueCollection osdParam) {
+        public static NameValueCollection ReverseTemplateOpenSearchParameters(NameValueCollection osdParam)
+        {
 
             NameValueCollection nvc = new NameValueCollection();
-            foreach (string key in osdParam.AllKeys) {
+            foreach (string key in osdParam.AllKeys)
+            {
 
                 // first find the defintion of the parameter in the url template
-                foreach (var value in osdParam.GetValues(key)) {
+                foreach (var value in osdParam.GetValues(key))
+                {
                     Match matchParamDef = Regex.Match(value, @"^{([^?]+)\??}$");
                     // If parameter does not exist, continue
                     if (!matchParamDef.Success)
@@ -455,35 +510,47 @@ namespace Terradue.OpenSearch {
 
         }
 
-        public static void RemoveLinksByRel(ref IOpenSearchResultCollection results, string relType) {
+        public static void RemoveLinksByRel(ref IOpenSearchResultCollection results, string relType)
+        {
 
             var matchLinks = results.Links.Where(l => l.RelationshipType == relType).ToArray();
-            foreach (var link in matchLinks) {
+            foreach (var link in matchLinks)
+            {
                 results.Links.Remove(link);
             }
 
-            foreach (IOpenSearchResultItem item in results.Items) {
+            foreach (IOpenSearchResultItem item in results.Items)
+            {
                 matchLinks = item.Links.Where(l => l.RelationshipType == relType).ToArray();
-                foreach (var link in matchLinks) {
+                foreach (var link in matchLinks)
+                {
                     item.Links.Remove(link);
                 }
             }
         }
 
-        public static Type ResolveTypeFromRequest(HttpRequest request, OpenSearchEngine ose) {
+        public static Type ResolveTypeFromRequest(HttpRequest request, OpenSearchEngine ose)
+        {
 
             Type type = ose.Extensions.First().Value.GetTransformType();
 
-            if (request.Params["format"] != null) {
+            if (request.Params["format"] != null)
+            {
                 var osee = ose.GetExtensionByExtensionName(request.Params["format"]);
-                if (osee != null) {
+                if (osee != null)
+                {
                     type = osee.GetTransformType();
                 }
-            } else {
-                if (request.AcceptTypes != null) {
-                    foreach (string contentType in request.AcceptTypes) {
+            }
+            else
+            {
+                if (request.AcceptTypes != null)
+                {
+                    foreach (string contentType in request.AcceptTypes)
+                    {
                         var osee = ose.GetExtensionByContentTypeAbility(contentType);
-                        if (osee != null) {
+                        if (osee != null)
+                        {
                             type = osee.GetTransformType();
                             break;
                         }
@@ -508,26 +575,33 @@ namespace Terradue.OpenSearch {
             }
         }*/
 
-        public static void ReplaceSelfLinks(IOpenSearchable entity, OpenSearchRequest request, IOpenSearchResultCollection osr, Func<IOpenSearchResultItem,OpenSearchDescription,string,string> entryTemplate) {
+        public static void ReplaceSelfLinks(IOpenSearchable entity, OpenSearchRequest request, IOpenSearchResultCollection osr, Func<IOpenSearchResultItem, OpenSearchDescription, string, string> entryTemplate)
+        {
             ReplaceSelfLinks(entity, request.Parameters, osr, entryTemplate, osr.ContentType);
         }
 
-        public static void ReplaceSelfLinks(IOpenSearchable entity, NameValueCollection parameters, IOpenSearchResultCollection osr, Func<IOpenSearchResultItem,OpenSearchDescription,string,string> entryTemplate) {
+        public static void ReplaceSelfLinks(IOpenSearchable entity, NameValueCollection parameters, IOpenSearchResultCollection osr, Func<IOpenSearchResultItem, OpenSearchDescription, string, string> entryTemplate)
+        {
             ReplaceSelfLinks(entity, parameters, osr, entryTemplate, osr.ContentType);
         }
 
-        public static void ReplaceSelfLinks(IOpenSearchable entity, NameValueCollection parameters, IOpenSearchResultCollection osr, Func<IOpenSearchResultItem,OpenSearchDescription,string,string> entryTemplate, string contentType) {
+        public static void ReplaceSelfLinks(IOpenSearchable entity, NameValueCollection parameters, IOpenSearchResultCollection osr, Func<IOpenSearchResultItem, OpenSearchDescription, string, string> entryTemplate, string contentType)
+        {
             IOpenSearchResultCollection feed = osr;
 
             var matchLinks = feed.Links.Where(l => l.RelationshipType == "self").ToArray();
-            foreach (var link in matchLinks) {
+            foreach (var link in matchLinks)
+            {
                 feed.Links.Remove(link);
             }
 
             OpenSearchDescription osd = null;
-            if (entity is IProxiedOpenSearchable) {
-                osd = ((IProxiedOpenSearchable)entity).GetProxyOpenSearchDescription(); 
-            } else {
+            if (entity is IProxiedOpenSearchable)
+            {
+                osd = ((IProxiedOpenSearchable)entity).GetProxyOpenSearchDescription();
+            }
+            else
+            {
                 osd = entity.GetOpenSearchDescription();
             }
             if (OpenSearchFactory.GetOpenSearchUrlByType(osd, contentType) == null)
@@ -535,12 +609,14 @@ namespace Terradue.OpenSearch {
 
             NameValueCollection newNvc = new NameValueCollection(parameters);
             NameValueCollection osparams = OpenSearchFactory.GetOpenSearchParameters(OpenSearchFactory.GetOpenSearchUrlByType(osd, contentType));
-            newNvc.AllKeys.FirstOrDefault(k => {
+            newNvc.AllKeys.FirstOrDefault(k =>
+            {
                 if (string.IsNullOrEmpty(OpenSearchFactory.GetParamNameFromId(osparams, k)))
                     newNvc.Remove(k);
                 return false;
             });
-            osparams.AllKeys.FirstOrDefault(k => {
+            osparams.AllKeys.FirstOrDefault(k =>
+            {
                 Match matchParamDef = Regex.Match(osparams[k], @"^{([^?]+)\??}$");
                 if (!matchParamDef.Success)
                     newNvc.Set(k, osparams[k]);
@@ -554,24 +630,29 @@ namespace Terradue.OpenSearch {
             feed.Links.Add(new SyndicationLink(myUrl.Uri, "self", "Reference link", contentType, 0));
             feed.Id = myUrl.ToString();
 
-            foreach (IOpenSearchResultItem item in feed.Items) {
+            foreach (IOpenSearchResultItem item in feed.Items)
+            {
                 matchLinks = item.Links.Where(l => l.RelationshipType == "self").ToArray();
-                foreach (var link in matchLinks) {
+                foreach (var link in matchLinks)
+                {
                     item.Links.Remove(link);
                 }
                 string template = entryTemplate(item, osd, contentType);
-                if (template != null) {
+                if (template != null)
+                {
                     item.Links.Add(new SyndicationLink(new Uri(template), "self", "Reference link", contentType, 0));
                     item.Id = template;
                 }
             }
         }
 
-        public static void ReplaceOpenSearchDescriptionLinks(IOpenSearchable entity, IOpenSearchResultCollection osr) {
+        public static void ReplaceOpenSearchDescriptionLinks(IOpenSearchable entity, IOpenSearchResultCollection osr)
+        {
             IOpenSearchResultCollection feed = osr;
 
             var matchLinks = feed.Links.Where(l => l.RelationshipType == "search").ToArray();
-            foreach (var link in matchLinks) {
+            foreach (var link in matchLinks)
+            {
                 feed.Links.Remove(link);
             }
 
@@ -592,15 +673,18 @@ namespace Terradue.OpenSearch {
 
         }
 
-        public static OpenSearchDescriptionUrl GetOpenSearchUrlByTypeAndMaxParam(OpenSearchDescription osd, List<string> mimeTypes, NameValueCollection osParameters) {
+        public static OpenSearchDescriptionUrl GetOpenSearchUrlByTypeAndMaxParam(OpenSearchDescription osd, List<string> mimeTypes, NameValueCollection osParameters)
+        {
 
             OpenSearchDescriptionUrl url = null;
             int maxParam = -1;
 
-            foreach (var urlC in osd.Url) {
+            foreach (var urlC in osd.Url)
+            {
                 UriBuilder tempU = new UriBuilder(BuildRequestUrlFromTemplateNameParameters(new OpenSearchUrl(urlC.Template), osParameters));
                 int numParam = HttpUtility.ParseQueryString(tempU.Query).Count;
-                if (maxParam < numParam) {
+                if (maxParam < numParam)
+                {
                     maxParam = numParam;
                     url = urlC;
                 }
@@ -610,10 +694,12 @@ namespace Terradue.OpenSearch {
 
         }
 
-        public static NameValueCollection ReplaceTemplateByIdentifier(NameValueCollection osParameters, OpenSearchDescriptionUrl osdUrl) {
+        public static NameValueCollection ReplaceTemplateByIdentifier(NameValueCollection osParameters, OpenSearchDescriptionUrl osdUrl)
+        {
             NameValueCollection dic = osdUrl.GetIdentifierDictionary();
             NameValueCollection newNvc = new NameValueCollection();
-            foreach (var templateKey in osParameters.AllKeys) {
+            foreach (var templateKey in osParameters.AllKeys)
+            {
                 if (dic[templateKey] == null)
                     continue;
                 newNvc.Add(dic[templateKey], osParameters[templateKey]);
@@ -622,13 +708,17 @@ namespace Terradue.OpenSearch {
             return newNvc;
         }
 
-        public static SyndicationLink[] GetEnclosures(IOpenSearchResultCollection result) {
+        public static SyndicationLink[] GetEnclosures(IOpenSearchResultCollection result)
+        {
 
             List<SyndicationLink> links = new List<SyndicationLink>();
 
-            foreach (IOpenSearchResultItem item in result.Items) {
-                foreach (SyndicationLink link in item.Links) {
-                    if (link.RelationshipType == "enclosure") {
+            foreach (IOpenSearchResultItem item in result.Items)
+            {
+                foreach (SyndicationLink link in item.Links)
+                {
+                    if (link.RelationshipType == "enclosure")
+                    {
                         links.Add(link);
                     }
                 }
@@ -637,36 +727,42 @@ namespace Terradue.OpenSearch {
             return links.ToArray();
         }
 
-        public static List<OpenSearchDescriptionUrlParameter> GetDefaultParametersDescription(int maxCount) {
+        public static List<OpenSearchDescriptionUrlParameter> GetDefaultParametersDescription(int maxCount)
+        {
 
             List<OpenSearchDescriptionUrlParameter> parameters = new List<OpenSearchDescriptionUrlParameter>();
 
-            parameters.Add(new OpenSearchDescriptionUrlParameter() {
+            parameters.Add(new OpenSearchDescriptionUrlParameter()
+            {
                 Name = "count",
                 Value = @"{count?}",
                 Title = "number of search results per page desired",
                 Minimum = "0",
                 MaxInclusive = maxCount.ToString()
             });
-            parameters.Add(new OpenSearchDescriptionUrlParameter() {
+            parameters.Add(new OpenSearchDescriptionUrlParameter()
+            {
                 Name = "startPage",
                 Value = @"{startPage?}",
                 Title = "page number of the set of search results desired",
                 Minimum = "0"
             });
-            parameters.Add(new OpenSearchDescriptionUrlParameter() {
+            parameters.Add(new OpenSearchDescriptionUrlParameter()
+            {
                 Name = "startIndex",
                 Value = @"{startIndex?}",
-                Title = "index of the first search result desired" ,
+                Title = "index of the first search result desired",
                 Minimum = "0"
             });
-            parameters.Add(new OpenSearchDescriptionUrlParameter() {
+            parameters.Add(new OpenSearchDescriptionUrlParameter()
+            {
                 Name = "q",
                 Value = @"{searchTerms?}",
-                Title = "keywords to be found in the search results" ,
+                Title = "keywords to be found in the search results",
                 Minimum = "0"
             });
-            parameters.Add(new OpenSearchDescriptionUrlParameter() {
+            parameters.Add(new OpenSearchDescriptionUrlParameter()
+            {
                 Name = "lang",
                 Value = @"{language?}",
                 Title = "desired language of the results",
@@ -677,10 +773,14 @@ namespace Terradue.OpenSearch {
 
         }
 
-        public static int GetCount(NameValueCollection parameters) {
-            try {
+        public static int GetCount(NameValueCollection parameters)
+        {
+            try
+            {
                 return int.Parse(parameters["count"]);
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 return OpenSearchEngine.DEFAULT_COUNT;
             }
         }
@@ -691,22 +791,26 @@ namespace Terradue.OpenSearch {
     /// <summary>
     /// URL based open searchable factory.
     /// </summary>
-    public class UrlBasedOpenSearchableFactory : IOpenSearchableFactory {
+    public class UrlBasedOpenSearchableFactory : IOpenSearchableFactory
+    {
 
-        public UrlBasedOpenSearchableFactory(OpenSearchableFactorySettings settings) {
+        public UrlBasedOpenSearchableFactory(OpenSearchableFactorySettings settings)
+        {
             Settings = (OpenSearchableFactorySettings)settings.Clone();
         }
 
         #region IOpenSearchableFactory implementation
 
-        public IOpenSearchable Create(OpenSearchUrl url) {
-            if ( Settings.Soft )
+        public IOpenSearchable Create(OpenSearchUrl url)
+        {
+            if (Settings.Soft)
                 return new SoftGenericOpenSearchable(url, Settings);
             return new GenericOpenSearchable(url, Settings);
         }
 
-        public IOpenSearchable Create(OpenSearchDescription osd) {
-            if ( Settings.Soft )
+        public IOpenSearchable Create(OpenSearchDescription osd)
+        {
+            if (Settings.Soft)
                 return new SoftGenericOpenSearchable(osd, Settings);
             return new GenericOpenSearchable(osd, Settings);
         }
