@@ -32,7 +32,7 @@ namespace Terradue.OpenSearch.Request {
         static MemoryCache requestStatesCache = new MemoryCache("mosr-cache");
         string type;
 		NameValueCollection targetParameters, entitiesParameters, currentParameters;
-        OpenSearchEngine ose;
+        OpenSearchableFactorySettings settings;
         CountdownEvent countdown;
         Dictionary<IOpenSearchable, int> currentEntities;
         Dictionary<IOpenSearchable,IOpenSearchResultCollection> results;
@@ -58,11 +58,11 @@ namespace Terradue.OpenSearch.Request {
         /// <param name="entities">IOpenSearchable entities to be searched.</param>
         /// <param name="type">contentType of the .</param>
         /// <param name="url">URL.</param>
-        public MultiOpenSearchRequest(OpenSearchEngine ose, IOpenSearchable[] entities, string type, OpenSearchUrl url, bool concurrent, IOpenSearchable parent) : base(url, type) {
+        public MultiOpenSearchRequest(OpenSearchableFactorySettings settings, IOpenSearchable[] entities, string type, OpenSearchUrl url, bool concurrent, IOpenSearchable parent) : base(url, type) {
             this.parent = parent;
             this.concurrent = concurrent;
 
-            this.ose = ose;
+            this.settings = settings;
             this.type = type;
             this.targetParameters = HttpUtility.ParseQueryString(url.Query);
             this.entitiesParameters = RemovePaginationParameters(this.targetParameters);
@@ -72,7 +72,7 @@ namespace Terradue.OpenSearch.Request {
             try {
                 _m2.WaitOne();
                 // Ask the cache if a previous page request is present to save some requests
-                usingCache = GetClosestState(entities.Distinct(new OpenSearchableComparer(ose)).ToArray(), type, this.targetParameters, out this.currentEntities, out this.currentParameters);
+                usingCache = GetClosestState(entities.Distinct(new OpenSearchableComparer(settings.OpenSearchEngine)).ToArray(), type, this.targetParameters, out this.currentEntities, out this.currentParameters);
             } finally {
                 _m2.ReleaseMutex();
             }
@@ -112,7 +112,7 @@ namespace Terradue.OpenSearch.Request {
             Stopwatch sw = Stopwatch.StartNew();
 
             bool emptySources = false;
-            int count = ose.DefaultCount;
+            int count = settings.OpenSearchEngine.DefaultCount;
 
             try {
                 count = int.Parse(targetParameters["count"]);
@@ -268,7 +268,7 @@ namespace Terradue.OpenSearch.Request {
 
             results = new Dictionary<IOpenSearchable, IOpenSearchResultCollection>();
 
-            Parallel.ForEach<IOpenSearchable>(currentEntities.Keys.Distinct(new OpenSearchableComparer(ose)),
+            Parallel.ForEach<IOpenSearchable>(currentEntities.Keys.Distinct(new OpenSearchableComparer(settings.OpenSearchEngine)),
                                               entity => {
                 ExecuteOneRequest(entity);
             });
@@ -294,7 +294,7 @@ namespace Terradue.OpenSearch.Request {
 
 				log.DebugFormat("[multi] [{0}] Query SI:{1}", ((IOpenSearchable)entity).Identifier, offset);
 
-                IOpenSearchResultCollection result = ose.Query((IOpenSearchable)entity, entityParameters, typeof(TFeed));
+                IOpenSearchResultCollection result = settings.OpenSearchEngine.Query((IOpenSearchable)entity, entityParameters, typeof(TFeed));
 
                 try {
                     _m.WaitOne();
@@ -372,7 +372,7 @@ namespace Terradue.OpenSearch.Request {
             try {
                 originalCount = int.Parse(targetParameters["count"]);
             } catch (Exception e) {
-                originalCount = ose.DefaultCount;
+                originalCount = settings.OpenSearchEngine.DefaultCount;
             }
 
             // Case if all elements in first feed are already the right sorted results

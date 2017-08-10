@@ -39,7 +39,7 @@ namespace Terradue.OpenSearch.Request {
 
         NameValueCollection originalParameters;
 
-        OpenSearchEngine ose;
+        OpenSearchableFactorySettings settings;
         long currentTotalResults;
         IOpenSearchResultCollection currentResults;
         TFeed feed;
@@ -56,10 +56,10 @@ namespace Terradue.OpenSearch.Request {
         /// <param name="entities">IOpenSearchable entities to be searched.</param>
         /// <param name="type">contentType of the .</param>
         /// <param name="url">URL.</param>
-        public IllimitedOpenSearchRequest(OpenSearchEngine ose, IOpenSearchable entity, string type, OpenSearchUrl url, NameValueCollection originalParameters = null) : base(url, type) {
+        public IllimitedOpenSearchRequest(OpenSearchableFactorySettings settings, IOpenSearchable entity, string type, OpenSearchUrl url, NameValueCollection originalParameters = null) : base(url, type) {
             this.originalParameters = originalParameters;
             this.entity = entity;
-            this.ose = ose;
+            this.settings = settings;
             this.type = type;
             this.targetParameters = HttpUtility.ParseQueryString(url.Query);
             this.virtualParameters = RemovePaginationParameters(this.targetParameters);
@@ -69,7 +69,7 @@ namespace Terradue.OpenSearch.Request {
                 _m.WaitOne();
 
                 // Ask the cache if a previous page request is present to save some requests
-                usingCache = GetClosestState(entity, type, this.targetParameters, out currentTotalResults, out this.currentParameters, ose);
+                usingCache = GetClosestState(entity, type, this.targetParameters, out currentTotalResults, out this.currentParameters, settings.OpenSearchEngine);
             }
             finally
             {
@@ -112,7 +112,7 @@ namespace Terradue.OpenSearch.Request {
             Stopwatch sw = Stopwatch.StartNew();
 
             bool emptySources = false;
-            int count = ose.DefaultCount;
+            int count = settings.OpenSearchEngine.DefaultCount;
 
             try {
                 count = int.Parse(targetParameters["count"]);
@@ -263,7 +263,7 @@ namespace Terradue.OpenSearch.Request {
             NameValueCollection nvc = new NameValueCollection(currentParameters);
             nvc.Set("count", recount.ToString());
 
-            currentResults = ose.Query((IOpenSearchable)entity, nvc);
+            currentResults = settings.OpenSearchEngine.Query((IOpenSearchable)entity, nvc);
 
             return (TFeed)currentResults;
         }
@@ -328,12 +328,12 @@ namespace Terradue.OpenSearch.Request {
                 _m.WaitOne();
 
                 // Is tehre a cache entry for this entity ?
-                IllimitedOpenSearchRequestState state = (IllimitedOpenSearchRequestState)requestStatesCache.Get(IllimitedOpenSearchRequestState.GetHashCode(entity, ose).ToString());
+                IllimitedOpenSearchRequestState state = (IllimitedOpenSearchRequestState)requestStatesCache.Get(IllimitedOpenSearchRequestState.GetHashCode(entity, settings.OpenSearchEngine).ToString());
 
                 // no, create it!
                 if (state == null)
                 {
-                    state = new IllimitedOpenSearchRequestState(entity, ose);
+                    state = new IllimitedOpenSearchRequestState(entity, settings.OpenSearchEngine);
                 }
 
                 // Let's put the new page state

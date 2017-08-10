@@ -27,7 +27,7 @@ namespace Terradue.OpenSearch {
 
         List<IOpenSearchable> entities;
 
-        OpenSearchEngine ose;
+        OpenSearchableFactorySettings settings;
 
         bool concurrent;
 
@@ -36,9 +36,9 @@ namespace Terradue.OpenSearch {
         /// </summary>
         /// <param name="entities">Entities.</param>
         /// <param name="ose">Ose.</param>
-        public MultiGenericOpenSearchable(List<IOpenSearchable> entities, OpenSearchEngine ose, bool concurrent = false) {
+        public MultiGenericOpenSearchable(List<IOpenSearchable> entities, OpenSearchableFactorySettings settings, bool concurrent = false) {
             this.concurrent = concurrent;
-            this.ose = ose;
+            this.settings = settings;
             this.entities = new List<IOpenSearchable>(entities);
         }
 
@@ -107,7 +107,7 @@ namespace Terradue.OpenSearch {
 
             OpenSearchUrl url = GetInternalOpenSearchUrl(parameters);
 
-            return new MultiOpenSearchRequest<AtomFeed, AtomItem>(ose, entities.ToArray(), querySettings.PreferredContentType, url, concurrent, this);
+            return new MultiOpenSearchRequest<AtomFeed, AtomItem>(settings, entities.ToArray(), querySettings.PreferredContentType, url, concurrent, this);
 
         }
 

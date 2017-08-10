@@ -15,6 +15,7 @@ namespace Terradue.OpenSearch.Test {
     public class CacheTest {
 
         OpenSearchEngine ose;
+        OpenSearchableFactorySettings settings;
 
         [SetUp]
         public void RunBeforeTests()
@@ -24,6 +25,8 @@ namespace Terradue.OpenSearch.Test {
             ose = new OpenSearchEngine();
             ose.LoadPlugins();
 
+
+            settings = new OpenSearchableFactorySettings(ose);
             OpenSearchMemoryCache cache = new OpenSearchMemoryCache();
 
             ose.RegisterPreSearchFilter(cache.TryReplaceWithCacheRequest);
@@ -53,7 +56,7 @@ namespace Terradue.OpenSearch.Test {
 
 
 
-            IOpenSearchable multiEntity = new MultiGenericOpenSearchable(entities, ose, true);
+            IOpenSearchable multiEntity = new MultiGenericOpenSearchable(entities, settings, true);
 
         }
     }
