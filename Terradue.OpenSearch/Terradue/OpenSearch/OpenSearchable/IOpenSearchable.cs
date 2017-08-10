@@ -76,14 +76,21 @@ namespace Terradue.OpenSearch {
         /// <summary>Creates a new instance of QuerySettings with the specified parameters.</summary>
         /// <param name="preferredContentType">The preferred content type.</param>
         /// <param name="readNative">The function to be called to obtain the formatted OpenSearch result.</param>
-        public QuerySettings(string preferredContentType, ReadNativeFunction readNative, OpenSearchableFactorySettings settings = null) {
+        public QuerySettings(string preferredContentType, ReadNativeFunction readNative) {
             this.PreferredContentType = preferredContentType;
             this.ReadNative = readNative;
             this.ForceUnspecifiedParameters = false;
             this.SkipNullOrEmptyQueryStringParameters = false;
-            if (settings != null)
-                this.Credentials = settings.Credentials;
         }
+
+		/// <summary>Creates a new instance of QuerySettings with the specified parameters.</summary>
+		/// <param name="preferredContentType">The preferred content type.</param>
+		/// <param name="readNative">The function to be called to obtain the formatted OpenSearch result.</param>
+        public QuerySettings(string preferredContentType, ReadNativeFunction readNative, OpenSearchableFactorySettings settings) : this (preferredContentType, readNative)
+		{
+			if (settings != null)
+				this.Credentials = settings.Credentials;
+		}
 
     }
 

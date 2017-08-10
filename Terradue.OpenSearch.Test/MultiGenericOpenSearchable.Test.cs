@@ -24,12 +24,14 @@ namespace Terradue.OpenSearch.Test {
             OpenSearchEngine ose = new OpenSearchEngine();
             ose.LoadPlugins();
 
+            var settings = new OpenSearchableFactorySettings(ose);
+
             IOpenSearchable entity1 = TestOpenSearchable.GenerateNumberedItomFeed("A", 100, new TimeSpan(0));
 
             List<IOpenSearchable> entities = new List<IOpenSearchable>();
             entities.Add(entity1);
 
-            IOpenSearchable multiEntity = new MultiGenericOpenSearchable(entities, ose, true);
+            IOpenSearchable multiEntity = new MultiGenericOpenSearchable(entities, settings, true);
 
             NameValueCollection nvc = new NameValueCollection();
 
@@ -142,7 +144,7 @@ namespace Terradue.OpenSearch.Test {
             IOpenSearchable entity2 = TestOpenSearchable.GenerateNumberedItomFeed("B", 100, TimeSpan.FromHours(-1));
 
             entities.Add(entity2);
-            multiEntity = new MultiGenericOpenSearchable(entities, ose, true);
+            multiEntity = new MultiGenericOpenSearchable(entities, settings, true);
 
             nvc = new NameValueCollection();
             nvc.Set("count", "10");
@@ -199,6 +201,8 @@ namespace Terradue.OpenSearch.Test {
             OpenSearchEngine ose = new OpenSearchEngine();
             ose.LoadPlugins();
 
+            var settings = new OpenSearchableFactorySettings(ose);
+
             IOpenSearchable entity1 = TestOpenSearchable.GenerateNumberedItomFeed("A", 1, new TimeSpan(0));
             IOpenSearchable entity2 = TestOpenSearchable.GenerateNumberedItomFeed("B", 1, TimeSpan.FromHours(-1));
 
@@ -206,7 +210,7 @@ namespace Terradue.OpenSearch.Test {
             entities.Add(entity1);
             entities.Add(entity2);
 
-            IOpenSearchable multiEntity = new MultiGenericOpenSearchable(entities, ose, true);
+            IOpenSearchable multiEntity = new MultiGenericOpenSearchable(entities, settings, true);
 
             NameValueCollection nvc = new NameValueCollection();
 
@@ -221,6 +225,8 @@ namespace Terradue.OpenSearch.Test {
             OpenSearchEngine ose = new OpenSearchEngine();
             ose.LoadPlugins();
 
+            var settings = new OpenSearchableFactorySettings(ose);
+
             IOpenSearchable entity1 = TestOpenSearchable.GenerateNumberedItomFeed("A", 5, new TimeSpan(0));
             IOpenSearchable entity2 = TestOpenSearchable.GenerateNumberedItomFeed("B", 10, TimeSpan.FromDays(-2000));
 
@@ -228,7 +234,7 @@ namespace Terradue.OpenSearch.Test {
             entities.Add(entity1);
             entities.Add(entity2);
 
-            IOpenSearchable multiEntity = new MultiGenericOpenSearchable(entities, ose, true);
+            IOpenSearchable multiEntity = new MultiGenericOpenSearchable(entities, settings, true);
 
             NameValueCollection nvc = new NameValueCollection();
 
@@ -280,6 +286,8 @@ namespace Terradue.OpenSearch.Test {
             OpenSearchEngine ose = new OpenSearchEngine();
             ose.LoadPlugins();
 
+            var settings = new OpenSearchableFactorySettings(ose);
+
             IOpenSearchable entity1 = TestOpenSearchable.GenerateNumberedItomFeed("A", 5, new TimeSpan(0));
             IOpenSearchable entity2 = TestOpenSearchable.GenerateNumberedItomFeed("A", 5, new TimeSpan(0));
 
@@ -287,7 +295,7 @@ namespace Terradue.OpenSearch.Test {
             entities.Add(entity1);
             entities.Add(entity2);
 
-            IOpenSearchable multiEntity = new MultiGenericOpenSearchable(entities, ose, true);
+            IOpenSearchable multiEntity = new MultiGenericOpenSearchable(entities, settings, true);
 
             NameValueCollection nvc = new NameValueCollection();
 
@@ -315,12 +323,14 @@ namespace Terradue.OpenSearch.Test {
 			OpenSearchEngine ose = new OpenSearchEngine();
 			ose.LoadPlugins();
 
+            var settings = new OpenSearchableFactorySettings(ose);
+
 			IOpenSearchable entity1 = TestOpenSearchable.GenerateNumberedItomFeed("A", 4, new TimeSpan(0));
 
 			List<IOpenSearchable> entities = new List<IOpenSearchable>();
 			entities.Add(entity1);
 
-			IOpenSearchable multiEntity = new MultiGenericOpenSearchable(entities, ose, true);
+            IOpenSearchable multiEntity = new MultiGenericOpenSearchable(entities, settings, true);
 
 			NameValueCollection nvc = new NameValueCollection();
 
@@ -363,7 +373,9 @@ namespace Terradue.OpenSearch.Test {
             OpenSearchEngine ose = new OpenSearchEngine();
             ose.LoadPlugins();
 
-            UrlBasedOpenSearchableFactory factory = new UrlBasedOpenSearchableFactory(new OpenSearchableFactorySettings(ose));
+            var settings = new OpenSearchableFactorySettings(ose);
+
+            UrlBasedOpenSearchableFactory factory = new UrlBasedOpenSearchableFactory(settings);
 
             IOpenSearchable entity1 = factory.Create(new OpenSearchUrl("https://catalog.terradue.com/hydro-co-floodmonitoring-apps/search?uid=floodmonitoring"));
             IOpenSearchable entity2 = factory.Create(new OpenSearchUrl("https://catalog.terradue.com/hydro-co-floodmonitoring-apps/search"));
@@ -374,7 +386,7 @@ namespace Terradue.OpenSearch.Test {
             entities.Add(entity2);
             entities.Add(entity3);
 
-            IOpenSearchable multiEntity = new MultiGenericOpenSearchable(entities, ose, true);
+            IOpenSearchable multiEntity = new MultiGenericOpenSearchable(entities, settings, true);
 
             NameValueCollection nvc = new NameValueCollection();
 
@@ -401,7 +413,9 @@ namespace Terradue.OpenSearch.Test {
             OpenSearchEngine ose = new OpenSearchEngine();
             ose.LoadPlugins();
 
-			UrlBasedOpenSearchableFactory factory = new UrlBasedOpenSearchableFactory(new OpenSearchableFactorySettings(ose));
+            var settings = new OpenSearchableFactorySettings(ose);
+
+			UrlBasedOpenSearchableFactory factory = new UrlBasedOpenSearchableFactory(settings);
 
 			IOpenSearchable entity1 = factory.Create(new OpenSearchUrl("https://catalog.terradue.com:443//sentinel1/series/GRD/search?format=atom&uid=S1A_IW_GRDH_1SDV_20160719T181151_20160719T181219_012221_012F93_3E0B"));
             IOpenSearchable entity2 = factory.Create(new OpenSearchUrl("https://catalog.terradue.com:443//sentinel1/series/GRD/search?format=atom&uid=S1A_IW_GRDH_1SDV_20160731T181152_20160731T181219_012396_013552_7CC6"));
@@ -412,7 +426,7 @@ namespace Terradue.OpenSearch.Test {
             entities.Add(entity2);
             //entities.Add(entity3);
 
-            IOpenSearchable multiEntity = new MultiGenericOpenSearchable(entities, ose, true);
+            IOpenSearchable multiEntity = new MultiGenericOpenSearchable(entities, settings, true);
 
             NameValueCollection nvc = new NameValueCollection();
 

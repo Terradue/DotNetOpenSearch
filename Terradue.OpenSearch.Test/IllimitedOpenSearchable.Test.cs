@@ -18,8 +18,10 @@ namespace Terradue.OpenSearch.Test {
             OpenSearchEngine ose = new OpenSearchEngine();
             ose.LoadPlugins();
 
+            var settings = new OpenSearchableFactorySettings(ose);
+
             TestUnlimitedOpenSearchable entity = TestUnlimitedOpenSearchable.GenerateNumberedItomFeed("A", 100, new TimeSpan(0));
-            IOpenSearchable entity1 = new IllimitedOpenSearchable(entity, ose);
+            IOpenSearchable entity1 = new IllimitedOpenSearchable(entity, settings);
 
             NameValueCollection nvc = new NameValueCollection();
 

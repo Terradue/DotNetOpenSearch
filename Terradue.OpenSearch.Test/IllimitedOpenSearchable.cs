@@ -16,13 +16,13 @@ using Terradue.OpenSearch.Engine;
 namespace Terradue.OpenSearch.Test {
 
     public class IllimitedOpenSearchable : IOpenSearchable {
-        OpenSearchEngine ose;
+        OpenSearchableFactorySettings settings;
 
         TestUnlimitedOpenSearchable entity;
 
-        public IllimitedOpenSearchable(TestUnlimitedOpenSearchable entity, OpenSearchEngine ose) {
+        public IllimitedOpenSearchable(TestUnlimitedOpenSearchable entity, OpenSearchableFactorySettings settings){
             this.entity = entity;
-            this.ose = ose;
+            this.settings = settings;
         }
 
         #region IOpenSearchable implementation
@@ -41,7 +41,7 @@ namespace Terradue.OpenSearch.Test {
                 .ToArray();
             url.Query = string.Join("&", array);
 
-            IllimitedOpenSearchRequest<AtomFeed, AtomItem> request = new IllimitedOpenSearchRequest<AtomFeed, AtomItem>(ose, entity, querySettings.PreferredContentType, new OpenSearchUrl(url.Uri));
+            IllimitedOpenSearchRequest<AtomFeed, AtomItem> request = new IllimitedOpenSearchRequest<AtomFeed, AtomItem>(settings, entity, querySettings.PreferredContentType, new OpenSearchUrl(url.Uri));
 
             return request;
         }
