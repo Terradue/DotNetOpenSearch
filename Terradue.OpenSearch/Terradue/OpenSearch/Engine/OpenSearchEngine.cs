@@ -26,12 +26,14 @@ using System.IO;
 using log4net;
 using System.Reflection;
 
-namespace Terradue.OpenSearch.Engine {
+namespace Terradue.OpenSearch.Engine
+{
 
     /// <summary>
     /// The engine for making OpenSearch request
     /// </summary>
-    public sealed partial class OpenSearchEngine {
+    public sealed partial class OpenSearchEngine
+    {
 
         public const int DEFAULT_COUNT = 20;
         public const int DEFAULT_MAXCOUNT = 100;
@@ -47,8 +49,9 @@ namespace Terradue.OpenSearch.Engine {
         /// <summary>
         /// Initializes a new instance of the <see cref="Terradue.OpenSearch.OpenSearchEngine"/> class.
         /// </summary>
-        public OpenSearchEngine() {
-            extensions = new Dictionary<int,IOpenSearchEngineExtension>();
+        public OpenSearchEngine()
+        {
+            extensions = new Dictionary<int, IOpenSearchEngineExtension>();
             preFilters = new List<PreFilterAction>();
             postFilters = new List<PostFilterAction>();
             DefaultCount = DEFAULT_COUNT;
@@ -64,7 +67,8 @@ namespace Terradue.OpenSearch.Engine {
         /// Gets or sets the default time out.
         /// </summary>
         /// <value>The default time out.</value>
-        public int DefaultTimeOut {
+        public int DefaultTimeOut
+        {
             get;
             set;
         }
@@ -73,12 +77,14 @@ namespace Terradue.OpenSearch.Engine {
         /// Gets or sets the default count.
         /// </summary>
         /// <value>The default count.</value>
-        public int DefaultCount {
+        public int DefaultCount
+        {
             get;
             set;
         }
 
-        public int MaxCount {
+        public int MaxCount
+        {
             get;
             set;
         }
@@ -89,7 +95,8 @@ namespace Terradue.OpenSearch.Engine {
         /// <param name="type">Type to be registered</param>
         /// <param name="extension">Extension associated with the type</param>
         /// <exception cref="ArgumentException">An extension with the same typoe already registered.</exception>
-        public void RegisterExtension(IOpenSearchEngineExtension extension) {
+        public void RegisterExtension(IOpenSearchEngineExtension extension)
+        {
             log.Debug("Registering extension: " + extension.Identifier);
             extensions.Add(extension.GetHashCode(), extension);
         }
@@ -98,7 +105,8 @@ namespace Terradue.OpenSearch.Engine {
         /// Registers a pre search filter.
         /// </summary>
         /// <param name="filter">Filter.</param>
-        public void RegisterPreSearchFilter(PreFilterAction filter) {
+        public void RegisterPreSearchFilter(PreFilterAction filter)
+        {
             preFilters.Add(filter);
         }
 
@@ -106,7 +114,8 @@ namespace Terradue.OpenSearch.Engine {
         /// Registers a post search filter.
         /// </summary>
         /// <param name="filter">Filter.</param>
-        public void RegisterPostSearchFilter(PostFilterAction filter) {
+        public void RegisterPostSearchFilter(PostFilterAction filter)
+        {
             postFilters.Add(filter);
         }
 
@@ -116,7 +125,8 @@ namespace Terradue.OpenSearch.Engine {
         /// <param name="entity">Entity.</param>
         /// <param name="parameters">Parameters.</param>
         /// <param name="resultName">Result name.</param>
-        public IOpenSearchResultCollection Query(IOpenSearchable entity, NameValueCollection parameters, string resultName) {
+        public IOpenSearchResultCollection Query(IOpenSearchable entity, NameValueCollection parameters, string resultName)
+        {
 
             // Transform action to invoke
             QuerySettings querySettings;
@@ -164,18 +174,22 @@ namespace Terradue.OpenSearch.Engine {
         /// </summary>
         /// <returns>The type by extension name.</returns>
         /// <param name="resultName">Result name.</param>
-        public Type GetTypeByExtensionName(string resultName) {
-            foreach (IOpenSearchEngineExtension extension in extensions.Values) {
+        public Type GetTypeByExtensionName(string resultName)
+        {
+            foreach (IOpenSearchEngineExtension extension in extensions.Values)
+            {
                 if (extension.Identifier == resultName)
-                    return  extension.GetTransformType();
+                    return extension.GetTransformType();
             }
             throw new KeyNotFoundException(string.Format("Engine extension to transform to {0} not found", resultName));
         }
 
-        public IOpenSearchEngineExtension GetExtensionByExtensionName(string resultName) {
-            foreach (IOpenSearchEngineExtension extension in extensions.Values) {
+        public IOpenSearchEngineExtension GetExtensionByExtensionName(string resultName)
+        {
+            foreach (IOpenSearchEngineExtension extension in extensions.Values)
+            {
                 if (string.Compare(extension.Identifier, resultName, true) == 0)
-                    return  extension;
+                    return extension;
             }
             throw new KeyNotFoundException(string.Format("Engine extension to transform to {0} not found", resultName));
         }
@@ -186,7 +200,8 @@ namespace Terradue.OpenSearch.Engine {
         /// <param name="entity">Entity.</param>
         /// <param name="parameters">Parameters.</param>
         /// <param name="resultType">Result type.</param>
-        public IOpenSearchResultCollection Query(IOpenSearchable entity, NameValueCollection parameters, Type resultType) {
+        public IOpenSearchResultCollection Query(IOpenSearchable entity, NameValueCollection parameters, Type resultType)
+        {
 
             // Transform action to invoke
             QuerySettings querySettings;
@@ -233,7 +248,8 @@ namespace Terradue.OpenSearch.Engine {
         /// </summary>
         /// <param name="entity">Entity.</param>
         /// <param name="parameters">Parameters.</param>
-        public IOpenSearchResultCollection Query(IOpenSearchable entity, NameValueCollection parameters) {
+        public IOpenSearchResultCollection Query(IOpenSearchable entity, NameValueCollection parameters)
+        {
 
             // Transform action to invoke
             QuerySettings querySettings;
@@ -275,7 +291,8 @@ namespace Terradue.OpenSearch.Engine {
         /// </summary>
         /// <returns>An OpenSearchDescription</returns>
         /// <param name="url">URL.</param>
-        public OpenSearchDescription AutoDiscoverFromQueryUrl(OpenSearchUrl url, OpenSearchableFactorySettings settings = null) {
+        public OpenSearchDescription AutoDiscoverFromQueryUrl(OpenSearchUrl url, OpenSearchableFactorySettings settings = null)
+        {
 
             OpenSearchDescription osd = null;
             OpenSearchUrl descriptionUrl = null;
@@ -292,10 +309,13 @@ namespace Terradue.OpenSearch.Engine {
             if (contentType.Contains(";"))
                 contentType = contentType.Split(';')[0];
 
-            if (contentType == "application/opensearchdescription+xml") {
+            if (contentType == "application/opensearchdescription+xml")
+            {
                 osd = this.LoadOpenSearchDescriptionDocument(url, settings);
                 descriptionUrl = url;
-            } else {
+            }
+            else
+            {
 
                 IOpenSearchEngineExtension osee = GetExtensionByContentTypeAbility(contentType);
 
@@ -326,7 +346,8 @@ namespace Terradue.OpenSearch.Engine {
         /// </summary>
         /// <returns>The open search description document.</returns>
         /// <param name="url">URL.</param>
-        public OpenSearchDescription LoadOpenSearchDescriptionDocument(OpenSearchUrl url, OpenSearchableFactorySettings settings = null) {
+        public OpenSearchDescription LoadOpenSearchDescriptionDocument(OpenSearchUrl url, OpenSearchableFactorySettings settings = null)
+        {
 
             OpenSearchDescription osd;
 
@@ -338,11 +359,14 @@ namespace Terradue.OpenSearch.Engine {
 
             ApplyPostSearchFilters(request, ref response);
 
-            try {
+            try
+            {
                 osd = OpenSearchFactory.ReadOpenSearchDescriptionDocument(response);
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 throw new InvalidOperationException("Exception reading OpenSearch description at " + url.ToString() + " : " + e.Message, e);
-            } 
+            }
 
             return osd;
 
@@ -353,7 +377,8 @@ namespace Terradue.OpenSearch.Engine {
         /// </summary>
         /// <returns>The enclosures.</returns>
         /// <param name="result">Result.</param>
-        public SyndicationLink[] GetEnclosures(IOpenSearchResultCollection result) {
+        public SyndicationLink[] GetEnclosures(IOpenSearchResultCollection result)
+        {
 
             Type type = result.GetType();
 
@@ -371,8 +396,10 @@ namespace Terradue.OpenSearch.Engine {
         /// </summary>
         /// <param name="request">Request.</param>
         /// <param name="response">Response.</param>
-        private void ApplyPostSearchFilters(OpenSearchRequest request, ref IOpenSearchResponse response) {
-            foreach (PostFilterAction filter in postFilters) {
+        private void ApplyPostSearchFilters(OpenSearchRequest request, ref IOpenSearchResponse response)
+        {
+            foreach (PostFilterAction filter in postFilters)
+            {
 
                 filter.Invoke(request, ref response);
 
@@ -383,9 +410,11 @@ namespace Terradue.OpenSearch.Engine {
         /// Applies the pre search filters.
         /// </summary>
         /// <param name="request">Request.</param>
-        private void ApplyPreSearchFilters(ref OpenSearchRequest request) {
-           
-            foreach (PreFilterAction filter in preFilters) {
+        private void ApplyPreSearchFilters(ref OpenSearchRequest request)
+        {
+
+            foreach (PreFilterAction filter in preFilters)
+            {
 
                 filter.Invoke(ref request);
 
@@ -411,8 +440,10 @@ namespace Terradue.OpenSearch.Engine {
         /// </summary>
         /// <returns>The first extension by content type ability.</returns>
         /// <param name="contentType">Content type.</param>
-        public IOpenSearchEngineExtension GetExtensionByContentTypeAbility(string contentType) {
-            foreach (IOpenSearchEngineExtension osee in extensions.Values) {
+        public IOpenSearchEngineExtension GetExtensionByContentTypeAbility(string contentType)
+        {
+            foreach (IOpenSearchEngineExtension osee in extensions.Values)
+            {
 
                 if (osee.DiscoveryContentType == contentType)
                     return osee;
@@ -421,8 +452,10 @@ namespace Terradue.OpenSearch.Engine {
             return null;
         }
 
-        public IOpenSearchEngineExtension GetExtensionByContentTypeAbility(string[] contentType) {
-            foreach (IOpenSearchEngineExtension osee in extensions.Values) {
+        public IOpenSearchEngineExtension GetExtensionByContentTypeAbility(string[] contentType)
+        {
+            foreach (IOpenSearchEngineExtension osee in extensions.Values)
+            {
 
                 if (contentType.Contains(osee.DiscoveryContentType))
                     return osee;
@@ -431,8 +464,10 @@ namespace Terradue.OpenSearch.Engine {
             return null;
         }
 
-        public IOpenSearchEngineExtension GetFirstExtensionByTypeAbility(Type type) {
-            foreach (IOpenSearchEngineExtension osee in extensions.Values) {
+        public IOpenSearchEngineExtension GetFirstExtensionByTypeAbility(Type type)
+        {
+            foreach (IOpenSearchEngineExtension osee in extensions.Values)
+            {
 
                 if (osee.GetTransformType() == type)
                     return osee;
@@ -441,15 +476,19 @@ namespace Terradue.OpenSearch.Engine {
             return null;
         }
 
-        public Dictionary<int, IOpenSearchEngineExtension> Extensions {
-            get {
+        public Dictionary<int, IOpenSearchEngineExtension> Extensions
+        {
+            get
+            {
                 return extensions;
             }
         }
 
-        void ApplyOpenSearchElements(ref IOpenSearchResultCollection newResults, OpenSearchRequest request, IOpenSearchResponse response) {
+        void ApplyOpenSearchElements(ref IOpenSearchResultCollection newResults, OpenSearchRequest request, IOpenSearchResponse response)
+        {
 
-            foreach (SyndicationElementExtension ext in newResults.ElementExtensions.ToArray()) {
+            foreach (SyndicationElementExtension ext in newResults.ElementExtensions.ToArray())
+            {
                 if (ext.OuterName == "startIndex" && ext.OuterNamespace == "http://a9.com/-/spec/opensearch/1.1/")
                     newResults.ElementExtensions.Remove(ext);
                 if (ext.OuterName == "itemsPerPage" && ext.OuterNamespace == "http://a9.com/-/spec/opensearch/1.1/")
@@ -460,36 +499,51 @@ namespace Terradue.OpenSearch.Engine {
             newResults.ElementExtensions.Add("startIndex", "http://a9.com/-/spec/opensearch/1.1/", request.OpenSearchUrl.IndexOffset);
             newResults.ElementExtensions.Add("itemsPerPage", "http://a9.com/-/spec/opensearch/1.1/", request.OpenSearchUrl.Count);
 
-           
+
             XElement query = new XElement(XName.Get("Query", "http://a9.com/-/spec/opensearch/1.1/"));
             OpenSearchDescription osd = null;
             if (response.Entity is IProxiedOpenSearchable)
                 osd = ((IProxiedOpenSearchable)response.Entity).GetProxyOpenSearchDescription();
             else
                 osd = response.Entity.GetOpenSearchDescription();
-            foreach (var ns in osd.ExtraNamespace.ToArray()) {
+            foreach (var ns in osd.ExtraNamespace.ToArray())
+            {
                 if (string.IsNullOrEmpty(ns.Name) || ns.Namespace == "http://www.w3.org/2001/XMLSchema" || ns.Namespace == "http://www.w3.org/2001/XMLSchema-instance" || ns.Namespace == XNamespace.Xmlns.NamespaceName)
                     continue;
-                query.Add(new XAttribute(XNamespace.Xmlns + ns.Name, ns.Namespace));
+                try
+                {
+                    query.Add(new XAttribute(XNamespace.Xmlns + ns.Name, ns.Namespace));
+                }
+                catch { }
             }
-            query.Add(new XAttribute(XNamespace.Xmlns + "os", "http://a9.com/-/spec/opensearch/1.1/"));
+            try
+            {
+                query.Add(new XAttribute(XNamespace.Xmlns + "os", "http://a9.com/-/spec/opensearch/1.1/"));
+            }
+            catch { }
             var osUrl = OpenSearchFactory.GetOpenSearchUrlByType(osd, request.ContentType);
             var osparams = OpenSearchFactory.GetOpenSearchParameters(osUrl);
-            foreach (var key in request.Parameters.AllKeys) {
+            foreach (var key in request.Parameters.AllKeys)
+            {
                 string osparam = OpenSearchFactory.GetParamNameFromId(osparams, key);
-                if (!string.IsNullOrEmpty(osparam)) {
-                    try {
+                if (!string.IsNullOrEmpty(osparam))
+                {
+                    try
+                    {
                         if (osparam.Contains(":"))
                             query.Add(new XAttribute(XName.Get(osparam.Split(':')[1], osd.ExtraNamespace.ToArray().First(n => n.Name == osparam.Split(':')[0]).Namespace), request.Parameters[key]));
-                        else {
+                        else
+                        {
                             query.Add(new XAttribute(XName.Get(osparam, "http://a9.com/-/spec/opensearch/1.1/"), request.Parameters[key]));
                         }
-                    } catch {
+                    }
+                    catch
+                    {
                     }
                 }
             }
             newResults.ElementExtensions.Add(query.CreateReader());
-     
+
         }
 
         public void LoadPlugins()
@@ -499,7 +553,7 @@ namespace Terradue.OpenSearch.Engine {
             List<Assembly> allAssemblies = new List<Assembly>();
             string dirpath = Path.GetDirectoryName((new System.Uri(Assembly.GetExecutingAssembly().CodeBase)).AbsolutePath);
 
-            log.Debug(string.Format("Scan {0} for OpenSearch plugins",dirpath));
+            log.Debug(string.Format("Scan {0} for OpenSearch plugins", dirpath));
             foreach (string dll in Directory.GetFiles(dirpath, "*.dll"))
             {
                 try
