@@ -102,6 +102,8 @@
     <Compile Include="Terradue\OpenSearch\Engine\Extensions\IOpenSearchEngineExtension.cs" />
     <Compile Include="Terradue\OpenSearch\Engine\Extensions\OpenSearchEngineExtension.cs" />
     <Compile Include="Terradue\OpenSearch\OpenSearchable\OpenSearchableFactorySettings.cs" />
+    <Compile Include="Terradue\OpenSearch\Request\DummyRequest.cs" />
+    <Compile Include="Terradue\OpenSearch\Response\DummyResponse.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

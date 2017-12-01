@@ -390,42 +390,17 @@ namespace Terradue.OpenSearch
         {
 
             OpenSearchUrl url = new OpenSearchUrl(baseUrl);
-            OpenSearchDescription openSearchDescription = null;
-            UrlBasedOpenSearchableFactory urlBasedOpenSearchableFactory;
+            UrlBasedOpenSearchableFactory urlBasedOpenSearchableFactory = new UrlBasedOpenSearchableFactory(settings);
             IOpenSearchable result;
+
+            OpenSearchDescription openSearchDescription;
+
             try
             {
-                openSearchDescription = settings.OpenSearchEngine.LoadOpenSearchDescriptionDocument(url, settings);
-                OpenSearchDescriptionUrl openSearchDescriptionUrl;
-                if (mimeType == null)
-                {
-                    openSearchDescriptionUrl = openSearchDescription.Url.First<OpenSearchDescriptionUrl>();
-                }
-                else
-                {
-                    openSearchDescriptionUrl = openSearchDescription.Url.FirstOrDefault((OpenSearchDescriptionUrl u) => u.Type == mimeType);
-                }
-                if (openSearchDescriptionUrl == null)
-                {
-                    throw new InvalidOperationException("Impossible to find an OpenSearchable link for the type " + mimeType);
-                }
-                openSearchDescription.DefaultUrl = openSearchDescriptionUrl;
+                openSearchDescription = settings.OpenSearchEngine.AutoDiscoverFromQueryUrl(new OpenSearchUrl(baseUrl), settings);
             }
-            catch (InvalidOperationException ex)
+            catch (ImpossibleSearchException e)
             {
-                if (!(ex.InnerException is FileNotFoundException) && !(ex.InnerException is SecurityException) && !(ex.InnerException is UriFormatException))
-                {
-                    openSearchDescription = settings.OpenSearchEngine.AutoDiscoverFromQueryUrl(new OpenSearchUrl(baseUrl), settings);
-                    urlBasedOpenSearchableFactory = new UrlBasedOpenSearchableFactory(settings);
-                    result = urlBasedOpenSearchableFactory.Create(url);
-                    if (string.IsNullOrEmpty(mimeType))
-                        return result;
-                    var murl = openSearchDescription.Url.FirstOrDefault((OpenSearchDescriptionUrl u) => u.Type == mimeType);
-                    if (murl != null)
-                        result.GetOpenSearchDescription().DefaultUrl = murl;
-
-                    return result;
-                }
                 try
                 {
                     url = new OpenSearchUrl(new Uri(baseUrl, "/description"));
