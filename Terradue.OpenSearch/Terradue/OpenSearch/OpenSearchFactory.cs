@@ -103,6 +103,18 @@ namespace Terradue.OpenSearch
 
             }
 
+            // All other remote query parameters
+            foreach (string parameter in remoteParametersDef.AllKeys)
+            {
+                Match matchParamDef = Regex.Match(remoteParametersDef[parameter], @"^{([^?]+)\??}$");
+                // If parameter does not exist, continue
+                if (!matchParamDef.Success && !string.IsNullOrEmpty(parameter) && string.IsNullOrEmpty(finalQueryParameters[parameter]))
+                {
+                    if (!(querySettings.SkipNullOrEmptyQueryStringParameters && string.IsNullOrEmpty(remoteParametersDef[parameter])))
+                        finalQueryParameters.Set(parameter, remoteParametersDef[parameter]);
+                }
+            }
+
             string[] queryString = Array.ConvertAll(finalQueryParameters.AllKeys, key => string.Format("{0}={1}", key, HttpUtility.UrlEncode(finalQueryParameters[key])));
             finalUrl.Query = string.Join("&", queryString);
 
@@ -391,24 +403,27 @@ namespace Terradue.OpenSearch
 
             OpenSearchUrl url = new OpenSearchUrl(baseUrl);
             UrlBasedOpenSearchableFactory urlBasedOpenSearchableFactory = new UrlBasedOpenSearchableFactory(settings);
+            IOpenSearchable result;
+
+            OpenSearchDescription openSearchDescription;
 
             try
             {
-                return urlBasedOpenSearchableFactory.Create(url);
+                openSearchDescription = settings.OpenSearchEngine.AutoDiscoverFromQueryUrl(new OpenSearchUrl(baseUrl), settings);
             }
-            catch (ImpossibleSearchException)
+            catch (ImpossibleSearchException e)
             {
                 try
                 {
                     url = new OpenSearchUrl(new Uri(baseUrl, "/description"));
-                    return urlBasedOpenSearchableFactory.Create(url);
+                    openSearchDescription = settings.OpenSearchEngine.LoadOpenSearchDescriptionDocument(url, settings);
                 }
                 catch
                 {
                     try
                     {
                         url = new OpenSearchUrl(new Uri(baseUrl, "/OSDD"));
-                        return urlBasedOpenSearchableFactory.Create(url);
+                        openSearchDescription = settings.OpenSearchEngine.LoadOpenSearchDescriptionDocument(url, settings);
                     }
                     catch
                     {
@@ -416,7 +431,22 @@ namespace Terradue.OpenSearch
                     }
                 }
             }
+            if (openSearchDescription == null)
+            {
+                throw new EntryPointNotFoundException(string.Format("No OpenSearch description found around {0}", baseUrl));
+            }
 
+            if (!string.IsNullOrEmpty(mimeType))
+            {
+                var defaultUrl = OpenSearchFactory.GetOpenSearchUrlByType(openSearchDescription, mimeType);
+                if (defaultUrl == null )
+                    throw new EntryPointNotFoundException(string.Format("No OpenSearch description with mimetype {1} at {0}", baseUrl, mimeType));
+                url = OpenSearchFactory.BuildRequestUrlForTemplate(defaultUrl, HttpUtility.ParseQueryString(baseUrl.Query), new QuerySettings(mimeType, null));
+            }
+
+            urlBasedOpenSearchableFactory = new UrlBasedOpenSearchableFactory(settings);
+            result = urlBasedOpenSearchableFactory.Create(url);
+            return result;
         }
 
         /// <summary>

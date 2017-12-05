@@ -69,9 +69,7 @@ namespace Terradue.OpenSearch {
             else
                 nvc = new NameValueCollection();
 
-            // remove the format as default parameter. Solved issue JSON -> ATOM -> JSON
-            // TODO remove not elegant solution
-            nvc.Remove("format");
+
 
             if (settings.MergeFilters != null)
             {
