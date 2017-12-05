@@ -43,10 +43,10 @@ namespace Terradue.OpenSearch {
         /// </summary>
         /// <param name="osd">The OpenSearchDescription describing the OpenSearchable entity to represent</param>
         /// <param name="ose">An OpenSearchEngine instance, preferably with registered extensions able to read the query url</param>
-        public GenericOpenSearchable(OpenSearchDescription osd, OpenSearchableFactorySettings settings) {
+        public GenericOpenSearchable(OpenSearchDescription osd, OpenSearchableFactorySettings settings, OpenSearchUrl url = null) {
             this.settings = settings;
             this.osd = osd;
-            url = null;
+            url = url;
         }
 
         #region IOpenSearchable implementation

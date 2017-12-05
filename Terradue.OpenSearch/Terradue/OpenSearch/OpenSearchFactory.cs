@@ -391,27 +391,24 @@ namespace Terradue.OpenSearch
 
             OpenSearchUrl url = new OpenSearchUrl(baseUrl);
             UrlBasedOpenSearchableFactory urlBasedOpenSearchableFactory = new UrlBasedOpenSearchableFactory(settings);
-            IOpenSearchable result;
-
-            OpenSearchDescription openSearchDescription;
 
             try
             {
-                openSearchDescription = settings.OpenSearchEngine.AutoDiscoverFromQueryUrl(new OpenSearchUrl(baseUrl), settings);
+                return urlBasedOpenSearchableFactory.Create(url);
             }
-            catch (ImpossibleSearchException e)
+            catch (ImpossibleSearchException)
             {
                 try
                 {
                     url = new OpenSearchUrl(new Uri(baseUrl, "/description"));
-                    openSearchDescription = settings.OpenSearchEngine.LoadOpenSearchDescriptionDocument(url, settings);
+                    return urlBasedOpenSearchableFactory.Create(url);
                 }
                 catch
                 {
                     try
                     {
                         url = new OpenSearchUrl(new Uri(baseUrl, "/OSDD"));
-                        openSearchDescription = settings.OpenSearchEngine.LoadOpenSearchDescriptionDocument(url, settings);
+                        return urlBasedOpenSearchableFactory.Create(url);
                     }
                     catch
                     {
@@ -419,13 +416,7 @@ namespace Terradue.OpenSearch
                     }
                 }
             }
-            if (openSearchDescription == null)
-            {
-                throw new EntryPointNotFoundException(string.Format("No OpenSearch description found around {0}", baseUrl));
-            }
-            urlBasedOpenSearchableFactory = new UrlBasedOpenSearchableFactory(settings);
-            result = urlBasedOpenSearchableFactory.Create(openSearchDescription);
-            return result;
+
         }
 
         /// <summary>
