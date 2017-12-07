@@ -43,10 +43,10 @@ namespace Terradue.OpenSearch {
         /// </summary>
         /// <param name="osd">The OpenSearchDescription describing the OpenSearchable entity to represent</param>
         /// <param name="ose">An OpenSearchEngine instance, preferably with registered extensions able to read the query url</param>
-        public GenericOpenSearchable(OpenSearchDescription osd, OpenSearchableFactorySettings settings) {
+        public GenericOpenSearchable(OpenSearchDescription osd, OpenSearchableFactorySettings settings, OpenSearchUrl url = null) {
             this.settings = settings;
             this.osd = osd;
-            url = null;
+            url = url;
         }
 
         #region IOpenSearchable implementation
@@ -68,12 +68,26 @@ namespace Terradue.OpenSearch {
                 nvc = HttpUtility.ParseQueryString(url.Query);
             else
                 nvc = new NameValueCollection();
-            
-            parameters.AllKeys.SingleOrDefault(k => {
-                if ( !string.IsNullOrEmpty(parameters[k]) && string.IsNullOrEmpty(nvc[k]))
-                nvc.Set(k, parameters[k]);
-                return false;
-            });
+
+
+
+            if (settings.MergeFilters != null)
+            {
+                nvc = settings.MergeFilters(nvc, parameters);
+            }
+            else
+            {
+                parameters.AllKeys.SingleOrDefault(k =>
+                {
+                    if (!string.IsNullOrEmpty(parameters[k]) && string.IsNullOrEmpty(nvc[k]))
+                        nvc.Set(k, parameters[k]);
+                    return false;
+                });
+            }
+
+            // if the merged parameters contains uid="_null" --> Fake request
+            if ( nvc["uid"] == "__null" )
+                return new DummyRequest(new OpenSearchUrl("dummy://dummyosrequest"), querySettings.PreferredContentType);
             
             return OpenSearchRequest.Create(this, querySettings, nvc);
         }

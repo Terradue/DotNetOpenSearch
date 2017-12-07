@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Specialized;
 using Terradue.OpenSearch.Engine;
 
 namespace Terradue.OpenSearch
@@ -22,8 +23,11 @@ namespace Terradue.OpenSearch
             return new OpenSearchableFactorySettings(OpenSearchEngine)
             {
                 Soft = this.Soft,
-                Credentials = this.Credentials
+                Credentials = this.Credentials,
+                MergeFilters = this.MergeFilters,
             };
         }
+
+        public Func<NameValueCollection, NameValueCollection, NameValueCollection> MergeFilters;
     }
 }

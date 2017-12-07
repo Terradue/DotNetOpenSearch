@@ -69,7 +69,6 @@ namespace Terradue.OpenSearch.Request
         public static OpenSearchRequest Create(IOpenSearchable entity, QuerySettings querySettings, NameValueCollection parameters)
         {
 
-
             OpenSearchDescription osd = entity.GetOpenSearchDescription();
 
             OpenSearchDescriptionUrl url = OpenSearchFactory.GetOpenSearchUrlByType(osd, querySettings.PreferredContentType);
@@ -111,9 +110,14 @@ namespace Terradue.OpenSearch.Request
                 case "https":
                     request = new HttpOpenSearchRequest(queryUrl);
                     ((HttpOpenSearchRequest)request).TimeOut = 600000;
-                    if (querySettings != null)
+                    if (querySettings != null && querySettings.Credentials != null && querySettings.Credentials is System.Net.NetworkCredential)
                     {
                         ((HttpOpenSearchRequest)request).Credentials = querySettings.Credentials;
+                        System.Net.NetworkCredential netcred = querySettings.Credentials as System.Net.NetworkCredential;
+                        UriBuilder urib = new UriBuilder(request.url);
+                        urib.UserName = netcred.UserName;
+                        urib.Password = netcred.Password;
+                        request.url = new OpenSearchUrl(urib.Uri);
                     }
                     break;
                 case "file":

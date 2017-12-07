@@ -103,6 +103,18 @@ namespace Terradue.OpenSearch
 
             }
 
+            // All other remote query parameters
+            foreach (string parameter in remoteParametersDef.AllKeys)
+            {
+                Match matchParamDef = Regex.Match(remoteParametersDef[parameter], @"^{([^?]+)\??}$");
+                // If parameter does not exist, continue
+                if (!matchParamDef.Success && !string.IsNullOrEmpty(parameter) && string.IsNullOrEmpty(finalQueryParameters[parameter]))
+                {
+                    if (!(querySettings.SkipNullOrEmptyQueryStringParameters && string.IsNullOrEmpty(remoteParametersDef[parameter])))
+                        finalQueryParameters.Set(parameter, remoteParametersDef[parameter]);
+                }
+            }
+
             string[] queryString = Array.ConvertAll(finalQueryParameters.AllKeys, key => string.Format("{0}={1}", key, HttpUtility.UrlEncode(finalQueryParameters[key])));
             finalUrl.Query = string.Join("&", queryString);
 
@@ -390,42 +402,17 @@ namespace Terradue.OpenSearch
         {
 
             OpenSearchUrl url = new OpenSearchUrl(baseUrl);
-            OpenSearchDescription openSearchDescription = null;
-            UrlBasedOpenSearchableFactory urlBasedOpenSearchableFactory;
+            UrlBasedOpenSearchableFactory urlBasedOpenSearchableFactory = new UrlBasedOpenSearchableFactory(settings);
             IOpenSearchable result;
+
+            OpenSearchDescription openSearchDescription;
+
             try
             {
-                openSearchDescription = settings.OpenSearchEngine.LoadOpenSearchDescriptionDocument(url, settings);
-                OpenSearchDescriptionUrl openSearchDescriptionUrl;
-                if (mimeType == null)
-                {
-                    openSearchDescriptionUrl = openSearchDescription.Url.First<OpenSearchDescriptionUrl>();
-                }
-                else
-                {
-                    openSearchDescriptionUrl = openSearchDescription.Url.FirstOrDefault((OpenSearchDescriptionUrl u) => u.Type == mimeType);
-                }
-                if (openSearchDescriptionUrl == null)
-                {
-                    throw new InvalidOperationException("Impossible to find an OpenSearchable link for the type " + mimeType);
-                }
-                openSearchDescription.DefaultUrl = openSearchDescriptionUrl;
+                openSearchDescription = settings.OpenSearchEngine.AutoDiscoverFromQueryUrl(new OpenSearchUrl(baseUrl), settings);
             }
-            catch (InvalidOperationException ex)
+            catch (ImpossibleSearchException e)
             {
-                if (!(ex.InnerException is FileNotFoundException) && !(ex.InnerException is SecurityException) && !(ex.InnerException is UriFormatException))
-                {
-                    openSearchDescription = settings.OpenSearchEngine.AutoDiscoverFromQueryUrl(new OpenSearchUrl(baseUrl), settings);
-                    urlBasedOpenSearchableFactory = new UrlBasedOpenSearchableFactory(settings);
-                    result = urlBasedOpenSearchableFactory.Create(url);
-                    if (string.IsNullOrEmpty(mimeType))
-                        return result;
-                    var murl = openSearchDescription.Url.FirstOrDefault((OpenSearchDescriptionUrl u) => u.Type == mimeType);
-                    if (murl != null)
-                        result.GetOpenSearchDescription().DefaultUrl = murl;
-
-                    return result;
-                }
                 try
                 {
                     url = new OpenSearchUrl(new Uri(baseUrl, "/description"));
@@ -448,8 +435,17 @@ namespace Terradue.OpenSearch
             {
                 throw new EntryPointNotFoundException(string.Format("No OpenSearch description found around {0}", baseUrl));
             }
+
+            if (!string.IsNullOrEmpty(mimeType))
+            {
+                var defaultUrl = OpenSearchFactory.GetOpenSearchUrlByType(openSearchDescription, mimeType);
+                if (defaultUrl == null )
+                    throw new EntryPointNotFoundException(string.Format("No OpenSearch description with mimetype {1} at {0}", baseUrl, mimeType));
+                url = OpenSearchFactory.BuildRequestUrlForTemplate(defaultUrl, HttpUtility.ParseQueryString(baseUrl.Query), new QuerySettings(mimeType, null));
+            }
+
             urlBasedOpenSearchableFactory = new UrlBasedOpenSearchableFactory(settings);
-            result = urlBasedOpenSearchableFactory.Create(openSearchDescription);
+            result = urlBasedOpenSearchableFactory.Create(url);
             return result;
         }
 

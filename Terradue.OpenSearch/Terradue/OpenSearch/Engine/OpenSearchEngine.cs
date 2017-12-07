@@ -311,7 +311,7 @@ namespace Terradue.OpenSearch.Engine
 
             if (contentType == "application/opensearchdescription+xml")
             {
-                osd = this.LoadOpenSearchDescriptionDocument(url, settings);
+                osd = OpenSearchFactory.ReadOpenSearchDescriptionDocument(response);
                 descriptionUrl = url;
             }
             else
@@ -421,19 +421,6 @@ namespace Terradue.OpenSearch.Engine
             }
 
         }
-
-        /// <summary>
-        /// Loads the plugins automatically based on Mono.Addins
-        /// </summary>
-        /*public void LoadPlugins() {
-
-            foreach (TypeExtensionNode node in AddinManager.GetExtensionNodes (typeof(IOpenSearchEngineExtension))) {
-                IOpenSearchEngineExtension osee = (IOpenSearchEngineExtension)node.CreateInstance();
-                Type type = osee.GetTransformType();
-                this.RegisterExtension(osee);
-            }
-
-        }*/
 
         /// <summary>
         /// Gets the first extension by content type ability.
