@@ -306,8 +306,12 @@ namespace Terradue.OpenSearch.Engine
             ApplyPostSearchFilters(request, ref response);
 
             string contentType = response.ContentType;
-            if (contentType.Contains(";"))
-                contentType = contentType.Split(';')[0];
+
+            // TODO to be improved to manage completely the mimetype with profile
+            var parameters = HttpUtility.ParseQueryString(url.Query);
+            // temporary to handle the profile eop 21
+            if (parameters["format"] == "atomeop")
+                contentType += "; profile=http://earth.esa.int/eop/2.1";
 
             if (contentType == "application/opensearchdescription+xml")
             {
@@ -429,10 +433,12 @@ namespace Terradue.OpenSearch.Engine
         /// <param name="contentType">Content type.</param>
         public IOpenSearchEngineExtension GetExtensionByContentTypeAbility(string contentType)
         {
+            var ct = contentType;
+            if (ct.Contains(";"))
+                ct = ct.Split(';')[0];
             foreach (IOpenSearchEngineExtension osee in extensions.Values)
             {
-
-                if (osee.DiscoveryContentType == contentType)
+                if (osee.DiscoveryContentType == ct)
                     return osee;
             }
 

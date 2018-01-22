@@ -72,7 +72,7 @@ namespace Terradue.OpenSearch.Request {
             try {
                 _m2.WaitOne();
                 // Ask the cache if a previous page request is present to save some requests
-                usingCache = GetClosestState(entities.Distinct(new OpenSearchableComparer(settings.OpenSearchEngine)).ToArray(), type, this.targetParameters, out this.currentEntities, out this.currentParameters);
+                usingCache = GetClosestState(entities.ToArray(), type, this.targetParameters, out this.currentEntities, out this.currentParameters);
             } finally {
                 _m2.ReleaseMutex();
             }
@@ -268,7 +268,7 @@ namespace Terradue.OpenSearch.Request {
 
             results = new Dictionary<IOpenSearchable, IOpenSearchResultCollection>();
 
-            Parallel.ForEach<IOpenSearchable>(currentEntities.Keys.Distinct(new OpenSearchableComparer(settings.OpenSearchEngine)),
+            Parallel.ForEach<IOpenSearchable>(currentEntities.Keys,
                                               entity => {
                 ExecuteOneRequest(entity);
             });
