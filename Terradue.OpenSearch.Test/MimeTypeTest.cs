@@ -24,6 +24,19 @@ namespace Terradue.OpenSearch.Test {
 
 			Assert.IsTrue(MimeType.Equals(type, type2));
         }
+
+        [Test()]
+        public void MimeTypeTest2()
+        {
+            OpenSearchEngine ose = new OpenSearchEngine();
+            ose.LoadPlugins();
+
+            var settings = new OpenSearchableFactorySettings(ose);
+            var url = new Uri("https://catalog.terradue.com/sentinel1/search");
+            var e = OpenSearchFactory.FindOpenSearchable(settings, url, "application/atom+xml; profile=http://earth.esa.int/eop/2.1");
+
+            Assert.AreEqual("application/atom+xml; profile=http://earth.esa.int/eop/2.1", e.DefaultMimeType);
+        }
     }
 }
 
