@@ -44,7 +44,7 @@ pipeline {
       }
       steps {
         echo 'Deploying'
-        sh "nuget push build/*.nupkg -ApiKey ${params.NUGET_API_KEY} -Source https://nuget.org/api/v2/package"
+        sh "nuget push build/*.nupkg -ApiKey ${params.NUGET_API_KEY} -Source https://www.nuget.org/api/v2/package"
       }       
     }
   }
