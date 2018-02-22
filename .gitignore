@@ -13,3 +13,8 @@ build
 Terradue.OpenSearch/packages
 Terradue.OpenSearch.Test/packages
 /Terradue.OpenSearch.Test/out/TestOpenSearchDescriptionParametersDeser.xml
+
+.idea
+Terradue.OpenSearch.nuspec
+Terradue.OpenSearch/Mono.Options
+TestResult.xml

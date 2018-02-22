@@ -18,6 +18,9 @@ namespace Terradue.OpenSearch
 
         public System.Net.ICredentials Credentials;
 
+        /// value indicating the number of retries if the query fails
+        public int MaxRetries;
+        
         public object Clone()
         {
             return new OpenSearchableFactorySettings(OpenSearchEngine)
@@ -25,6 +28,7 @@ namespace Terradue.OpenSearch
                 Soft = this.Soft,
                 Credentials = this.Credentials,
                 MergeFilters = this.MergeFilters,
+                MaxRetries = this.MaxRetries
             };
         }
 
