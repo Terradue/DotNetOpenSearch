@@ -94,7 +94,7 @@ namespace Terradue.OpenSearch {
 
         public string Identifier {
             get {
-                return GetOpenSearchDescription().ShortName;
+                return (url == null || string.IsNullOrEmpty(url.ToString())) ? osd.DefaultUrl.Template : url.ToString();
             }
         }
 

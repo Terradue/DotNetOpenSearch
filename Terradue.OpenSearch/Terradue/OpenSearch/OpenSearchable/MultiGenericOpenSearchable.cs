@@ -59,13 +59,13 @@ namespace Terradue.OpenSearch {
         /// <returns>The internal open search URL.</returns>
         /// <param name="parameters">Parameters.</param>
         protected OpenSearchUrl GetInternalOpenSearchUrl(NameValueCollection parameters) {
-            double hash = 0;
+            long hash = 0;
             entities.SingleOrDefault(e => {
                 hash += Math.Abs(e.Identifier.GetHashCode());
                 return false;
             });
             UriBuilder url = new UriBuilder(string.Format("http://{0}", System.Environment.MachineName));
-            url.Path += string.Format("/multi/{0:X8}",hash);
+            url.Path += string.Format("/multi/{0}",hash);
             var array = (from key in parameters.AllKeys
                                   from value in parameters.GetValues(key)
                                   select string.Format("{0}={1}", HttpUtility.UrlEncode(key), HttpUtility.UrlEncode(value)))
