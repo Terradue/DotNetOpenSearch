@@ -73,6 +73,8 @@ namespace Terradue.OpenSearch {
 
         public System.Net.ICredentials Credentials { get; set; }
 
+        public int MaxRetries { get; set; }
+        
         /// <summary>Creates a new instance of QuerySettings with the specified parameters.</summary>
         /// <param name="preferredContentType">The preferred content type.</param>
         /// <param name="readNative">The function to be called to obtain the formatted OpenSearch result.</param>
@@ -88,8 +90,10 @@ namespace Terradue.OpenSearch {
 		/// <param name="readNative">The function to be called to obtain the formatted OpenSearch result.</param>
         public QuerySettings(string preferredContentType, ReadNativeFunction readNative, OpenSearchableFactorySettings settings) : this (preferredContentType, readNative)
 		{
-			if (settings != null)
-				this.Credentials = settings.Credentials;
+		    if (settings != null) {
+		        this.Credentials = settings.Credentials;
+		        this.MaxRetries = settings.MaxRetries;
+		    }
 		}
 
     }
