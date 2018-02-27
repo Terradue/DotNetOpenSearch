@@ -49,6 +49,6 @@ using NuGet4Mono.Extensions;
 [assembly: AssemblyLicenseUrl("https://github.com/Terradue/DotNetOpenSearch/blob/master/LICENSE")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
-[assembly: AssemblyVersion("1.15.10.*")]
-[assembly: AssemblyInformationalVersion("1.15.10")]
+[assembly: AssemblyVersion("1.15.11.*")]
+[assembly: AssemblyInformationalVersion("1.15.11")]
 
