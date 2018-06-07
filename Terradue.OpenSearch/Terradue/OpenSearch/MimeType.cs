@@ -8,6 +8,15 @@ namespace Terradue.OpenSearch
 	public class MimeType
 	{
 		string contentType;
+
+		public string ContentType
+		{
+			get
+			{
+				return contentType;
+			}
+		}
+
 		Dictionary<string, string> parameters;
 
 		public MimeType(string contentType)

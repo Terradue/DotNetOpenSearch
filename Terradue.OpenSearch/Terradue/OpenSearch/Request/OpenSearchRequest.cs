@@ -71,11 +71,11 @@ namespace Terradue.OpenSearch.Request
 
             OpenSearchDescription osd = entity.GetOpenSearchDescription();
 
-            OpenSearchDescriptionUrl url = OpenSearchFactory.GetOpenSearchUrlByType(osd, querySettings.PreferredContentType);
+			OpenSearchDescriptionUrl templateUrl = OpenSearchFactory.GetOpenSearchUrlByType(osd, querySettings.PreferredContentType);
 
-            if (url == null) throw new InvalidOperationException(string.Format("Could not find a URL template for entity {0} with type {1}", entity.Identifier, querySettings.PreferredContentType));
+            if (templateUrl == null) throw new InvalidOperationException(string.Format("Could not find a URL template for entity {0} with type {1}", entity.Identifier, querySettings.PreferredContentType));
 
-            OpenSearchUrl queryUrl = OpenSearchFactory.BuildRequestUrlForTemplate(url, parameters, entity.GetOpenSearchParameters(querySettings.PreferredContentType), querySettings);
+            OpenSearchUrl queryUrl = OpenSearchFactory.BuildRequestUrlForTemplate(templateUrl, parameters, entity.GetOpenSearchParameters(querySettings.PreferredContentType), querySettings);
 
             OpenSearchRequest request = null;
 
@@ -93,6 +93,7 @@ namespace Terradue.OpenSearch.Request
             }
 
             request.OriginalParameters = parameters;
+			request.OpenSearchDescription = osd;
 
             return request;
 
@@ -139,6 +140,11 @@ namespace Terradue.OpenSearch.Request
             {
                 url = value;
             }
+        }
+
+		public OpenSearchDescription OpenSearchDescription
+        {
+			get; protected set;
         }
 
         public abstract IOpenSearchResponse GetResponse();

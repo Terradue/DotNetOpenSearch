@@ -313,7 +313,7 @@ namespace Terradue.OpenSearch.Engine
             if (parameters["format"] == "atomeop")
                 contentType += "; profile=http://earth.esa.int/eop/2.1";
 
-            if (contentType == "application/opensearchdescription+xml")
+			if (contentType.StartsWith("application/opensearchdescription+xml"))
             {
                 osd = OpenSearchFactory.ReadOpenSearchDescriptionDocument(response);
                 descriptionUrl = url;
@@ -336,7 +336,7 @@ namespace Terradue.OpenSearch.Engine
 
             osd.Originator = descriptionUrl;
 
-            if (contentType == "application/opensearchdescription+xml")
+			if (contentType.StartsWith("application/opensearchdescription+xml"))
                 contentType = "application/atom+xml";
 
             var defaultUrl = osd.Url.FirstOrDefault(u => u.Type.Equals(contentType));
@@ -494,11 +494,14 @@ namespace Terradue.OpenSearch.Engine
 
 
             XElement query = new XElement(XName.Get("Query", "http://a9.com/-/spec/opensearch/1.1/"));
-            OpenSearchDescription osd = null;
-            if (response.Entity is IProxiedOpenSearchable)
-                osd = ((IProxiedOpenSearchable)response.Entity).GetProxyOpenSearchDescription();
-            else
-                osd = response.Entity.GetOpenSearchDescription();
+			OpenSearchDescription osd = request.OpenSearchDescription;
+			if (osd == null)
+			{
+				if (response.Entity is IProxiedOpenSearchable)
+					osd = ((IProxiedOpenSearchable)response.Entity).GetProxyOpenSearchDescription();
+				else
+					osd = response.Entity.GetOpenSearchDescription();
+			}
             foreach (var ns in osd.ExtraNamespace.ToArray())
             {
                 if (string.IsNullOrEmpty(ns.Name) || ns.Namespace == "http://www.w3.org/2001/XMLSchema" || ns.Namespace == "http://www.w3.org/2001/XMLSchema-instance" || ns.Namespace == XNamespace.Xmlns.NamespaceName)
