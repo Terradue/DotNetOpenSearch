@@ -22,18 +22,15 @@ pipeline {
     }
     stage('Package') {
       steps {
-        parallel(
-          "Package": {
-            sh "nuget4mono -g origin/${env.BRANCH_NAME} -p Terradue.OpenSearch/packages.config Terradue.OpenSearch/bin/Terradue.OpenSearch.dll"
-            sh 'cat *.nuspec'
-            sh 'nuget pack -OutputDirectory build'
-            sh "echo ${params.NUGET_PUBLISH}"
-            
-          },
-          "Test": {
-            sh 'nunit-console4 *.Test/bin/*.Test.dll -xml build/TestResult.xml'
-          }
-        )
+          sh "nuget4mono -g origin/${env.BRANCH_NAME} -p Terradue.OpenSearch/packages.config Terradue.OpenSearch/bin/Terradue.OpenSearch.dll"
+          sh 'cat *.nuspec'
+          sh 'nuget pack -OutputDirectory build'
+          sh "echo ${params.NUGET_PUBLISH}"
+      }
+    }
+    stage('Test') {
+      steps {
+        sh 'nunit-console4 *.Test/bin/*.Test.dll -xml build/TestResult.xml'
       }
     }
     stage('Publish') {

@@ -15,13 +15,15 @@ using System.Diagnostics;
 using Terradue.OpenSearch.Request;
 using Terradue.OpenSearch.Response;
 using System.Text.RegularExpressions;
+using Terradue.OpenSearch.Schema;
 
-namespace Terradue.OpenSearch.Filters {
+namespace Terradue.OpenSearch.Filters
+{
 
-    /// <summary>
-    /// Class that implements a cache for OpenSearch Request and Response.
-    /// </summary>
-    public class OpenSearchMemoryCache {
+	/// <summary>
+	/// Class that implements a cache for OpenSearch Request and Response.
+	/// </summary>
+	public class OpenSearchMemoryCache {
 
         private log4net.ILog log = log4net.LogManager.GetLogger
             (System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -61,7 +63,7 @@ namespace Terradue.OpenSearch.Filters {
             watch.Stop();
 
             log.DebugFormat("OpenSearch Cache [load] {0}", request.OpenSearchUrl);
-            request = new CachedOpenSearchRequest(item.OpenSearchUrl, item.OpenSearchResponse, request.OriginalParameters, watch.Elapsed);
+			request = new CachedOpenSearchRequest(item.OpenSearchUrl, item.OpenSearchResponse, request.OriginalParameters, watch.Elapsed, item.OpenSearchDescription);
 
         }
 
@@ -85,7 +87,7 @@ namespace Terradue.OpenSearch.Filters {
             if (clonedResponse == null)
                 throw new InvalidOperationException(string.Format("Response cannot be cached because it is null. Check the CloneForCache of the response [{0}] or the CanCache() method of the Opensearchable [{1}] requested", response.GetType(), response.Entity.GetType()));
             
-            OpenSearchResponseCacheItem item = new OpenSearchResponseCacheItem(request.OpenSearchUrl, clonedResponse);
+			OpenSearchResponseCacheItem item = new OpenSearchResponseCacheItem(request.OpenSearchUrl, clonedResponse, request.OpenSearchDescription);
             CacheItemPolicy policy = this.CreatePolicy(item, request);
             log.DebugFormat("OpenSearch Cache [store] {0}", request.OpenSearchUrl);
 
@@ -141,12 +143,12 @@ namespace Terradue.OpenSearch.Filters {
     /// Open search response cache item.
     /// </summary>
     public class OpenSearchResponseCacheItem : CacheItem {
-
-
+  
         private DateTime created;
 
-        public OpenSearchResponseCacheItem(OpenSearchUrl url, IOpenSearchResponse clonedResponse) : base(url.ToString(),clonedResponse) {
+		public OpenSearchResponseCacheItem(OpenSearchUrl url, IOpenSearchResponse clonedResponse, OpenSearchDescription osd) : base(url.ToString(),clonedResponse) {
             created = DateTime.UtcNow;
+			this.OpenSearchDescription = osd;
         }
 
         internal OpenSearchResponseCacheItem(CacheItem item) : base(item.Key, item.Value) {
@@ -173,38 +175,10 @@ namespace Terradue.OpenSearch.Filters {
             }
         }
 
-    }
-
-    /// <summary>
-    /// Cached open search request.
-    /// </summary>
-    public class CachedOpenSearchRequest : OpenSearchRequest {
-
-        private IOpenSearchResponse response;
-
-        public CachedOpenSearchRequest(OpenSearchUrl url, IOpenSearchResponse response, NameValueCollection originalParameters, TimeSpan elapsed) : base(url, response.ContentType) {
-            base.OpenSearchUrl = url;
-            this.response = response;
-            this.OriginalParameters = originalParameters;
+		public OpenSearchDescription OpenSearchDescription
+        {
+            get; protected set;
         }
-
-        #region implemented abstract members of OpenSearchRequest
-
-        public override IOpenSearchResponse GetResponse() {
-            return response;
-        }
-
-        NameValueCollection originalParameters;
-        public override NameValueCollection OriginalParameters {
-            get {
-                return originalParameters;
-            }
-            set {
-                originalParameters = value;
-            }
-        }
-
-        #endregion
     }
 
     public class OpenSearchableChangeMonitor : ChangeMonitor {
@@ -263,8 +237,6 @@ namespace Terradue.OpenSearch.Filters {
         void OnOpenSearchableChange (object sender,  OnOpenSearchableChangeEventArgs data);
 
         event OpenSearchableChangeEventHandler OpenSearchableChange;
-
-        
 
     }
 

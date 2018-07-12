@@ -104,6 +104,7 @@
     <Compile Include="Terradue\OpenSearch\OpenSearchable\OpenSearchableFactorySettings.cs" />
     <Compile Include="Terradue\OpenSearch\Request\DummyRequest.cs" />
     <Compile Include="Terradue\OpenSearch\Response\DummyResponse.cs" />
+    <Compile Include="Terradue\OpenSearch\Filters\CachedOpenSearchRequest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
