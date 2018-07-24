@@ -26,6 +26,10 @@ namespace Terradue.OpenSearch.Schema
             get
             {
                 if (defaultUrl == null && Url.Count() > 0)
+                    defaultUrl = Url.FirstOrDefault(u => u.Type == "application/atom+xml");
+				if (defaultUrl == null && Url.Count() > 0)
+                    defaultUrl = Url.FirstOrDefault(u => u.Type == "application/json");
+				if (defaultUrl == null && Url.Count() > 0)
                     defaultUrl = Url.FirstOrDefault(u => u.Type == "application/xml");
                 if (defaultUrl == null)
                     return Url.First();
