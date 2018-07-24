@@ -20,6 +20,7 @@ namespace Terradue.OpenSearch.Test
 
 			var os = OpenSearchFactory.FindOpenSearchable(settings, new Uri("http://finder.eocloud.eu/resto/api/collections/describe.xml"));
 
+			ose.Query(os, new NameValueCollection());
 
         }
     }
