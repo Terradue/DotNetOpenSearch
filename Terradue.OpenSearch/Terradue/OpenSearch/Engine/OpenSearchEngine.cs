@@ -318,9 +318,16 @@ namespace Terradue.OpenSearch.Engine
                 osd = OpenSearchFactory.ReadOpenSearchDescriptionDocument(response);
                 descriptionUrl = url;
             }
-            else
+			else if (contentType.StartsWith("application/xml"))
             {
-
+				try
+				{
+					osd = OpenSearchFactory.ReadOpenSearchDescriptionDocument(response);
+					descriptionUrl = url;
+				}
+				catch{}
+            }
+			if ( osd == null ) {
                 IOpenSearchEngineExtension osee = GetExtensionByContentTypeAbility(contentType);
 
                 if (osee == null)
