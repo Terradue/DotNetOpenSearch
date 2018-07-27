@@ -106,6 +106,8 @@ namespace Terradue.OpenSearch.Request {
                 } catch (WebException e) {
                     if (e.Status == WebExceptionStatus.Timeout)
                         throw new TimeoutException(String.Format("Search Request {0} has timed out", this.OpenSearchUrl), e);
+					if (e.Status == WebExceptionStatus.NameResolutionFailure)
+						throw new WebException(String.Format("Search Request {0} has given a Name Resolution failure", this.OpenSearchUrl), e);
                     retry--;
                     if (retry > 0) {
                         Thread.Sleep(1000);
