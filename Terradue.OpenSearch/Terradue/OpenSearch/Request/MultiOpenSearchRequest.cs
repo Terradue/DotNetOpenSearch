@@ -429,7 +429,7 @@ namespace Terradue.OpenSearch.Request
 			tfeed.Items = tfeed.Items.Take(originalCount);
 			foreach (var ext in f2.ElementExtensions.Where(e => e.OuterNamespace != "http://a9.com/-/spec/opensearch/1.1/"))
 			{
-				tfeed.ElementExtensions.Add(ext);
+				if (ext.OuterName != "exception") tfeed.ElementExtensions.Add(ext);
 			}
 
 			return (TFeed)tfeed.Clone();
