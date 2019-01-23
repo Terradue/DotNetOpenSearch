@@ -756,7 +756,7 @@ namespace Terradue.OpenSearch
 			parameters.Add(new OpenSearchDescriptionUrlParameter()
 			{
 				Name = "count",
-				Value = @"{count?}",
+				Value = @"{count}",
 				Title = "number of search results per page desired",
 				Minimum = "0",
 				MaxInclusive = maxCount.ToString()
@@ -764,28 +764,28 @@ namespace Terradue.OpenSearch
 			parameters.Add(new OpenSearchDescriptionUrlParameter()
 			{
 				Name = "startPage",
-				Value = @"{startPage?}",
+				Value = @"{startPage}",
 				Title = "page number of the set of search results desired",
 				Minimum = "0"
 			});
 			parameters.Add(new OpenSearchDescriptionUrlParameter()
 			{
 				Name = "startIndex",
-				Value = @"{startIndex?}",
+				Value = @"{startIndex}",
 				Title = "index of the first search result desired",
 				Minimum = "0"
 			});
 			parameters.Add(new OpenSearchDescriptionUrlParameter()
 			{
 				Name = "q",
-				Value = @"{searchTerms?}",
+				Value = @"{searchTerms}",
 				Title = "keywords to be found in the search results",
 				Minimum = "0"
 			});
 			parameters.Add(new OpenSearchDescriptionUrlParameter()
 			{
 				Name = "lang",
-				Value = @"{language?}",
+				Value = @"{language}",
 				Title = "desired language of the results",
 				Minimum = "0"
 			});

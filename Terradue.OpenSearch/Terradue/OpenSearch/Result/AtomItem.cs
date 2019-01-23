@@ -61,7 +61,9 @@ namespace Terradue.OpenSearch.Result {
                         continue;
                     }
                 }
-                this.ElementExtensions.Add(new XElement(XName.Get("identifier", "http://purl.org/dc/elements/1.1/"), value).CreateReader());
+                if (string.IsNullOrEmpty(value))
+                    return;
+                this.ElementExtensions.Add("identifier", "http://purl.org/dc/elements/1.1/", value);
             }
         }
 
