@@ -76,12 +76,16 @@ namespace Terradue.OpenSearch.Result {
         public AtomFeed(SyndicationFeed feed) : base(feed, false) {
             items = feed.Items.Select(i => new AtomItem(i)).ToList();
             base.LastUpdatedTime = DateTime.UtcNow;
-            AttributeExtensions.Add(
-                new XmlQualifiedName("dc", XNamespace.Xmlns.ToString()),
-                "http://purl.org/dc/elements/1.1/");
-            AttributeExtensions.Add(
+            if (!AttributeExtensions.ContainsKey(new XmlQualifiedName("dc", XNamespace.Xmlns.ToString()))){
+                AttributeExtensions.Add(
+                    new XmlQualifiedName("dc", XNamespace.Xmlns.ToString()),
+                    "http://purl.org/dc/elements/1.1/");
+            }
+            if (!AttributeExtensions.ContainsKey(new XmlQualifiedName("os", XNamespace.Xmlns.ToString()))){
+                AttributeExtensions.Add(
                 new XmlQualifiedName("os", XNamespace.Xmlns.ToString()),
                 "http://a9.com/-/spec/opensearch/1.1/");
+            }
         }
 
         public AtomFeed(AtomFeed feed, bool cloneItems = false) : base(feed, false) {
@@ -89,12 +93,16 @@ namespace Terradue.OpenSearch.Result {
                 items = feed.items.Select(i => new AtomItem(i)).ToList();
             } else
                 items = feed.items;
-            AttributeExtensions.Add(
-                new XmlQualifiedName("dc", XNamespace.Xmlns.ToString()),
-                "http://purl.org/dc/elements/1.1/");
-            AttributeExtensions.Add(
+            if (!AttributeExtensions.ContainsKey(new XmlQualifiedName("dc", XNamespace.Xmlns.ToString()))){
+                AttributeExtensions.Add(
+                    new XmlQualifiedName("dc", XNamespace.Xmlns.ToString()),
+                    "http://purl.org/dc/elements/1.1/");
+            }
+            if (!AttributeExtensions.ContainsKey(new XmlQualifiedName("os", XNamespace.Xmlns.ToString()))){
+                AttributeExtensions.Add(
                 new XmlQualifiedName("os", XNamespace.Xmlns.ToString()),
                 "http://a9.com/-/spec/opensearch/1.1/");
+            }
             QueryTimeSpan = feed.QueryTimeSpan;
             OpenSearchable = feed.OpenSearchable;
             Parameters = feed.Parameters;
