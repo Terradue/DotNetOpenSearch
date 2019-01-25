@@ -501,7 +501,8 @@ namespace Terradue.OpenSearch.Engine
 
 
             XElement query = new XElement(XName.Get("Query", "http://a9.com/-/spec/opensearch/1.1/"));
-			OpenSearchDescription osd = request.OpenSearchDescription;
+            query.Add(new XAttribute("role", "request"));
+            OpenSearchDescription osd = request.OpenSearchDescription;
 			if (osd == null)
 			{
 				if (response.Entity is IProxiedOpenSearchable)

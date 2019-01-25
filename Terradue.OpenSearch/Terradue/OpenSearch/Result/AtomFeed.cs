@@ -43,21 +43,45 @@ namespace Terradue.OpenSearch.Result {
         public AtomFeed() : base()  {
             items = new List<AtomItem>();
             base.LastUpdatedTime = DateTime.UtcNow;
+            AttributeExtensions.Add(
+                new XmlQualifiedName("dc", XNamespace.Xmlns.ToString()),
+                "http://purl.org/dc/elements/1.1/");
+            AttributeExtensions.Add(
+                new XmlQualifiedName("os", XNamespace.Xmlns.ToString()),
+                "http://a9.com/-/spec/opensearch/1.1/");
         }
 
         public AtomFeed(IEnumerable<AtomItem> items) : base()  {
             items = new List<AtomItem>(items);
             base.LastUpdatedTime = DateTime.UtcNow;
+            AttributeExtensions.Add(
+                new XmlQualifiedName("dc", XNamespace.Xmlns.ToString()),
+                "http://purl.org/dc/elements/1.1/");
+            AttributeExtensions.Add(
+                new XmlQualifiedName("os", XNamespace.Xmlns.ToString()),
+                "http://a9.com/-/spec/opensearch/1.1/");
         }
 
         public AtomFeed(string title, string description, Uri feedAlternateLink, string id, DateTimeOffset date) : base (title,description,feedAlternateLink,id,date){
             items = new List<AtomItem>();
             base.LastUpdatedTime = DateTime.UtcNow;
+            AttributeExtensions.Add(
+                new XmlQualifiedName("dc", XNamespace.Xmlns.ToString()),
+                "http://purl.org/dc/elements/1.1/");
+            AttributeExtensions.Add(
+                new XmlQualifiedName("os", XNamespace.Xmlns.ToString()),
+                "http://a9.com/-/spec/opensearch/1.1/");
         }
 
         public AtomFeed(SyndicationFeed feed) : base(feed, false) {
             items = feed.Items.Select(i => new AtomItem(i)).ToList();
             base.LastUpdatedTime = DateTime.UtcNow;
+            AttributeExtensions.Add(
+                new XmlQualifiedName("dc", XNamespace.Xmlns.ToString()),
+                "http://purl.org/dc/elements/1.1/");
+            AttributeExtensions.Add(
+                new XmlQualifiedName("os", XNamespace.Xmlns.ToString()),
+                "http://a9.com/-/spec/opensearch/1.1/");
         }
 
         public AtomFeed(AtomFeed feed, bool cloneItems = false) : base(feed, false) {
@@ -65,10 +89,17 @@ namespace Terradue.OpenSearch.Result {
                 items = feed.items.Select(i => new AtomItem(i)).ToList();
             } else
                 items = feed.items;
+            AttributeExtensions.Add(
+                new XmlQualifiedName("dc", XNamespace.Xmlns.ToString()),
+                "http://purl.org/dc/elements/1.1/");
+            AttributeExtensions.Add(
+                new XmlQualifiedName("os", XNamespace.Xmlns.ToString()),
+                "http://a9.com/-/spec/opensearch/1.1/");
             QueryTimeSpan = feed.QueryTimeSpan;
             OpenSearchable = feed.OpenSearchable;
             Parameters = feed.Parameters;
             TotalResults = feed.TotalResults;
+
         }
 
         public new static AtomFeed Load(XmlReader reader) {
@@ -147,7 +178,9 @@ namespace Terradue.OpenSearch.Result {
                         continue;
                     }
                 }
-                this.ElementExtensions.Add(new XElement(XName.Get("identifier", "http://purl.org/dc/elements/1.1/"), value).CreateReader());
+                if (string.IsNullOrEmpty(value))
+                    return;
+                this.ElementExtensions.Add("identifier", "http://purl.org/dc/elements/1.1/", value);
             }
         }
 
@@ -169,7 +202,7 @@ namespace Terradue.OpenSearch.Result {
                         continue;
                     }
                 }
-                this.ElementExtensions.Add(new XElement(XName.Get("totalResults", "http://a9.com/-/spec/opensearch/1.1/"), value).CreateReader());
+                this.ElementExtensions.Add("totalResults", "http://a9.com/-/spec/opensearch/1.1/", value);
             }
         }
 
@@ -212,7 +245,7 @@ namespace Terradue.OpenSearch.Result {
                         continue;
                     }
                 }
-                this.ElementExtensions.Add(new XElement(XName.Get("queryTime", "http://purl.org/dc/elements/1.1/"), value.TotalMilliseconds).CreateReader());
+                this.ElementExtensions.Add("queryTime", "http://purl.org/dc/elements/1.1/", value.TotalMilliseconds);
             }
         }
         #endregion
