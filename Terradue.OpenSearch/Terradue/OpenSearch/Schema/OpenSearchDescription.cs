@@ -340,7 +340,7 @@ namespace Terradue.OpenSearch.Schema {
             }
         }
 
-        public XmlSerializerNamespaces ExtraNamespace { get; }
+        public XmlSerializerNamespaces ExtraNamespace { get; set; }
     }
 
     /// <remarks/>

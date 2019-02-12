@@ -160,71 +160,8 @@ namespace Terradue.OpenSearch
         /// <returns>The request URL for template.</returns>
         /// <param name="remoteUrlTemplate">Remote URL template.</param>
         /// <param name="searchParameters">Search parameters.</param>
-        public static OpenSearchUrl BuildRequestUrlForTemplate(OpenSearchDescriptionUrl remoteUrlTemplate, NameValueCollection searchParameters, QuerySettings querySettings)
-        {
-            // container for the final query url
-            UriBuilder finalUrl = new UriBuilder(remoteUrlTemplate.Template);
-            // parameters for final query
-            NameValueCollection finalQueryParameters = new NameValueCollection();
-
-            // Parse the possible parametrs of the remote urls
-            NameValueCollection remoteParametersDef = HttpUtility.ParseQueryString(finalUrl.Query);
-
-            // For each parameter requested
-            foreach (string parameter_id in searchParameters.AllKeys)
-            {
-                if (remoteParametersDef[parameter_id] == null)
-                {
-                    // if forced, set the param
-                    if (querySettings.ForceUnspecifiedParameters)
-                    {
-                        if (!(querySettings.SkipNullOrEmptyQueryStringParameters && string.IsNullOrEmpty(searchParameters[parameter_id])))
-                            finalQueryParameters.Set(parameter_id, searchParameters[parameter_id]);
-                    }
-                    continue;
-                }
-                // first find the defintion of the parameter in the url template
-                foreach (var key in remoteParametersDef.GetValues(parameter_id))
-                {
-                    Match matchParamDef = Regex.Match(key, @"^{([^?]+)\??}$");
-                    // If parameter does not exist, continue
-                    if (!matchParamDef.Success)
-                        continue;
-                    // We have the parameter defintion
-                    string paramDef = matchParamDef.Groups[1].Value;
-                    string paramValue = searchParameters[parameter_id];
-
-                    if (!(querySettings.SkipNullOrEmptyQueryStringParameters && string.IsNullOrEmpty(paramValue)))
-                        finalQueryParameters.Set(parameter_id, paramValue);
-                }
-
-            }
-
-            // All other remote query parameters
-            foreach (string parameter in remoteParametersDef.AllKeys)
-            {
-                Match matchParamDef = Regex.Match(remoteParametersDef[parameter], @"^{([^?]+)\??}$");
-                // If parameter does not exist, continue
-                if (!matchParamDef.Success && !string.IsNullOrEmpty(parameter) && string.IsNullOrEmpty(finalQueryParameters[parameter]))
-                {
-                    if (!(querySettings.SkipNullOrEmptyQueryStringParameters && string.IsNullOrEmpty(remoteParametersDef[parameter])))
-                        finalQueryParameters.Set(parameter, remoteParametersDef[parameter]);
-                }
-            }
-
-            string[] queryString = Array.ConvertAll(finalQueryParameters.AllKeys, key => string.Format("{0}={1}", key, HttpUtility.UrlEncode(finalQueryParameters[key])));
-            finalUrl.Query = string.Join("&", queryString);
-
-            return new OpenSearchUrl(finalUrl.Uri);
-        }
-
-        /// <summary>
-        /// Builds the request URL for template.
-        /// </summary>
-        /// <returns>The request URL for template.</returns>
-        /// <param name="remoteUrlTemplate">Remote URL template.</param>
-        /// <param name="searchParameters">Search parameters.</param>
         /// <param name="urlTemplateDef">URL template def.</param>
+        [Obsolete("BuildRequestUrlForTemplate is deprecated, please use BuildRequestUrlFromTemplate instead.")]
         public static OpenSearchUrl BuildRequestUrlForTemplate(OpenSearchDescriptionUrl remoteUrlTemplate, NameValueCollection searchParameters, NameValueCollection requestUrlTemplateDef, QuerySettings querySettings)
         {
             // container for the final query url
@@ -562,7 +499,7 @@ namespace Terradue.OpenSearch
                 var defaultUrl = OpenSearchFactory.GetOpenSearchUrlByType(openSearchDescription, mimeType);
                 if (defaultUrl == null)
                     throw new EntryPointNotFoundException(string.Format("No OpenSearch description with mimetype {1} at {0}", baseUrl, mimeType));
-                url = OpenSearchFactory.BuildRequestUrlForTemplate(defaultUrl, HttpUtility.ParseQueryString(baseUrl.Query), new QuerySettings(mimeType, null));
+                url = OpenSearchFactory.BuildRequestUrlFromTemplate(defaultUrl, HttpUtility.ParseQueryString(baseUrl.Query), new QuerySettings(mimeType, null));
             }
 
             urlBasedOpenSearchableFactory = new UrlBasedOpenSearchableFactory(settings);
