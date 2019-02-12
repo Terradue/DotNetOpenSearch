@@ -92,6 +92,12 @@ namespace Terradue.OpenSearch.Test {
 
             osd2.ExtraNamespace = osd.ExtraNamespace;
 
+            osd2.ExtraNamespace = osd.ExtraNamespace;
+            for (int i = 0; i < osd.Url.Count(); i++)
+            {
+                osd2.Url[i].ExtraNamespace = osd.Url[i].ExtraNamespace;
+            }
+
             osd2.ShouldBeEquivalentTo(osd);
 
             using (var xw = XmlWriter.Create(new FileStream("../out/TestOpenSearchDescriptionParametersDeser.xml", FileMode.Create, FileAccess.Write)))
