@@ -26,22 +26,22 @@ namespace Terradue.OpenSearch.Test
 
         }
 
-        [Test()]
-        public void CKANOSDD()
-        {
+        //[Test()]
+        //public void CKANOSDD()
+        //{
 
-            OpenSearchEngine ose = new OpenSearchEngine();
-            ose.LoadPlugins();
+        //    OpenSearchEngine ose = new OpenSearchEngine();
+        //    ose.LoadPlugins();
 
-            var settings = new OpenSearchableFactorySettings(ose);
-            UrlBasedOpenSearchableFactory factory = new UrlBasedOpenSearchableFactory(settings);
+        //    var settings = new OpenSearchableFactorySettings(ose);
+        //    UrlBasedOpenSearchableFactory factory = new UrlBasedOpenSearchableFactory(settings);
 
-            var os = OpenSearchFactory.FindOpenSearchable(settings, new Uri("https://catalogue.nextgeoss.eu/opensearch/description.xml?osdd=dataset"), "application/atom+xml");
+        //    var os = OpenSearchFactory.FindOpenSearchable(settings, new Uri("https://catalogue.nextgeoss.eu/opensearch/description.xml?osdd=dataset"), "application/atom+xml");
 
-            //var results = ose.Query(os, new NameValueCollection());
+        //    //var results = ose.Query(os, new NameValueCollection());
 
-            //results.SerializeToString();
+        //    //results.SerializeToString();
 
-        }
+        //}
     }
 }
