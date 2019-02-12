@@ -35,6 +35,8 @@ namespace Terradue.OpenSearch.Test {
             var url = new Uri("https://catalog.terradue.com/sentinel1/search");
             var e = OpenSearchFactory.FindOpenSearchable(settings, url, "application/atom+xml; profile=http://earth.esa.int/eop/2.1");
 
+            Assert.Greater(e.GetOpenSearchDescription().Url[0].ExtraNamespace.Count, 1);
+
             Assert.AreEqual("application/atom+xml; profile=http://earth.esa.int/eop/2.1", e.DefaultMimeType);
         }
     }

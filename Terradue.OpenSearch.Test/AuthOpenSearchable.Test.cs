@@ -44,6 +44,7 @@ namespace Terradue.OpenSearch.Test {
             OpenSearchFactory.FindOpenSearchable(settings, new Uri("https://catalog.terradue.com/demo1/search"), null);
 
 
+
         }
 
 

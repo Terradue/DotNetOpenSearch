@@ -349,6 +349,8 @@ namespace Terradue.OpenSearch.Engine
             var defaultUrl = osd.Url.FirstOrDefault(u => u.Type.Equals(contentType));
             osd.DefaultUrl = defaultUrl ?? osd.Url.FirstOrDefault(u => u.Type.StartsWith(contentType));
 
+           
+
             return osd;
         }
 
@@ -377,6 +379,12 @@ namespace Terradue.OpenSearch.Engine
             catch (Exception e)
             {
                 throw new InvalidOperationException("Exception reading OpenSearch description at " + url.ToString() + " : " + e.Message, e);
+            }
+
+            foreach (var osurl in osd.Url)
+            {
+                if (osurl.ExtraNamespace.Count < osd.ExtraNamespace.Count)
+                    osurl.ExtraNamespace = osd.ExtraNamespace;
             }
 
             return osd;

@@ -109,6 +109,7 @@
     <Compile Include="querySettings.cs" />
     <Compile Include="AuthOpenSearchable.Test.cs" />
     <Compile Include="DiscoveryTests.cs" />
+    <Compile Include="UrlTemplateTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
