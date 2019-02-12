@@ -90,7 +90,7 @@ namespace Terradue.OpenSearch {
 
             // Create the union Link
 
-            OpenSearchDescriptionUrl url = new OpenSearchDescriptionUrl("application/atom+xml", "dummy://dummy", "results");
+            OpenSearchDescriptionUrl url = new OpenSearchDescriptionUrl("application/atom+xml", "dummy://dummy", "results", osd.ExtraNamespace);
 
             osd.Url = new OpenSearchDescriptionUrl[1];
             osd.Url[0] = url;

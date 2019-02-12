@@ -265,11 +265,19 @@ namespace Terradue.OpenSearch.Schema {
 		
         private int indexOffset = 1;
 
-        public OpenSearchDescriptionUrl() {
+        public OpenSearchDescriptionUrl()
+        {
+            ExtraNamespace = new XmlSerializerNamespaces();
+            ExtraNamespace.Add("", "http://a9.com/-/spec/opensearch/1.1/");
         }
 
-        public OpenSearchDescriptionUrl(string type, string template, string rel) {
+        public OpenSearchDescriptionUrl(XmlSerializerNamespaces extraNamespace) {
+            ExtraNamespace = extraNamespace;
+        }
+
+        public OpenSearchDescriptionUrl(string type, string template, string rel, XmlSerializerNamespaces extraNamespace) {
             this.Relation = rel;
+            ExtraNamespace = extraNamespace;
             this.Template = template;
             this.Type = type;
         }
@@ -331,6 +339,8 @@ namespace Terradue.OpenSearch.Schema {
                 indexOffset = value;
             }
         }
+
+        public XmlSerializerNamespaces ExtraNamespace { get; }
     }
 
     /// <remarks/>
