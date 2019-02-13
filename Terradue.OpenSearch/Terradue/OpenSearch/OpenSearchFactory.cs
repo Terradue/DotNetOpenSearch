@@ -496,14 +496,15 @@ namespace Terradue.OpenSearch
 
             if (!string.IsNullOrEmpty(mimeType))
             {
-                var defaultUrl = OpenSearchFactory.GetOpenSearchUrlByType(openSearchDescription, mimeType);
+                OpenSearchDescriptionUrl defaultUrl = OpenSearchFactory.GetOpenSearchUrlByType(openSearchDescription, mimeType);
                 if (defaultUrl == null)
                     throw new EntryPointNotFoundException(string.Format("No OpenSearch description with mimetype {1} at {0}", baseUrl, mimeType));
-                url = OpenSearchFactory.BuildRequestUrlFromTemplate(defaultUrl, HttpUtility.ParseQueryString(baseUrl.Query), new QuerySettings(mimeType, null));
+                openSearchDescription.DefaultUrl = defaultUrl;
+                //url = OpenSearchFactory.BuildRequestUrlFromTemplate(defaultUrl, HttpUtility.ParseQueryString(baseUrl.Query), new QuerySettings(mimeType, null));
             }
 
             urlBasedOpenSearchableFactory = new UrlBasedOpenSearchableFactory(settings);
-            result = urlBasedOpenSearchableFactory.Create(url);
+            result = urlBasedOpenSearchableFactory.Create(openSearchDescription);
             return result;
         }
 
