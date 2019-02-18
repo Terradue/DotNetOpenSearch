@@ -100,7 +100,7 @@ namespace Terradue.OpenSearch.Test
 
             var result = OpenSearchFactory.BuildRequestUrlFromTemplate(template, searchParameters, new QuerySettings("application/atom+xml", null));
 
-            Assert.AreEqual(@"https://catalogue.nextgeoss.eu/opensearch/search.atom?collection_id=dataset&q=test&rows=20&page=&ext_bbox=-180%2c-90%2c180%2c90&identifier=&timerange_start=20190101&timerange_end=&metadata_modified=&spatial_geom=POINT(0%200)&collection_id=SENTINEL2_L1C",
+            Assert.AreEqual(@"https://catalogue.nextgeoss.eu/opensearch/search.atom?collection_id=dataset&q=test&rows=20&page=&ext_bbox=-180%2c-90%2c180%2c90&identifier=&timerange_start=20190101&timerange_end=&metadata_modified=&spatial_geom=POINT(0+0)&collection_id=SENTINEL2_L1C",
                 result.ToString()
             );
 
