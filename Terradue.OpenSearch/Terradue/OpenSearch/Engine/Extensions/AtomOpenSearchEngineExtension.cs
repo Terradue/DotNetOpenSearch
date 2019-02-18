@@ -19,6 +19,7 @@ using Terradue.OpenSearch.Result;
 using Terradue.OpenSearch.Schema;
 using System.IO;
 using System.Web;
+using Terradue.OpenSearch.Benchmarking;
 
 namespace Terradue.OpenSearch.Engine.Extensions {
     /// <summary>
@@ -97,6 +98,8 @@ namespace Terradue.OpenSearch.Engine.Extensions {
                 result = AtomFeed.Load(reader);
                 result.QueryTimeSpan = response.RequestTime;
                 result.OpenSearchable = response.Entity;
+
+                result.ElementExtensions.Add(BenchmarkingFactory.CreateBenchmarkFromResponse(response));
 
             } catch (Exception e) {
                 throw new InvalidOperationException(string.Format("Error during transformation : {0}", e.Message), e);

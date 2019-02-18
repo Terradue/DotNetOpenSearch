@@ -106,10 +106,15 @@
     <Compile Include="Terradue\OpenSearch\Response\DummyResponse.cs" />
     <Compile Include="Terradue\OpenSearch\Filters\CachedOpenSearchRequest.cs" />
     <Compile Include="Terradue\OpenSearch\OpenSearchable\ExceptionOpensearchable.cs" />
+    <Compile Include="Terradue\OpenSearch\Benchmarking\Benchmark.cs" />
+    <Compile Include="Terradue\OpenSearch\Benchmarking\BenchmarkingFactory.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <None Include="Terradue.OpenSearch.csproj" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Terradue\OpenSearch\Benchmarking\" />
   </ItemGroup>
 </Project>

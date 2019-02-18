@@ -70,7 +70,7 @@ namespace Terradue.OpenSearch.Request {
 
             while (retry >= 0) {
                 try {
-                    Stopwatch sw = Stopwatch.StartNew();
+
                     byte[] data;
                     MemoryOpenSearchResponse response;
 
@@ -86,6 +86,7 @@ namespace Terradue.OpenSearch.Request {
 
                     log.DebugFormat("Querying {0}", this.OpenSearchUrl);
 
+                    Stopwatch sw = Stopwatch.StartNew();
                     using (HttpWebResponse webResponse = (HttpWebResponse)httpWebRequest.GetResponse())
                     {
 
@@ -98,8 +99,6 @@ namespace Terradue.OpenSearch.Request {
 
                         response = new MemoryOpenSearchResponse(data, webResponse.ContentType, sw.Elapsed);
                     }
-
-
                     sw.Stop();
                     return response;
 

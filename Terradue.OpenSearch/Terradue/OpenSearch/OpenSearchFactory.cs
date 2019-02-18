@@ -111,7 +111,7 @@ namespace Terradue.OpenSearch
 
                 }
 
-                string newUrl = findParam.Replace(finalUrl, replacement);
+                string newUrl = findParam.Replace(finalUrl, HttpUtility.UrlEncode(replacement));
 
                 // special case for non qualified opensearch parameters
                 if (newUrl == finalUrl && !matchFQDN.Success && !matchPrefixed.Success)
@@ -121,7 +121,7 @@ namespace Terradue.OpenSearch
                         XmlQualifiedName qPrefix = remoteUrlTemplate.ExtraNamespace.ToArray().FirstOrDefault(n => n.Namespace == "http://a9.com/-/spec/opensearch/1.1/");
 
                         findParam = new Regex(string.Format("{{{0}{1}\\??}}", string.IsNullOrEmpty(qPrefix.Name) ? "" : qPrefix.Name + ":", parameter_id));
-                        newUrl = findParam.Replace(finalUrl, searchParameters[parameter_id]);
+                        newUrl = findParam.Replace(finalUrl, HttpUtility.UrlEncode(searchParameters[parameter_id]));
                     }
 
                     // force parameter anyway
