@@ -27,7 +27,7 @@ namespace Terradue.OpenSearch {
         /// Create an IOpenSearchable from an OpenSearchDescription
         /// </summary>
         /// <param name="osd">OPenSearchDescription</param>
-        IOpenSearchable Create(OpenSearchDescription osd);
+        IOpenSearchable Create(OpenSearchDescription osd, OpenSearchUrl url = null);
 
         OpenSearchableFactorySettings Settings { get; }
 

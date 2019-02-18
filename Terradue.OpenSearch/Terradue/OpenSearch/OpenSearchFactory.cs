@@ -504,7 +504,7 @@ namespace Terradue.OpenSearch
             }
 
             urlBasedOpenSearchableFactory = new UrlBasedOpenSearchableFactory(settings);
-            result = urlBasedOpenSearchableFactory.Create(openSearchDescription);
+            result = urlBasedOpenSearchableFactory.Create(openSearchDescription, url);
             return result;
         }
 
@@ -849,11 +849,16 @@ namespace Terradue.OpenSearch
             return new GenericOpenSearchable(url, Settings);
         }
 
-        public IOpenSearchable Create(OpenSearchDescription osd)
+        public IOpenSearchable Create(OpenSearchDescription osd, OpenSearchUrl url = null)
         {
+
+            GenericOpenSearchable os = null;
             if (Settings.Soft)
-                return new SoftGenericOpenSearchable(osd, Settings);
-            return new GenericOpenSearchable(osd, Settings);
+                os = new SoftGenericOpenSearchable(osd, Settings, url);
+            else
+                os = new GenericOpenSearchable(osd, Settings, url);
+
+            return os;
         }
 
         public OpenSearchableFactorySettings Settings { get; private set; }
