@@ -74,7 +74,7 @@ namespace Terradue.OpenSearch
 
                 // default finder
                 Regex findParam = new Regex(string.Format("{0}={{(?'prefix'[^:]+):(?'name'[^&]+)\\??}}", parameter_id));
-                string replacement = string.Format("{0}={1}", parameter_id, searchParameters[parameter_id]);
+                string replacement = string.Format("{0}={1}", parameter_id, HttpUtility.UrlEncode(searchParameters[parameter_id]));
 
                 // Is it a FQDN
                 Match matchFQDN = Regex.Match(parameter_id, @"^{(?'namespace'[^}]+)}(?'name'.+)$");
@@ -90,7 +90,7 @@ namespace Terradue.OpenSearch
                         continue;
 
                     findParam = new Regex(string.Format("{{{0}{1}\\??}}", string.IsNullOrEmpty(qPrefix.Name) ? "" : qPrefix.Name + ":", name));
-                    replacement = searchParameters[parameter_id];
+                    replacement = HttpUtility.UrlEncode(searchParameters[parameter_id]);
 
                 }
 
@@ -107,11 +107,11 @@ namespace Terradue.OpenSearch
                         continue;
 
                     findParam = new Regex(string.Format("{{{0}:{1}\\??}}", prefix, name));
-                    replacement = searchParameters[parameter_id];
+                    replacement = HttpUtility.UrlEncode(searchParameters[parameter_id]);
 
                 }
 
-                string newUrl = findParam.Replace(finalUrl, HttpUtility.UrlEncode(replacement));
+                string newUrl = findParam.Replace(finalUrl, replacement);
 
                 // special case for non qualified opensearch parameters
                 if (newUrl == finalUrl && !matchFQDN.Success && !matchPrefixed.Success)
