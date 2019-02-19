@@ -7,6 +7,8 @@
 //  Copyright (c) 2014 Terradue
 
 using System;
+using System.Collections.Generic;
+using Terradue.OpenSearch.Benchmarking;
 using Terradue.OpenSearch.Response;
 using Terradue.OpenSearch.Result;
 
@@ -15,11 +17,7 @@ namespace Terradue.OpenSearch
     internal class DummyResponse : OpenSearchResponse<AtomFeed>
     {
 
-        protected TimeSpan timeSpan;
-
-        public DummyResponse(AtomFeed result, TimeSpan timeSpan) : base(result) {
-
-            this.timeSpan = timeSpan;
+        public DummyResponse(AtomFeed result) : base(result) {
 
         }
 
@@ -31,11 +29,11 @@ namespace Terradue.OpenSearch
             return payload;
         }
 
-        public override TimeSpan RequestTime
+        public override IEnumerable<Metric> Metrics
         {
             get
             {
-                return this.timeSpan;
+                return new List<Metric>();
             }
         }
 
@@ -49,7 +47,7 @@ namespace Terradue.OpenSearch
 
         public override IOpenSearchResponse CloneForCache()
         {
-            AtomOpenSearchResponse aosr = new AtomOpenSearchResponse(new AtomFeed(payload, true), RequestTime);
+            AtomOpenSearchResponse aosr = new AtomOpenSearchResponse(new AtomFeed(payload, true));
             aosr.Entity = this.Entity;
             return aosr;
         }

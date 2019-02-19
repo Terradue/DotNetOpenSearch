@@ -17,6 +17,9 @@ using Terradue.OpenSearch.Response;
 using Terradue.OpenSearch.Engine;
 using System.IO;
 using System.Threading.Tasks;
+using Terradue.OpenSearch.Benchmarking;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace Terradue.OpenSearch.Request {
 
@@ -96,10 +99,12 @@ namespace Terradue.OpenSearch.Request {
                             ms.Flush();
                             data = ms.ToArray();
                         }
+                        sw.Stop();
+                        Metric requestTime = new DoubleMetric("requestTime", sw.ElapsedMilliseconds, "ms", "Request time for retrieveing the query");
 
-                        response = new MemoryOpenSearchResponse(data, webResponse.ContentType, sw.Elapsed);
+                        response = new MemoryOpenSearchResponse(data, webResponse.ContentType, new List<Metric>() { requestTime });
                     }
-                    sw.Stop();
+
                     return response;
 
                 } catch (WebException e) {

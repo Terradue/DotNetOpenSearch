@@ -15,17 +15,16 @@ using System.IO;
 using System.Xml;
 using System.Diagnostics;
 using Terradue.OpenSearch.Result;
+using Terradue.OpenSearch.Benchmarking;
+using System.Linq;
 
 namespace Terradue.OpenSearch.Response
 {
     public class AtomOpenSearchResponse : OpenSearchResponse<AtomFeed>
 	{
 
-        protected TimeSpan timeSpan;
 
-        public AtomOpenSearchResponse(AtomFeed result, TimeSpan timeSpan) : base(result) {
-
-            this.timeSpan = timeSpan;
+        public AtomOpenSearchResponse(AtomFeed result) : base(result) {
 
 		}
 
@@ -36,10 +35,13 @@ namespace Terradue.OpenSearch.Response
             return payload;
 		}
 
-		public override TimeSpan RequestTime {
+		public override IEnumerable<Metric> Metrics {
 			get {
-                return this.timeSpan;
-			}
+                var metrics = base.payload.ElementExtensions.ReadElementExtensions<List<Metric>>("Metrics", "http://www.terradue.com/benchmark", MetricFactory.Serializer);
+                if (metrics.Count() > 0)
+                    return metrics.First();
+                return new List<Metric>();
+            }
 		}
 
         public override string ContentType {
@@ -49,7 +51,7 @@ namespace Terradue.OpenSearch.Response
         }
 
         public override IOpenSearchResponse CloneForCache() {
-            AtomOpenSearchResponse aosr = new AtomOpenSearchResponse(new AtomFeed(payload, true), RequestTime);
+            AtomOpenSearchResponse aosr = new AtomOpenSearchResponse(new AtomFeed(payload, true));
             aosr.Entity = this.Entity;
             return aosr;
         }

@@ -28,10 +28,13 @@ namespace Terradue.OpenSearch
                 Soft = this.Soft,
                 Credentials = this.Credentials,
                 MergeFilters = this.MergeFilters,
-                MaxRetries = this.MaxRetries
+                MaxRetries = this.MaxRetries,
+                ReportMetrics = this.ReportMetrics
             };
         }
 
         public Func<NameValueCollection, NameValueCollection, NameValueCollection> MergeFilters;
+
+        public bool ReportMetrics;
     }
 }

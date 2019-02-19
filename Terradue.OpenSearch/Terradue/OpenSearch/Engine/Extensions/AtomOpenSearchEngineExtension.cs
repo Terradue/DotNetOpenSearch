@@ -96,10 +96,7 @@ namespace Terradue.OpenSearch.Engine.Extensions {
                 
                 reader = XmlReader.Create(new MemoryStream((byte[])response.GetResponseObject()));
                 result = AtomFeed.Load(reader);
-                result.QueryTimeSpan = response.RequestTime;
                 result.OpenSearchable = response.Entity;
-
-                result.ElementExtensions.Add(BenchmarkingFactory.CreateBenchmarkFromResponse(response).CreateReader());
 
             } catch (Exception e) {
                 throw new InvalidOperationException(string.Format("Error during transformation : {0}", e.Message), e);

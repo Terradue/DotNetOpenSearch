@@ -7,11 +7,10 @@
 //  Copyright (c) 2014 Terradue
 //
 
-using System;
-using System.Collections.Specialized;
 using System.Collections.Generic;
-using Terradue.OpenSearch.Request;
+using System.Collections.Specialized;
 using Terradue.OpenSearch.Engine;
+using Terradue.OpenSearch.Request;
 using Terradue.OpenSearch.Response;
 using Terradue.OpenSearch.Result;
 using Terradue.OpenSearch.Schema;
@@ -32,71 +31,14 @@ Combined with the OpenSearch extensions, the search interface offers many format
 
 */
 
-namespace Terradue.OpenSearch {
+namespace Terradue.OpenSearch
+{
 
     /// <summary>Delegate type for generating a specific OpenSearchResult from an OpenSearch response.</summary>
     /// <remarks>Instances of this delegate are used to transform an OpenSearchResponse into a an IOpenSearchResultCollection, which correspond to an output format.</remarks>
     /// <param name="osr">The OpenSearch response object to be transformed.</param>
     /// <returns>The result collection, i.e, an object that can be serialized to the desired output format.</returns> 
     public delegate IOpenSearchResultCollection ReadNativeFunction(IOpenSearchResponse osr);
-
-    /// <summary>Helper class that encapsulates the settings for an OpenSearch query and its result generation.</summary>
-    /// <remarks>Instances of this object are returned by classes implementing IOpenSearchable. It is used by OpenSearch engines to control the query process from the OpenSearch request to the initial result generation.</remarks>
-    public class QuerySettings {
-
-        /// <summary>Gets or sets the preferred content type.</summary>
-        public string PreferredContentType { get; set; }
-
-        /// <summary>Gets or sets the function that returns the in the OpenSearch result in the format preferred by the IOpenSearchable using these QuerySettings.</summary>
-        public ReadNativeFunction ReadNative { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the query shall force anyway the parameters that are not declared in the 
-        /// OpenSearch Description of the entity.
-        /// </summary>
-        /// <value><c>true</c> to force unassigned parameters; otherwise, <c>false</c>.</value>
-        public bool ForceUnspecifiedParameters { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the query shall not propagate null or empty parameters of the query string part of the url. 
-        /// </summary>
-        /// <value><c>true</c> if skip null or empty query string parameters; otherwise, <c>false</c>.</value>
-        public bool SkipNullOrEmptyQueryStringParameters { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether this <see cref="T:Terradue.OpenSearch.QuerySettings"/> request is for opensearch ur only
-        /// URL only.
-        /// </summary>
-        /// <value><c>true</c> if open search URL only; otherwise, <c>false</c>.</value>
-        /// TODO to be removed for a more legant solution
-        public bool OpenSearchUrlOnly { get; set; }
-
-        public System.Net.ICredentials Credentials { get; set; }
-
-        public int MaxRetries { get; set; }
-        
-        /// <summary>Creates a new instance of QuerySettings with the specified parameters.</summary>
-        /// <param name="preferredContentType">The preferred content type.</param>
-        /// <param name="readNative">The function to be called to obtain the formatted OpenSearch result.</param>
-        public QuerySettings(string preferredContentType, ReadNativeFunction readNative) {
-            this.PreferredContentType = preferredContentType;
-            this.ReadNative = readNative;
-            this.ForceUnspecifiedParameters = false;
-            this.SkipNullOrEmptyQueryStringParameters = false;
-        }
-
-		/// <summary>Creates a new instance of QuerySettings with the specified parameters.</summary>
-		/// <param name="preferredContentType">The preferred content type.</param>
-		/// <param name="readNative">The function to be called to obtain the formatted OpenSearch result.</param>
-        public QuerySettings(string preferredContentType, ReadNativeFunction readNative, OpenSearchableFactorySettings settings) : this (preferredContentType, readNative)
-		{
-		    if (settings != null) {
-		        this.Credentials = settings.Credentials;
-		        this.MaxRetries = settings.MaxRetries;
-		    }
-		}
-
-    }
 
     /// <summary>
     /// IOpenSearchable.

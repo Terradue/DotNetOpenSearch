@@ -19,6 +19,7 @@ using System.Diagnostics;
 using Terradue.OpenSearch.Result;
 using System.Collections;
 using System.Runtime.Caching;
+using Terradue.OpenSearch.Benchmarking;
 
 namespace Terradue.OpenSearch.Request {
     /// <summary>
@@ -86,7 +87,7 @@ namespace Terradue.OpenSearch.Request {
             Stopwatch sw = Stopwatch.StartNew();
             RequestCurrentPage();
             sw.Stop();
-            return new OpenSearchResponse<TFeed>(feed, type, sw.Elapsed);
+            return new OpenSearchResponse<TFeed>(feed, type, new List<Metric>() { new DoubleMetric("requestTime", sw.ElapsedMilliseconds, "ms", "Request time for retrieveing the query") });
 
 
         }

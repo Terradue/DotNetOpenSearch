@@ -8,7 +8,9 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.IO;
+using Terradue.OpenSearch.Benchmarking;
 using Terradue.OpenSearch.Engine;
 using Terradue.OpenSearch.Result;
 
@@ -33,10 +35,10 @@ namespace Terradue.OpenSearch.Response
             created = DateTime.UtcNow;
         }
 
-        public OpenSearchResponse(T obj, string contentType, TimeSpan requestTime){
+        public OpenSearchResponse(T obj, string contentType, IEnumerable<Metric> metrics){
             payload = obj;
             this.contentType = contentType;
-            this.requestTime = requestTime;
+            this.metrics = metrics;
             created = DateTime.UtcNow;
         }
 
@@ -69,14 +71,19 @@ namespace Terradue.OpenSearch.Response
             return payload;
         }
 
-        readonly TimeSpan requestTime;
+        protected IEnumerable<Metric> metrics = new List<Metric>();
         /// <summary>
         /// Gets the time interval spent for getting the response
         /// </summary>
         /// <value>A TimeSpan with the time interval</value>
-        public virtual TimeSpan RequestTime {
+        public virtual IEnumerable<Metric> Metrics
+        {
             get {
-                return requestTime;
+                return metrics;
+            }
+            set
+            {
+                value = metrics;
             }
         }
 
@@ -90,7 +97,7 @@ namespace Terradue.OpenSearch.Response
 		}
 
         public virtual IOpenSearchResponse CloneForCache(){
-            return new OpenSearchResponse<T>(payload, contentType, requestTime);
+            return new OpenSearchResponse<T>(payload, contentType, metrics);
         }
 
         TimeSpan validity = TimeSpan.FromSeconds(OpenSearchEngine.DEFAULT_VALIDITY);

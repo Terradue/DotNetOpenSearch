@@ -69,7 +69,6 @@
     <Compile Include="Terradue\OpenSearch\Request\MemoryOpenSearchRequest.cs" />
     <Compile Include="Terradue\OpenSearch\Request\OpenSearchRequest.cs" />
     <Compile Include="Terradue\OpenSearch\Response\AtomOpenSearchResponse.cs" />
-    <Compile Include="Terradue\OpenSearch\Response\HttpOpenSearchResponse.cs" />
     <Compile Include="Terradue\OpenSearch\Response\MemoryOpenSearchResponse.cs" />
     <Compile Include="Terradue\OpenSearch\Response\OpenSearchResponse.cs" />
     <Compile Include="Terradue\OpenSearch\Result\IOpenSearchResultCollection.cs" />
@@ -87,7 +86,6 @@
     <Compile Include="Terradue\OpenSearch\Schema\OpenSearchDescription.Parameter.cs" />
     <Compile Include="Terradue\OpenSearch\Response\IOpenSearchResponse.cs" />
     <Compile Include="Terradue\OpenSearch\Request\AtomOpenSearchRequest.cs" />
-    <Compile Include="Terradue\OpenSearch\Request\MultiAtomGroupedOpenSearchRequest.cs" />
     <Compile Include="Terradue\OpenSearch\Request\PaginatedList.cs" />
     <Compile Include="Terradue\OpenSearch\Request\MultiOpenSearchRequest.cs" />
     <Compile Include="Terradue\OpenSearch\Exception\ExceptionMessage.cs" />
@@ -106,13 +104,17 @@
     <Compile Include="Terradue\OpenSearch\Response\DummyResponse.cs" />
     <Compile Include="Terradue\OpenSearch\Filters\CachedOpenSearchRequest.cs" />
     <Compile Include="Terradue\OpenSearch\OpenSearchable\ExceptionOpensearchable.cs" />
-    <Compile Include="Terradue\OpenSearch\Benchmarking\Benchmark.cs" />
-    <Compile Include="Terradue\OpenSearch\Benchmarking\BenchmarkingFactory.cs" />
+    <Compile Include="Terradue\OpenSearch\Benchmarking\MetricFactory.cs" />
+    <Compile Include="Terradue\OpenSearch\Benchmarking\Metric.cs" />
+    <Compile Include="Terradue\OpenSearch\Benchmarking\DoubleMetric.cs" />
+    <Compile Include="Terradue\OpenSearch\OpenSearchable\QuerySettings.cs" />
+    <Compile Include="Terradue\OpenSearch\Benchmarking\Metrics.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <None Include="Terradue.OpenSearch.csproj" />
     <None Include="packages.config" />
+    <None Include="Terradue\OpenSearch\Response\HttpOpenSearchResponse.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Terradue\OpenSearch\Benchmarking\" />
