@@ -99,7 +99,7 @@ namespace Terradue.OpenSearch.Engine.Extensions {
                 result.QueryTimeSpan = response.RequestTime;
                 result.OpenSearchable = response.Entity;
 
-                result.ElementExtensions.Add(BenchmarkingFactory.CreateBenchmarkFromResponse(response));
+                result.ElementExtensions.Add(BenchmarkingFactory.CreateBenchmarkFromResponse(response).CreateReader());
 
             } catch (Exception e) {
                 throw new InvalidOperationException(string.Format("Error during transformation : {0}", e.Message), e);

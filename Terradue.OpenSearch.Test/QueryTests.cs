@@ -51,6 +51,8 @@ namespace Terradue.OpenSearch.Test
 
             Assert.AreEqual("S1A_IW_GRDH_1SDV_20160719T181151_20160719T181219_012221_012F93_3E0B", results.Items.First().Identifier);
 
+            results.ToString();
+
         }
 
 
