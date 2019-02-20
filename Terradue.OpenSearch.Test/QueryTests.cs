@@ -59,7 +59,7 @@ namespace Terradue.OpenSearch.Test
 
             var test = results.SerializeToString();
 
-            Assert.IsTrue(results.SerializeToString().Contains("\"<t2m:Metrics xmlns:t2bench=\"http://www.terradue.com/benchmark\">"));
+            Assert.IsTrue(results.SerializeToString().Contains("<t2m:Metrics xmlns:t2m=\"http://www.terradue.com/metrics\">"));
 
         }
 
