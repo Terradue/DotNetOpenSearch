@@ -8,7 +8,6 @@ using System.Xml.Serialization;
 namespace Terradue.OpenSearch.Benchmarking
 {
     [SerializableAttribute()]
-    [XmlTypeAttribute(Namespace = "http://www.terradue.com/metrics")]
     [XmlRootAttribute(Namespace = "http://www.terradue.com/metrics", IsNullable = false)]
     public class Metrics
     {

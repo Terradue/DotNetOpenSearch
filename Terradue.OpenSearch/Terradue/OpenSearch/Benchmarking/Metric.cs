@@ -4,7 +4,6 @@ using System.Xml.Serialization;
 namespace Terradue.OpenSearch.Benchmarking
 {
 
-    [XmlTypeAttribute(Namespace = "http://www.terradue.com/metrics")]
     [XmlRootAttribute(Namespace = "http://www.terradue.com/metrics", IsNullable = false)]
     public abstract class Metric
     {
@@ -21,7 +20,7 @@ namespace Terradue.OpenSearch.Benchmarking
         public abstract string Description { get; set; }
 
         [XmlText]
-        public abstract string SValue { get; }
+        public abstract string Text { get; set; }
 
     }
 }

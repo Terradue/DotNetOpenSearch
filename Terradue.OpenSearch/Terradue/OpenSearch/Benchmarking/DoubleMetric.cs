@@ -2,8 +2,7 @@
 
 namespace Terradue.OpenSearch.Benchmarking
 {
-    [XmlTypeAttribute(Namespace = "http://www.terradue.com/benchmark")]
-    [XmlRootAttribute(Namespace = "http://www.terradue.com/benchmark", IsNullable = false)]
+    [XmlRootAttribute("Metric", Namespace = "http://www.terradue.com/metrics", IsNullable = false)]
     public class DoubleMetric : Metric
     {
         public DoubleMetric() { }
@@ -38,7 +37,18 @@ namespace Terradue.OpenSearch.Benchmarking
         public override string Description { get; set; }
 
         [XmlText]
-        public override string SValue => val.ToString();
+        public override string Text
+        {
+            get
+            {
+                return val.ToString();
+            }
+
+            set
+            {
+                val = double.Parse(value);
+            }
+        }
 
         [XmlAttribute]
         public override string Identifier { get; set; }

@@ -83,7 +83,7 @@ namespace Terradue.OpenSearch.Response
             }
             set
             {
-                value = metrics;
+                metrics = value;
             }
         }
 
