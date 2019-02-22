@@ -64,6 +64,8 @@ namespace Terradue.OpenSearch
 
         public int MaxRetries { get; set; }
 
+        public bool SkipCertificateVerification { get; set; }
+
         /// <summary>Creates a new instance of QuerySettings with the specified parameters.</summary>
         /// <param name="preferredContentType">The preferred content type.</param>
         /// <param name="readNative">The function to be called to obtain the formatted OpenSearch result.</param>
@@ -74,6 +76,7 @@ namespace Terradue.OpenSearch
             this.ForceUnspecifiedParameters = false;
             this.SkipNullOrEmptyQueryStringParameters = false;
             this.ReportMetrics = false;
+            this.SkipCertificateVerification = false;
         }
 
         /// <summary>Creates a new instance of QuerySettings with the specified parameters.</summary>
@@ -86,6 +89,7 @@ namespace Terradue.OpenSearch
                 this.Credentials = settings.Credentials;
                 this.MaxRetries = settings.MaxRetries;
                 this.ReportMetrics = settings.ReportMetrics;
+                this.SkipCertificateVerification = settings.SkipCertificateVerification;
             }
         }
 

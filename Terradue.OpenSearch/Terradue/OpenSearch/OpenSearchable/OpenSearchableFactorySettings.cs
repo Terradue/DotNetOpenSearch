@@ -29,12 +29,15 @@ namespace Terradue.OpenSearch
                 Credentials = this.Credentials,
                 MergeFilters = this.MergeFilters,
                 MaxRetries = this.MaxRetries,
-                ReportMetrics = this.ReportMetrics
+                ReportMetrics = this.ReportMetrics,
+                SkipCertificateVerification = this.SkipCertificateVerification
             };
         }
 
         public Func<NameValueCollection, NameValueCollection, NameValueCollection> MergeFilters;
 
         public bool ReportMetrics;
+
+        public bool SkipCertificateVerification;
     }
 }

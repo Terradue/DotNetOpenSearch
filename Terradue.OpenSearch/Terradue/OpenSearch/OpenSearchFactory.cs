@@ -55,6 +55,9 @@ namespace Terradue.OpenSearch
             osd = (OpenSearchDescription)ser.Deserialize(XmlReader.Create(stream));
             stream.Flush();
             stream.Close();
+            // Add the root namespaces to the url
+            foreach (var url in osd.Url)
+                url.OsdExtraNamespace = osd.ExtraNamespace;
             return osd;
         }
 
@@ -84,8 +87,9 @@ namespace Terradue.OpenSearch
                     string ns = matchFQDN.Groups["namespace"].Value;
                     string name = matchFQDN.Groups["name"].Value;
 
-                    XmlQualifiedName qPrefix = remoteUrlTemplate.ExtraNamespace.ToArray().FirstOrDefault(n => n.Namespace == ns);
-
+                    XmlQualifiedName qPrefix = remoteUrlTemplate.ExtraNamespace.ToArray().LastOrDefault(n => n.Namespace == ns);
+                    if (qPrefix == null)
+                        qPrefix = remoteUrlTemplate.OsdExtraNamespace.ToArray().LastOrDefault(n => n.Namespace == ns);
                     if (qPrefix == null)
                         continue;
 

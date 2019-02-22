@@ -64,6 +64,28 @@ namespace Terradue.OpenSearch.Test
         }
 
 
+        [Test()]
+        public void NextGeossTest()
+        {
+
+            OpenSearchEngine ose = new OpenSearchEngine();
+            ose.LoadPlugins();
+
+            var settings = new OpenSearchableFactorySettings(ose);
+            settings.SkipCertificateVerification = true;
+            UrlBasedOpenSearchableFactory factory = new UrlBasedOpenSearchableFactory(settings);
+
+            var os = OpenSearchFactory.FindOpenSearchable(settings, new Uri("https://147.228.242.207/opensearch/description.xml?osdd=SENTINEL1_L1_SLC"));
+
+            var parameters = new NameValueCollection();
+
+            parameters.Set("{http://a9.com/-/spec/opensearch/1.1/}count", "2");
+
+            var results = ose.Query(os, parameters);
+
+            Assert.AreEqual(2, results.Count);
+
+        }
 
     }
 }
