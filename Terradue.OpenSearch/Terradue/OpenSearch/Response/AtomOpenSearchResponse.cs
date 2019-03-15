@@ -37,9 +37,9 @@ namespace Terradue.OpenSearch.Response
 
 		public override IEnumerable<Metric> Metrics {
 			get {
-                var metrics = base.payload.ElementExtensions.ReadElementExtensions<List<Metric>>("Metrics", "http://www.terradue.com/benchmark", MetricFactory.Serializer);
+                var metrics = base.payload.ElementExtensions.ReadElementExtensions<Metrics>("Metrics", "http://www.terradue.com/metrics", MetricFactory.Serializer);
                 if (metrics.Count() > 0)
-                    return metrics.First();
+                    return metrics.First().Metric;
                 return new List<Metric>();
             }
 		}

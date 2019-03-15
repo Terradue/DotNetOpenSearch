@@ -1,5 +1,6 @@
 ﻿using NUnit.Framework;
 using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using Terradue.OpenSearch.Benchmarking;
@@ -60,6 +61,11 @@ namespace Terradue.OpenSearch.Test
             var test = results.SerializeToString();
 
             Assert.IsTrue(results.SerializeToString().Contains("<t2m:Metrics xmlns:t2m=\"http://www.terradue.com/metrics\">"));
+
+            var metricsArray = results.ElementExtensions.ReadElementExtensions<Metrics>("Metrics", "http://www.terradue.com/metrics", MetricFactory.Serializer);
+            Assert.IsTrue(metricsArray.Count == 1);
+
+            Assert.AreEqual(3, metricsArray.First().Metric.Count());
 
         }
 
