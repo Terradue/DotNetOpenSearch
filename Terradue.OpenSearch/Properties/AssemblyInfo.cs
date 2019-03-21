@@ -21,7 +21,7 @@
 @{
     Terradue.OpenSearch is a .Net library that provides an engine perform OpenSearch query from a class or an URL to multiple and custom types of results
 
-    \xrefitem sw_version "Versions" "Software Package Version" 1.15.14
+    \xrefitem sw_version "Versions" "Software Package Version" 1.16.0
 
     \xrefitem sw_link "Link" "Software Package Link" [DotNetOpenSearch](https://github.com/Terradue/DotNetOpenSearch)
 
@@ -49,6 +49,6 @@ using NuGet4Mono.Extensions;
 [assembly: AssemblyLicenseUrl("https://github.com/Terradue/DotNetOpenSearch/blob/master/LICENSE")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
-[assembly: AssemblyVersion("1.15.15.*")]
-[assembly: AssemblyInformationalVersion("1.15.15")]
+[assembly: AssemblyVersion("1.16.0.*")]
+[assembly: AssemblyInformationalVersion("1.16.0")]
 

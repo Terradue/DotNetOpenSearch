@@ -11,6 +11,8 @@ using System.Collections.Specialized;
 using System.IO;
 using System.Diagnostics;
 using System.Text;
+using System.Collections.Generic;
+using Terradue.OpenSearch.Benchmarking;
 
 namespace Terradue.OpenSearch.Response
 {
@@ -18,88 +20,72 @@ namespace Terradue.OpenSearch.Response
     /// A memory buffer for storing an OpenSearch response
     /// </summary>
     public class MemoryOpenSearchResponse : OpenSearchResponse<byte[]>
-	{
+    {
 
         protected string contentType;
-
-        protected TimeSpan timeSpan;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Terradue.OpenSearch.MemoryOpenSearchResponse"/> class.
         /// </summary>
         /// <param name="input">Input Stream to be copied in memory</param>
         /// <param name="contentType">Content type of the stream to be put in memory</param>
-        public MemoryOpenSearchResponse(byte[] input, string contentType){
-			Stopwatch sw = new Stopwatch();
-			sw.Start();
-            payload = input;
-			this.contentType = contentType;
-			sw.Start();
-			timeSpan = sw.Elapsed;
-		}
-
-        public MemoryOpenSearchResponse(byte[] input, string contentType, TimeSpan requestTime){
+        public MemoryOpenSearchResponse(byte[] input, string contentType)
+        {
             payload = input;
             this.contentType = contentType;
-            this.timeSpan = requestTime;
         }
 
-        protected MemoryOpenSearchResponse(string contentType){
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
+        public MemoryOpenSearchResponse(byte[] input, string contentType, IEnumerable<Metric> metrics)
+        {
+            payload = input;
             this.contentType = contentType;
-            sw.Start();
-            timeSpan = sw.Elapsed;
+            this.metrics = metrics;
         }
 
-        public MemoryOpenSearchResponse(string input, string contentType){
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
+        protected MemoryOpenSearchResponse(string contentType)
+        {
+            this.contentType = contentType;
+        }
+
+        public MemoryOpenSearchResponse(string input, string contentType)
+        {
             payload = System.Text.Encoding.Default.GetBytes(input);
             this.contentType = contentType;
-            sw.Start();
-            timeSpan = sw.Elapsed;
         }
 
-		#region implemented abstract members of OpenSearchResponse
+        #region implemented abstract members of OpenSearchResponse
 
         /// <summary>
         /// Gets the stream that is used to read the body of the response.
         /// </summary>
         /// <returns>A Stream containing the body of the response.</returns>
-        public override object GetResponseObject() {
+        public override object GetResponseObject()
+        {
             return payload;
-		}
+        }
 
         /// <summary>
         /// Get the MIME type of the response.
         /// </summary>
         /// <value>The type of the content.</value>
-		public override string ContentType {
-			get {
-				return contentType;
-			}
-		}
+		public override string ContentType
+        {
+            get
+            {
+                return contentType;
+            }
+        }
 
-        /// <summary>
-        /// Gets the time interval spent for getting the response
-        /// </summary>
-        /// <value>A TimeSpan with the time interval</value>
-		public override TimeSpan RequestTime {
-			get {
-				return timeSpan;
-			}
-		}
-
-        public override IOpenSearchResponse CloneForCache() {
+        public override IOpenSearchResponse CloneForCache()
+        {
             MemoryOpenSearchResponse mosr = new MemoryOpenSearchResponse((byte[])payload.Clone(), contentType);
             mosr.Validity = this.Validity;
             mosr.Entity = this.Entity;
             return mosr;
         }
 
-		#endregion
-	}
+        #endregion
+    }
 }
 
 

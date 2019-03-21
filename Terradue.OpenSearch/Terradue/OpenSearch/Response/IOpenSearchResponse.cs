@@ -8,7 +8,9 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.IO;
+using Terradue.OpenSearch.Benchmarking;
 
 namespace Terradue.OpenSearch.Response
 {
@@ -24,7 +26,7 @@ namespace Terradue.OpenSearch.Response
 
         IOpenSearchable Entity { get; set; }
 
-        TimeSpan RequestTime { get; }
+        IEnumerable<Metric> Metrics { get; set; }
 
         IOpenSearchResponse CloneForCache();
 

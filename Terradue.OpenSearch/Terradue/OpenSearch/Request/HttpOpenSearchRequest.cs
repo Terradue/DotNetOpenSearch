@@ -17,13 +17,18 @@ using Terradue.OpenSearch.Response;
 using Terradue.OpenSearch.Engine;
 using System.IO;
 using System.Threading.Tasks;
+using Terradue.OpenSearch.Benchmarking;
+using System.Linq;
+using System.Collections.Generic;
 
-namespace Terradue.OpenSearch.Request {
+namespace Terradue.OpenSearch.Request
+{
 
     /// <summary>
     /// Implements an OpenSearch request over HTTP
     /// </summary>
-    public class HttpOpenSearchRequest : OpenSearchRequest {
+    public class HttpOpenSearchRequest : OpenSearchRequest
+    {
 
         private log4net.ILog log = log4net.LogManager.GetLogger
             (System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -36,7 +41,8 @@ namespace Terradue.OpenSearch.Request {
         /// Initializes a new instance of the <see cref="Terradue.OpenSearch.HttpOpenSearchRequest"/> class.
         /// </summary>
         /// <param name="url">the HTTP URL.</param>
-        internal HttpOpenSearchRequest(OpenSearchUrl url, string contentType = null) : base(url, contentType) {
+        internal HttpOpenSearchRequest(OpenSearchUrl url, string contentType = null) : base(url, contentType)
+        {
             this.contentType = contentType;
             if (!url.Scheme.StartsWith("http"))
                 throw new InvalidOperationException("A http scheme is expected for this kind of request");
@@ -49,11 +55,14 @@ namespace Terradue.OpenSearch.Request {
         /// Gets or sets the HTTP requesttime out.
         /// </summary>
         /// <value>The time out.</value>
-        public int TimeOut {
-            get {
+        public int TimeOut
+        {
+            get
+            {
                 return timeOut;
             }
-            set {
+            set
+            {
                 timeOut = value;
             }
         }
@@ -64,19 +73,28 @@ namespace Terradue.OpenSearch.Request {
         /// Gets the HTTP response.
         /// </summary>
         /// <returns>The response.</returns>
-        public override IOpenSearchResponse GetResponse() {
+        public override IOpenSearchResponse GetResponse()
+        {
 
             int retry = 2;
 
-            while (retry >= 0) {
-                try {
-                    Stopwatch sw = Stopwatch.StartNew();
+            while (retry >= 0)
+            {
+                try
+                {
+
                     byte[] data;
                     MemoryOpenSearchResponse response;
 
                     HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create(this.OpenSearchUrl);
 
-                    if (contentType != null) {
+                    if (SkipCertificateVerification)
+                    {
+                        httpWebRequest.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
+                    }
+
+                    if (contentType != null)
+                    {
                         ((HttpWebRequest)httpWebRequest).Accept = contentType;
                     }
                     httpWebRequest.Timeout = timeOut;
@@ -86,6 +104,7 @@ namespace Terradue.OpenSearch.Request {
 
                     log.DebugFormat("Querying {0}", this.OpenSearchUrl);
 
+                    Stopwatch sw = Stopwatch.StartNew();
                     using (HttpWebResponse webResponse = (HttpWebResponse)httpWebRequest.GetResponse())
                     {
 
@@ -95,26 +114,31 @@ namespace Terradue.OpenSearch.Request {
                             ms.Flush();
                             data = ms.ToArray();
                         }
+                        sw.Stop();
+                        Metric requestTime = new DoubleMetric("requestTime", sw.ElapsedMilliseconds, "ms", "Request time for retrieveing the query");
 
-                        response = new MemoryOpenSearchResponse(data, webResponse.ContentType, sw.Elapsed);
+                        response = new MemoryOpenSearchResponse(data, webResponse.ContentType, new List<Metric>() { requestTime });
                     }
 
-
-                    sw.Stop();
                     return response;
 
-                } catch (WebException e) {
+                }
+                catch (WebException e)
+                {
                     if (e.Status == WebExceptionStatus.Timeout)
                         throw new TimeoutException(String.Format("Search Request {0} has timed out", this.OpenSearchUrl), e);
-					if (e.Status == WebExceptionStatus.NameResolutionFailure)
-						throw new WebException(String.Format("Search Request {0} has given a Name Resolution failure", this.OpenSearchUrl), e);
+                    if (e.Status == WebExceptionStatus.NameResolutionFailure)
+                        throw new WebException(String.Format("Search Request {0} has given a Name Resolution failure", this.OpenSearchUrl), e);
                     retry--;
-                    if (retry > 0) {
+                    if (retry > 0)
+                    {
                         Thread.Sleep(1000);
                         continue;
                     }
                     throw e;
-                } catch (Exception e) {
+                }
+                catch (Exception e)
+                {
                     throw new Exception("Unknown error during query at " + this.OpenSearchUrl, e);
                 }
             }
@@ -124,11 +148,14 @@ namespace Terradue.OpenSearch.Request {
 
         NameValueCollection originalParameters = new NameValueCollection();
 
-        public override NameValueCollection OriginalParameters {
-            get {
+        public override NameValueCollection OriginalParameters
+        {
+            get
+            {
                 return originalParameters;
             }
-            set {
+            set
+            {
                 originalParameters = value;
             }
         }
@@ -136,6 +163,21 @@ namespace Terradue.OpenSearch.Request {
         public ICredentials Credentials { get; set; }
 
         #endregion
+
+
+        private bool skipCertificateVerification = false;
+        public bool SkipCertificateVerification
+        {
+            get
+            {
+                return skipCertificateVerification;
+            }
+            set
+            {
+                skipCertificateVerification = value;
+
+            }
+        }
     }
 }
 

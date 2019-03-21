@@ -62,7 +62,7 @@ namespace Terradue.OpenSearch.Test {
 
             UriBuilder urlb = new UriBuilder("dummy://localhost/test/description");
 
-            OpenSearchDescriptionUrl url = new OpenSearchDescriptionUrl("application/opensearchdescription+xml", urlb.ToString(), "self");
+            OpenSearchDescriptionUrl url = new OpenSearchDescriptionUrl("application/opensearchdescription+xml", urlb.ToString(), "self", osd.ExtraNamespace);
             url.Parameters = OpenSearchFactory.GetDefaultParametersDescription(100).ToArray();
             urls.Add(url);
 
@@ -71,7 +71,7 @@ namespace Terradue.OpenSearch.Test {
 
             string[] queryString = Array.ConvertAll(query.AllKeys, key => string.Format("{0}={1}", key, query[key]));
             urlb.Query = string.Join("&", queryString);
-            url = new OpenSearchDescriptionUrl("application/atom+xml", urlb.ToString(), "search");
+            url = new OpenSearchDescriptionUrl("application/atom+xml", urlb.ToString(), "search", osd.ExtraNamespace);
             url.IndexOffset = 1;
             urls.Add(url);
 

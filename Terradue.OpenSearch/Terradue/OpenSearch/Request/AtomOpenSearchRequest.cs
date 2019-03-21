@@ -13,6 +13,8 @@ using System.Web;
 using Terradue.OpenSearch.Response;
 using Terradue.OpenSearch.Result;
 using System.Diagnostics;
+using System.Collections.Generic;
+using Terradue.OpenSearch.Benchmarking;
 
 namespace Terradue.OpenSearch.Request
 {
@@ -40,10 +42,8 @@ namespace Terradue.OpenSearch.Request
 		#region implemented abstract members of OpenSearchRequest
 
 		public override IOpenSearchResponse GetResponse() {
-            Stopwatch sw = Stopwatch.StartNew();
             var feed = feedGenerator(parameters);
-            sw.Stop();
-            return new AtomOpenSearchResponse(feed, sw.Elapsed);
+            return new AtomOpenSearchResponse(feed);
 		}
 
         public override OpenSearchUrl OpenSearchUrl {

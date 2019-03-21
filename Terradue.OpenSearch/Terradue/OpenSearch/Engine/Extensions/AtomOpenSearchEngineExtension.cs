@@ -19,6 +19,7 @@ using Terradue.OpenSearch.Result;
 using Terradue.OpenSearch.Schema;
 using System.IO;
 using System.Web;
+using Terradue.OpenSearch.Benchmarking;
 
 namespace Terradue.OpenSearch.Engine.Extensions {
     /// <summary>
@@ -95,7 +96,6 @@ namespace Terradue.OpenSearch.Engine.Extensions {
                 
                 reader = XmlReader.Create(new MemoryStream((byte[])response.GetResponseObject()));
                 result = AtomFeed.Load(reader);
-                result.QueryTimeSpan = response.RequestTime;
                 result.OpenSearchable = response.Entity;
 
             } catch (Exception e) {

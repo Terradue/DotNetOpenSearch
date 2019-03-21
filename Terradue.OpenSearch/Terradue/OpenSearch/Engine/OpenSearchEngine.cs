@@ -25,6 +25,7 @@ using System.Xml.Linq;
 using System.IO;
 using log4net;
 using System.Reflection;
+using Terradue.OpenSearch.Benchmarking;
 
 namespace Terradue.OpenSearch.Engine
 {
@@ -165,6 +166,10 @@ namespace Terradue.OpenSearch.Engine
             // 9) Create Result
             ApplyOpenSearchElements(ref newResults, request, response);
 
+            // 10) Metrics
+            if ( querySettings.ReportMetrics )
+                ApplyMetrics(ref newResults, request, response);
+
             return newResults;
 
         }
@@ -240,6 +245,10 @@ namespace Terradue.OpenSearch.Engine
             // 9) Create Result container
             ApplyOpenSearchElements(ref newResults, request, response);
 
+            // 10) Metrics
+            if (querySettings.ReportMetrics)
+                ApplyMetrics(ref newResults, request, response);
+
             return newResults;
         }
 
@@ -282,6 +291,10 @@ namespace Terradue.OpenSearch.Engine
 
             // 8 Create the container
             ApplyOpenSearchElements(ref results, request, response);
+
+            // 9) Metrics
+            if (querySettings.ReportMetrics)
+                ApplyMetrics(ref results, request, response);
 
             return results;
         }
@@ -349,6 +362,8 @@ namespace Terradue.OpenSearch.Engine
             var defaultUrl = osd.Url.FirstOrDefault(u => u.Type.Equals(contentType));
             osd.DefaultUrl = defaultUrl ?? osd.Url.FirstOrDefault(u => u.Type.StartsWith(contentType));
 
+           
+
             return osd;
         }
 
@@ -377,6 +392,12 @@ namespace Terradue.OpenSearch.Engine
             catch (Exception e)
             {
                 throw new InvalidOperationException("Exception reading OpenSearch description at " + url.ToString() + " : " + e.Message, e);
+            }
+
+            foreach (var osurl in osd.Url)
+            {
+                if (osurl.ExtraNamespace.Count < osd.ExtraNamespace.Count)
+                    osurl.ExtraNamespace = osd.ExtraNamespace;
             }
 
             return osd;
@@ -547,6 +568,14 @@ namespace Terradue.OpenSearch.Engine
                 }
             }
             newResults.ElementExtensions.Add(query.CreateReader());
+
+        }
+
+        void ApplyMetrics(ref IOpenSearchResultCollection newResults, OpenSearchRequest request, IOpenSearchResponse response)
+        {
+            var metrics = response.Metrics.CreateReader();
+            if (metrics != null)
+                newResults.ElementExtensions.Add(metrics);
 
         }
 

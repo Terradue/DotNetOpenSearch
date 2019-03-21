@@ -91,6 +91,7 @@
     <Reference Include="Terradue.GeoJson">
       <HintPath>..\packages\Terradue.GeoJson.1.8.6250\lib\net45\Terradue.GeoJson.dll</HintPath>
     </Reference>
+    <Reference Include="System.Runtime.Serialization" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MultiGenericOpenSearchable.Test.cs" />
@@ -109,6 +110,8 @@
     <Compile Include="querySettings.cs" />
     <Compile Include="AuthOpenSearchable.Test.cs" />
     <Compile Include="DiscoveryTests.cs" />
+    <Compile Include="UrlTemplateTests.cs" />
+    <Compile Include="QueryTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

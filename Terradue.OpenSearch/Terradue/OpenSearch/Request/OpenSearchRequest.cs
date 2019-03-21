@@ -75,7 +75,7 @@ namespace Terradue.OpenSearch.Request
 
             if (templateUrl == null) throw new InvalidOperationException(string.Format("Could not find a URL template for entity {0} with type {1}", entity.Identifier, querySettings.PreferredContentType));
 
-            OpenSearchUrl queryUrl = OpenSearchFactory.BuildRequestUrlForTemplate(templateUrl, parameters, entity.GetOpenSearchParameters(querySettings.PreferredContentType), querySettings);
+            OpenSearchUrl queryUrl = OpenSearchFactory.BuildRequestUrlFromTemplate(templateUrl, parameters, querySettings);
 
             OpenSearchRequest request = null;
 
@@ -86,6 +86,7 @@ namespace Terradue.OpenSearch.Request
                     request = new HttpOpenSearchRequest(queryUrl, querySettings.PreferredContentType);
                     ((HttpOpenSearchRequest)request).TimeOut = 600000;
                     ((HttpOpenSearchRequest)request).Credentials = querySettings.Credentials;
+                    ((HttpOpenSearchRequest)request).SkipCertificateVerification = querySettings.SkipCertificateVerification;
                     break;
                 case "file":
                     request = new FileOpenSearchRequest(queryUrl, querySettings.PreferredContentType);
@@ -111,6 +112,7 @@ namespace Terradue.OpenSearch.Request
                 case "https":
                     request = new HttpOpenSearchRequest(queryUrl);
                     ((HttpOpenSearchRequest)request).TimeOut = 600000;
+                    ((HttpOpenSearchRequest)request).SkipCertificateVerification = querySettings.SkipCertificateVerification;
                     if (querySettings != null && querySettings.Credentials != null && querySettings.Credentials is System.Net.NetworkCredential)
                     {
                         ((HttpOpenSearchRequest)request).Credentials = querySettings.Credentials;

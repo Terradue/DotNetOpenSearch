@@ -44,6 +44,10 @@ namespace Terradue.OpenSearch.Test {
             }
 
             osd2.ExtraNamespace = osd.ExtraNamespace;
+            for( int i = 0; i< osd.Url.Count(); i++)
+            {
+                osd2.Url[i].ExtraNamespace = osd.Url[i].ExtraNamespace;
+            }
 
             osd2.ShouldBeEquivalentTo(osd);
 
@@ -87,6 +91,12 @@ namespace Terradue.OpenSearch.Test {
             }
 
             osd2.ExtraNamespace = osd.ExtraNamespace;
+
+            osd2.ExtraNamespace = osd.ExtraNamespace;
+            for (int i = 0; i < osd.Url.Count(); i++)
+            {
+                osd2.Url[i].ExtraNamespace = osd.Url[i].ExtraNamespace;
+            }
 
             osd2.ShouldBeEquivalentTo(osd);
 

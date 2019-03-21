@@ -17,6 +17,7 @@ namespace Terradue.OpenSearch.Schema {
     using System.Xml;
 
     using System;
+    using System.Linq;
 
     /// <remarks/>
     [SerializableAttribute()]
@@ -265,11 +266,14 @@ namespace Terradue.OpenSearch.Schema {
 		
         private int indexOffset = 1;
 
-        public OpenSearchDescriptionUrl() {
+        public OpenSearchDescriptionUrl()
+        {
+
         }
 
-        public OpenSearchDescriptionUrl(string type, string template, string rel) {
+        public OpenSearchDescriptionUrl(string type, string template, string rel, XmlSerializerNamespaces extraNamespace) {
             this.Relation = rel;
+            ExtraNamespace = extraNamespace;
             this.Template = template;
             this.Type = type;
         }
@@ -329,6 +333,33 @@ namespace Terradue.OpenSearch.Schema {
             }
             set {
                 indexOffset = value;
+            }
+        }
+
+        XmlSerializerNamespaces extraNamespace = new XmlSerializerNamespaces();
+        [XmlNamespaceDeclarations]
+        public XmlSerializerNamespaces ExtraNamespace
+        {
+            get
+            {
+                return extraNamespace;
+            }
+            set
+            {
+                extraNamespace = value;
+            }
+        }
+
+        XmlSerializerNamespaces osdExtraNamespace = new XmlSerializerNamespaces();
+        public XmlSerializerNamespaces OsdExtraNamespace
+        {
+            get
+            {
+                return osdExtraNamespace;
+            }
+            set
+            {
+                osdExtraNamespace = value;
             }
         }
     }

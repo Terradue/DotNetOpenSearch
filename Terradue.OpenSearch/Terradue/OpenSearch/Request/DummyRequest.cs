@@ -22,7 +22,7 @@ namespace Terradue.OpenSearch
 
         public override IOpenSearchResponse GetResponse()
         {
-            return new DummyResponse(new Result.AtomFeed(), new System.TimeSpan());
+            return new DummyResponse(new Result.AtomFeed());
         }
     }
 }
