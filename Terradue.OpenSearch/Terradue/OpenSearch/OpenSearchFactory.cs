@@ -57,7 +57,7 @@ namespace Terradue.OpenSearch
             stream.Close();
             // Add the root namespaces to the url
             foreach (var url in osd.Url)
-                url.OsdExtraNamespace = osd.ExtraNamespace;
+                url.ExtraNamespace = osd.ExtraNamespace;
             return osd;
         }
 
@@ -76,7 +76,7 @@ namespace Terradue.OpenSearch
                     continue;
 
                 // default finder
-                Regex findParam = new Regex(string.Format("{0}={{(?'prefix'[^:]+):(?'name'[^&]+)\\??}}", parameter_id));
+                Regex findParam = new Regex(string.Format("{0}={{(?:(?'prefix'[^:?]+):)?(?:(?'name'[^&?]+)\\?)?}}", parameter_id));
                 string replacement = string.Format("{0}={1}", parameter_id, HttpUtility.UrlEncode(searchParameters[parameter_id]));
 
                 // Is it a FQDN
@@ -139,7 +139,7 @@ namespace Terradue.OpenSearch
             }
 
             //Clean the remaining parameters templates
-            Regex cleanParam = new Regex(string.Format("{{(?'prefix'[^:]+):(?'name'[^&]+)\\??}}"));
+            Regex cleanParam = new Regex(string.Format("{{(?:(?'prefix'[^:?]+):)?(?:(?'name'[^&?]+)\\??)}}"));
             finalUrl = cleanParam.Replace(finalUrl, "");
 
             UriBuilder finalUri = new UriBuilder(finalUrl);
