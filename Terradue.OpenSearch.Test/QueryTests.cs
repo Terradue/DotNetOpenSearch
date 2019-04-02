@@ -69,6 +69,40 @@ namespace Terradue.OpenSearch.Test
 
         }
 
+        [Test()]
+        public void LoopTest()
+        {
+
+            OpenSearchEngine ose = new OpenSearchEngine();
+            ose.LoadPlugins();
+
+            ose.RegisterPostSearchFilter(MetricFactory.GenerateBasicMetrics);
+
+            var settings = new OpenSearchableFactorySettings(ose);
+
+            settings.ReportMetrics = true;
+
+            UrlBasedOpenSearchableFactory factory = new UrlBasedOpenSearchableFactory(settings);
+
+            var os = OpenSearchFactory.FindOpenSearchable(settings, new Uri("https://catalog.terradue.com/sentinel3/series/SR_2_LAN/description"), null);
+
+            var parameters = new NameValueCollection();
+            parameters.Set("bbox", "-0.526617333123,7.94325361219,-0.00986752860266,8.49324877028");
+            parameters.Set("track", "57");
+            parameters.Set("time:start", "2016-01-01");
+            parameters.Set("time:end", "2019-04-01");
+            parameters.Set("startIndex", "21");
+
+            var results = ose.Query(os, parameters);
+
+            Assert.AreEqual(20, results.Count);
+            Assert.Greater(2000, results.TotalResults);
+
+            //parameters.Set("startIndex", "21");
+            //results = ose.Query(os, parameters);
+            //Assert.AreEqual(20, results.Count);
+        }
+
 
         //[Test()]
         //public void NextGeossTest()
