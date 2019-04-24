@@ -30,10 +30,14 @@ namespace Terradue.OpenSearch.Test
 
             searchParameters.Set("count", "20");
             searchParameters.Set("q", "test");
-            searchParameters.Set("count", "20");
             searchParameters.Set("collection_id", "SENTINEL2_L1C");
 
-            var result = OpenSearchFactory.BuildRequestUrlFromTemplate(template, searchParameters, new QuerySettings("application/atom+xml", null));
+            QuerySettings settings = new QuerySettings("application/atom+xml", null);
+            settings.ParametersKeywordsTable.Add("uid", "{http://a9.com/-/opensearch/extensions/geo/1.0/}uid");
+            settings.ParametersKeywordsTable.Add("collection_id", "{http://example.com/opensearchextensions/1.0/}collection_id");
+
+
+            var result = OpenSearchFactory.BuildRequestUrlFromTemplate(template, searchParameters, settings);
 
             Assert.AreEqual(@"https://catalogue.nextgeoss.eu/opensearch/search.atom?collection_id=dataset&q=test&rows=20&page=&ext_bbox=&identifier=&timerange_start=&timerange_end=&metadata_modified=&spatial_geom=&collection_id=SENTINEL2_L1C",
                 result.ToString()
@@ -98,7 +102,12 @@ namespace Terradue.OpenSearch.Test
             searchParameters.Set("spatial_geom", "POINT(0 0)");
             searchParameters.Set("time:start", "20190101");
 
-            var result = OpenSearchFactory.BuildRequestUrlFromTemplate(template, searchParameters, new QuerySettings("application/atom+xml", null));
+            QuerySettings settings = new QuerySettings("application/atom+xml", null);
+            settings.ParametersKeywordsTable.Add("uid", "{http://a9.com/-/opensearch/extensions/geo/1.0/}uid");
+            settings.ParametersKeywordsTable.Add("collection_id", "{http://example.com/opensearchextensions/1.0/}collection_id");
+            settings.ParametersKeywordsTable.Add("spatial_geom", "{http://a9.com/-/opensearch/extensions/geo/1.0/}geometry");
+
+            var result = OpenSearchFactory.BuildRequestUrlFromTemplate(template, searchParameters, settings);
 
             Assert.AreEqual(@"https://catalogue.nextgeoss.eu/opensearch/search.atom?collection_id=dataset&q=test&rows=20&page=&ext_bbox=-180%2c-90%2c180%2c90&identifier=&timerange_start=20190101&timerange_end=&metadata_modified=&spatial_geom=POINT(0+0)&collection_id=SENTINEL2_L1C",
                 result.ToString()
