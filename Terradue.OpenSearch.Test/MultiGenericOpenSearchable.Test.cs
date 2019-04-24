@@ -414,7 +414,7 @@ namespace Terradue.OpenSearch.Test {
             ose.LoadPlugins();
 
             var settings = new OpenSearchableFactorySettings(ose);
-
+            settings.ParametersKeywordsTable.Add("uid", "{http://a9.com/-/opensearch/extensions/geo/1.0/}uid");
 			UrlBasedOpenSearchableFactory factory = new UrlBasedOpenSearchableFactory(settings);
 
 			IOpenSearchable entity1 = factory.Create(new OpenSearchUrl("https://catalog.terradue.com:443//sentinel1/series/GRD/search?format=atom&uid=S1A_IW_GRDH_1SDV_20160719T181151_20160719T181219_012221_012F93_3E0B"));
@@ -433,16 +433,12 @@ namespace Terradue.OpenSearch.Test {
             var osr = ose.Query(multiEntity, nvc, "atom");
 
             nvc = new NameValueCollection();
-            //nvc.Set("count", "10");
-            //nvc.Set("q", "1");
             nvc.Set("uid", "");
 
             osr = ose.Query(multiEntity, nvc, "atom");
 
             Assert.AreEqual(2, osr.TotalResults);
             Assert.AreEqual(2, osr.Count);
-
-
 
 
         }

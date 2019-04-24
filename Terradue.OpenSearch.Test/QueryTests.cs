@@ -43,7 +43,7 @@ namespace Terradue.OpenSearch.Test
             ose.RegisterPostSearchFilter(MetricFactory.GenerateBasicMetrics);
 
             var settings = new OpenSearchableFactorySettings(ose);
-
+            settings.ParametersKeywordsTable.Add("uid", "{http://a9.com/-/opensearch/extensions/geo/1.0/}uid");
             settings.ReportMetrics = true;
 
             UrlBasedOpenSearchableFactory factory = new UrlBasedOpenSearchableFactory(settings);
@@ -96,7 +96,7 @@ namespace Terradue.OpenSearch.Test
             var results = ose.Query(os, parameters);
 
             Assert.AreEqual(20, results.Count);
-            Assert.Greater(2000, results.TotalResults);
+            Assert.Greater(results.TotalResults, 2000);
 
             //parameters.Set("startIndex", "21");
             //results = ose.Query(os, parameters);
