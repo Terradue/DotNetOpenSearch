@@ -10,27 +10,24 @@ pipeline {
       steps {
         sh 'rm -rf packges */bin build'
         sh 'mkdir -p build'
-        sh 'nuget restore -MSBuildVersion 14'
         sh 'ls -la'
       }
     }
     stage('Build') {
       steps {
         echo "The library will be build in ${params.DOTNET_CONFIG}"
-        sh "xbuild /p:Configuration=${params.DOTNET_CONFIG}"
+        sh "msbuild /property:GenerateFullPaths=true /t:build /p:Configuration=${params.DOTNET_CONFIG} /restore:True"
       }
     }
     stage('Package') {
       steps {
-          sh "nuget4mono -g origin/${env.BRANCH_NAME} -p ${workspace}/Terradue.OpenSearch/packages.config ${workspace}/Terradue.OpenSearch/bin/Terradue.OpenSearch.dll"
-          sh 'cat *.nuspec'
-          sh 'nuget pack -OutputDirectory build'
-          sh "echo ${params.NUGET_PUBLISH}"
+        sh "msbuild /t:pack /p:Configuration=${params.DOTNET_CONFIG}"
+        sh 'cat */obj/*/*.nuspec'
       }
     }
     stage('Test') {
       steps {
-        sh 'nunit-console4 *.Test/bin/*.Test.dll -xml build/TestResult.xml'
+        sh 'mono packages/nunit.consolerunner/3.10.0/tools/nunit3-console.exe *.Test/bin/*/*/*.Test.dll'
       }
     }
     stage('Publish') {
@@ -47,7 +44,7 @@ pipeline {
   }
   post { 
     always { 
-       nunit(testResultsPattern: 'build/TestResult.xml')
+       nunit(testResultsPattern: 'TestResult.xml')
     }
   }
 }

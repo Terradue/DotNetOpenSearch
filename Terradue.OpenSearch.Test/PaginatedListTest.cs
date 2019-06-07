@@ -67,15 +67,15 @@ namespace Terradue.OpenSearch.Test {
             XmlSerializer ser = new XmlSerializer(typeof(OpenSearchDescription));
 
             // Base OpenSearch description document
-            OpenSearchDescription osd1 = (OpenSearchDescription)ser.Deserialize(XmlReader.Create("../Samples/ParametersTest1.osd.xml"));
+            OpenSearchDescription osd1 = (OpenSearchDescription)ser.Deserialize(XmlReader.Create(Util.TestBaseDir + "/Samples/ParametersTest1.osd.xml"));
             OpenSearchParameterValueSet vs1 = OpenSearchParameterValueSet.FromOpenSearchDescription(osd1, "application/atom+xml");
 
             // Equivalent OpenSearch description document where parameter names are changed
-            OpenSearchDescription osd2 = (OpenSearchDescription)ser.Deserialize(XmlReader.Create("../Samples/ParametersTest2.osd.xml"));
+            OpenSearchDescription osd2 = (OpenSearchDescription)ser.Deserialize(XmlReader.Create(Util.TestBaseDir + "/Samples/ParametersTest2.osd.xml"));
             OpenSearchParameterValueSet vs2 = OpenSearchParameterValueSet.FromOpenSearchDescription(osd2, "application/atom+xml");
 
             // Equivalent OpenSearch description document where parameter names and namespace prefixes are changed
-            OpenSearchDescription osd3 = (OpenSearchDescription)ser.Deserialize(XmlReader.Create("../Samples/ParametersTest3.osd.xml"));
+            OpenSearchDescription osd3 = (OpenSearchDescription)ser.Deserialize(XmlReader.Create(Util.TestBaseDir + "/Samples/ParametersTest3.osd.xml"));
             OpenSearchParameterValueSet vs3 = OpenSearchParameterValueSet.FromOpenSearchDescription(osd3, "application/atom+xml");
 
             // Set values

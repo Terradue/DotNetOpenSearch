@@ -22,7 +22,7 @@ namespace Terradue.OpenSearch.Test
         {
 
             XmlSerializer ser = new XmlSerializer(typeof(OpenSearchDescription));
-            var osd = (OpenSearchDescription)ser.Deserialize(XmlReader.Create(new FileStream("../Samples/fedeo-osdd.xml", FileMode.Open, FileAccess.Read)));
+            var osd = (OpenSearchDescription)ser.Deserialize(XmlReader.Create(new FileStream(Util.TestBaseDir + "/Samples/fedeo-osdd.xml", FileMode.Open, FileAccess.Read)));
 
             OpenSearchEngine ose = new OpenSearchEngine();
             ose.LoadPlugins();

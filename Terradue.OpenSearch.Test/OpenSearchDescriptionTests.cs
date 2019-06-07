@@ -8,13 +8,16 @@ using System.Xml;
 using FluentAssertions;
 using Terradue.OpenSearch.Engine;
 
-namespace Terradue.OpenSearch.Test {
+namespace Terradue.OpenSearch.Test
+{
 
     [TestFixture]
-    public class OpenSearchDescriptionTests {
+    public class OpenSearchDescriptionTests
+    {
 
         [Test]
-        public void TestOpenSearchDescriptionParameters(){
+        public void TestOpenSearchDescriptionParameters()
+        {
 
 
             IOpenSearchable entity1 = TestOpenSearchable.GenerateNumberedItomFeed("A", 100, new TimeSpan(0));
@@ -27,7 +30,8 @@ namespace Terradue.OpenSearch.Test {
             var stream = new MemoryStream();
             var serializer = new XmlSerializer(typeof(OpenSearchDescription));
 
-            using (var xw = XmlWriter.Create(stream)) {
+            using (var xw = XmlWriter.Create(stream))
+            {
 
                 serializer.Serialize(xw, osd);
                 xw.Flush();
@@ -37,14 +41,15 @@ namespace Terradue.OpenSearch.Test {
 
             OpenSearchDescription osd2;
 
-            using (var xr = XmlReader.Create(stream)) {
+            using (var xr = XmlReader.Create(stream))
+            {
 
                 osd2 = (OpenSearchDescription)serializer.Deserialize(xr);
 
             }
 
             osd2.ExtraNamespace = osd.ExtraNamespace;
-            for( int i = 0; i< osd.Url.Count(); i++)
+            for (int i = 0; i < osd.Url.Count(); i++)
             {
                 osd2.Url[i].ExtraNamespace = osd.Url[i].ExtraNamespace;
             }
@@ -61,7 +66,7 @@ namespace Terradue.OpenSearch.Test {
 
             OpenSearchDescription osd;
 
-            using (var xr = XmlReader.Create(new FileStream("../Samples/AUX_Dynamic_Open.xml", FileMode.Open, FileAccess.Read )))
+            using (var xr = XmlReader.Create(new FileStream(Util.TestBaseDir + "/Samples/AUX_Dynamic_Open.xml", FileMode.Open, FileAccess.Read)))
             {
 
                 osd = (OpenSearchDescription)serializer.Deserialize(xr);
@@ -100,7 +105,7 @@ namespace Terradue.OpenSearch.Test {
 
             osd2.ShouldBeEquivalentTo(osd);
 
-            using (var xw = XmlWriter.Create(new FileStream("../out/TestOpenSearchDescriptionParametersDeser.xml", FileMode.Create, FileAccess.Write)))
+            using (var xw = XmlWriter.Create(new FileStream(Util.TestBaseDir + "/out/TestOpenSearchDescriptionParametersDeser.xml", FileMode.Create, FileAccess.Write)))
             {
 
                 serializer.Serialize(xw, osd);
