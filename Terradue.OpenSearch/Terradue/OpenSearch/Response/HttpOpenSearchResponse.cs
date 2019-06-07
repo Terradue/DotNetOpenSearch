@@ -42,12 +42,6 @@ namespace Terradue.OpenSearch.Response {
             }
         }
 
-        public override TimeSpan RequestTime {
-            get {
-                return requestTime;
-            }
-        }
-
         public override object GetResponseObject() {
             if (payload == null) {
                 using (var ms = new MemoryStream()) {
