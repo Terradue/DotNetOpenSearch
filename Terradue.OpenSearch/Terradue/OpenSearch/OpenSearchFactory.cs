@@ -11,7 +11,6 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Collections.Specialized;
 using System.Collections.Generic;
-using System.Web;
 using System.Xml.Serialization;
 using System.Xml;
 using System.Text;
@@ -24,6 +23,7 @@ using Terradue.OpenSearch.Response;
 using Terradue.OpenSearch.Schema;
 using Terradue.OpenSearch.Request;
 using System.Threading;
+using System.Web;
 
 namespace Terradue.OpenSearch
 {
@@ -357,7 +357,7 @@ namespace Terradue.OpenSearch
             {
                 openSearchDescription = settings.OpenSearchEngine.AutoDiscoverFromQueryUrl(new OpenSearchUrl(baseUrl), settings);
             }
-            catch (ImpossibleSearchException e)
+            catch (ImpossibleSearchException)
             {
                 try
                 {
@@ -472,6 +472,38 @@ namespace Terradue.OpenSearch
             }
         }
 
+        public static Type ResolveTypeFromRequest(NameValueCollection query, NameValueCollection headers, OpenSearchEngine ose){
+            Type type = ose.Extensions.First().Value.GetTransformType();
+
+            if (query != null && query["format"] != null)
+            {
+                var osee = ose.GetExtensionByExtensionName(query["format"]);
+                if (osee != null)
+                {
+                    type = osee.GetTransformType();
+                }
+            }
+            else
+            {
+                if (headers != null && !string.IsNullOrEmpty(headers["Accept"]))
+                {
+                    foreach (string contentType in headers["Accept"].Split(','))
+                    {
+                        var osee = ose.GetExtensionByContentTypeAbility(contentType.Trim());
+                        if (osee != null)
+                        {
+                            type = osee.GetTransformType();
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return type;
+        }
+
+#if NETFRAMEWORK 
+        [Obsolete("This method is not compatible with .Net Standard. Use ResolveTypeFromRequest(NameValueCollection query, NameValueCollection headers, OpenSearchEngine ose)")]
         public static Type ResolveTypeFromRequest(HttpRequest request, OpenSearchEngine ose)
         {
 
@@ -504,19 +536,7 @@ namespace Terradue.OpenSearch
             return type;
         }
 
-        /*public static void ReplaceId(ref IOpenSearchResultCollection osr) {
-            IOpenSearchResultCollection feed = osr;
-
-            var matchLinks = feed.Links.Where(l => l.RelationshipType == "self").ToArray();
-            if (matchLinks.Count() > 0)
-                feed.Id = matchLinks[0].Uri.ToString();
-
-            foreach (IOpenSearchResultItem item in feed.Items) {
-                matchLinks = item.Links.Where(l => l.RelationshipType == "self").ToArray();
-                if (matchLinks.Count() > 0)
-                    item.Id = matchLinks[0].Uri.ToString();
-            }
-        }*/
+#endif
 
         public static void ReplaceSelfLinks(IOpenSearchable entity, OpenSearchRequest request, IOpenSearchResultCollection osr, Func<IOpenSearchResultItem, OpenSearchDescription, string, string> entryTemplate)
         {
@@ -688,7 +708,7 @@ namespace Terradue.OpenSearch
             {
                 return int.Parse(parameters["count"]);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return OpenSearchEngine.DEFAULT_COUNT;
             }
