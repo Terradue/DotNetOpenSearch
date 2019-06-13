@@ -408,7 +408,7 @@ namespace Terradue.OpenSearch.Request
 			{
 				originalCount = int.Parse(targetParameters["count"]);
 			}
-			catch (Exception e)
+			catch (Exception)
 			{
 				originalCount = settings.OpenSearchEngine.DefaultCount;
 			}

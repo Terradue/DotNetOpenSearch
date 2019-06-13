@@ -101,6 +101,7 @@ namespace Terradue.OpenSearch.Request
                     httpWebRequest.Proxy = null;
                     httpWebRequest.Credentials = Credentials;
                     httpWebRequest.PreAuthenticate = true;
+                    httpWebRequest.AllowAutoRedirect = true;
 
                     log.DebugFormat("Querying {0}", this.OpenSearchUrl);
 
