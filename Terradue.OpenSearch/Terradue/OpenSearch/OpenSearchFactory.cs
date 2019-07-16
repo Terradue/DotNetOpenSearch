@@ -11,7 +11,6 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Collections.Specialized;
 using System.Collections.Generic;
-using System.Web;
 using System.Xml.Serialization;
 using System.Xml;
 using System.Text;
@@ -24,6 +23,7 @@ using Terradue.OpenSearch.Response;
 using Terradue.OpenSearch.Schema;
 using Terradue.OpenSearch.Request;
 using System.Threading;
+using System.Web;
 
 namespace Terradue.OpenSearch
 {
@@ -61,84 +61,95 @@ namespace Terradue.OpenSearch
             return osd;
         }
 
-        public static OpenSearchUrl BuildRequestUrlFromTemplate(OpenSearchDescriptionUrl remoteUrlTemplate, NameValueCollection searchParameters, QuerySettings querySettings)
+        /// <summary>
+        /// Builds the request URL from OpenSearch template URL
+        /// </summary>
+        /// <returns>The request URL to make the query</returns>
+        /// <param name="osUrlTemplate">OpenSearch URL template.</param>
+        /// <param name="searchParameters">Search parameters definition</param>
+        /// <param name="querySettings">Query settings</param>
+        public static OpenSearchUrl BuildRequestUrlFromTemplate(OpenSearchDescriptionUrl osUrlTemplate, NameValueCollection searchParameters, QuerySettings querySettings)
         {
 
-            string finalUrl = remoteUrlTemplate.Template;
+            string finalUrl = osUrlTemplate.Template;
 
             NameValueCollection additionalParameters = new NameValueCollection();
 
-            // For each parameter requested
-            foreach (string parameter_id in searchParameters.AllKeys)
+            // For each parameter defined
+            foreach (string parameter_key in searchParameters.AllKeys)
             {
-
-                if (string.IsNullOrEmpty(parameter_id))
+                // skip if null or empty
+                if (string.IsNullOrEmpty(parameter_key))
                     continue;
 
-                // default finder
-                Regex findParam = new Regex(string.Format("{0}={{(?:(?'prefix'[^:?]+):)?(?:(?'name'[^&?]+)\\?)?}}", parameter_id));
-                string replacement = string.Format("{0}={1}", parameter_id, HttpUtility.UrlEncode(searchParameters[parameter_id]));
+                string key = parameter_key;
+                string value = searchParameters[parameter_key];
+                Regex findParam = null;
+                string replacement = null;
 
-                // Is it a FQDN
-                Match matchFQDN = Regex.Match(parameter_id, @"^{(?'namespace'[^}]+)}(?'name'.+)$");
 
+                // CASE #1 Keyword parameter name (e.g. 'count')
+                // Is the parameter a reserved keyword?
+                if (querySettings.ParametersKeywordsTable.ContainsKey(parameter_key))
+                {
+                    // YES!
+                    // Then substitue the key with the FQDN
+                    key = querySettings.ParametersKeywordsTable[parameter_key];
+                }
+
+                // CASE #2 : Fully Qualified Parameter Name (e.g. '{http://a9.com/-/opensearch/extensions/geo/1.0/}box' )
+                // Regular expression finder
+                // Is it a FQDN ?
+                Match matchFQDN = Regex.Match(key, @"^{(?'namespace'[^}]+)}(?'name'.+)$");
+                // YES!
                 if (matchFQDN.Success)
                 {
                     string ns = matchFQDN.Groups["namespace"].Value;
                     string name = matchFQDN.Groups["name"].Value;
-
-                    XmlQualifiedName qPrefix = remoteUrlTemplate.ExtraNamespace.ToArray().LastOrDefault(n => n.Namespace == ns);
+                    // Find the prefix declaration for the namespace in the OSD namespaces declaration
+                    XmlQualifiedName qPrefix = osUrlTemplate.ExtraNamespace.ToArray().LastOrDefault(n => n.Namespace == ns);
                     if (qPrefix == null)
-                        qPrefix = remoteUrlTemplate.OsdExtraNamespace.ToArray().LastOrDefault(n => n.Namespace == ns);
+                        qPrefix = osUrlTemplate.OsdExtraNamespace.ToArray().LastOrDefault(n => n.Namespace == ns);
+                    // Namespace not found? Parameter is then skipped!
                     if (qPrefix == null)
                         continue;
-
+                    // Replacement Regular Expression using the prefix
                     findParam = new Regex(string.Format("{{{0}{1}\\??}}", string.IsNullOrEmpty(qPrefix.Name) ? "" : qPrefix.Name + ":", name));
-                    replacement = HttpUtility.UrlEncode(searchParameters[parameter_id]);
-
+                    replacement = HttpUtility.UrlEncode(value);
                 }
 
-                // Is it a prefixed param
-                Match matchPrefixed = Regex.Match(parameter_id, @"^(?'prefix'[a-zA-Z0-9_\-]+):(?'name'[^&]+)$");
-
+                // CASE #3 Prefixed Parameter Name (e.g. 'geo:box' )
+                // Regular expression finder
+                // Is it a prefixed param ?
+                Match matchPrefixed = Regex.Match(key, @"^(?'prefix'[a-zA-Z0-9_\-]+):(?'name'[^&]+)$");
+                // YES!
                 if (matchPrefixed.Success)
                 {
                     string prefix = matchPrefixed.Groups["prefix"].Value;
                     string name = matchPrefixed.Groups["name"].Value;
 
-                    // check that prefix exist
-                    if (!remoteUrlTemplate.ExtraNamespace.ToArray().Any(n => n.Name == prefix) && !querySettings.ForceUnspecifiedParameters)
+                    // check that prefix exist in the OS declaration
+                    if (!osUrlTemplate.ExtraNamespace.ToArray().Any(n => n.Name == prefix) && !querySettings.ForceUnspecifiedParameters)
                         continue;
-
+                    // Replacement Regular Expression using the prefix
                     findParam = new Regex(string.Format("{{{0}:{1}\\??}}", prefix, name));
-                    replacement = HttpUtility.UrlEncode(searchParameters[parameter_id]);
-
+                    replacement = HttpUtility.UrlEncode(value);
                 }
 
-                string newUrl = findParam.Replace(finalUrl, replacement);
-
-                // special case for non qualified opensearch parameters
-                if (newUrl == finalUrl && !matchFQDN.Success && !matchPrefixed.Success)
+                // Let's replace the non ambiguous if found
+                if (findParam != null)
                 {
-                    if (new string[] { "count", "startPage", "startIndex", "language", "searchTerms" }.Contains(parameter_id))
-                    {
-                        XmlQualifiedName qPrefix = remoteUrlTemplate.ExtraNamespace.ToArray().FirstOrDefault(n => n.Namespace == "http://a9.com/-/spec/opensearch/1.1/");
-
-                        findParam = new Regex(string.Format("{{{0}{1}\\??}}", string.IsNullOrEmpty(qPrefix.Name) ? "" : qPrefix.Name + ":", parameter_id));
-                        newUrl = findParam.Replace(finalUrl, HttpUtility.UrlEncode(searchParameters[parameter_id]));
-                    }
-
-                    // force parameter anyway
-                    if (newUrl == finalUrl && querySettings.ForceUnspecifiedParameters)
-                    {
-                        additionalParameters.Set(parameter_id, searchParameters[parameter_id]);
-                    }
+                    finalUrl = findParam.Replace(finalUrl, replacement);
+                }
+                // force parameter anyway if forcing is specified
+                else if (querySettings.ForceUnspecifiedParameters)
+                {
+                    additionalParameters.Set(parameter_key, searchParameters[parameter_key]);
                 }
 
-                finalUrl = newUrl;
             }
 
-            //Clean the remaining parameters templates
+            // Clean the remaining parameters templates
             Regex cleanParam = new Regex(string.Format("{{(?:(?'prefix'[^:?]+):)?(?:(?'name'[^&?]+)\\??)}}"));
             finalUrl = cleanParam.Replace(finalUrl, "");
 
@@ -157,147 +168,20 @@ namespace Terradue.OpenSearch
 
         }
 
-
         /// <summary>
-        /// Builds the request URL for template.
+        /// Gets the base open search parameters keywords table.
         /// </summary>
-        /// <returns>The request URL for template.</returns>
-        /// <param name="remoteUrlTemplate">Remote URL template.</param>
-        /// <param name="searchParameters">Search parameters.</param>
-        /// <param name="urlTemplateDef">URL template def.</param>
-        [Obsolete("BuildRequestUrlForTemplate is deprecated, please use BuildRequestUrlFromTemplate instead.")]
-        public static OpenSearchUrl BuildRequestUrlForTemplate(OpenSearchDescriptionUrl remoteUrlTemplate, NameValueCollection searchParameters, NameValueCollection requestUrlTemplateDef, QuerySettings querySettings)
+        /// <returns>The base open search parameters keywords table.</returns>
+        public static Dictionary<string, string> GetBaseOpenSearchParametersKeywordsTable()
         {
-            // container for the final query url
-            UriBuilder finalUrl = new UriBuilder(remoteUrlTemplate.Template);
-            // parameters for final query
-            NameValueCollection finalQueryParameters = new NameValueCollection();
-
-            // Parse the possible parameters of the remote url template
-            NameValueCollection remoteParametersDef = HttpUtility.ParseQueryString(finalUrl.Query);
-
-            // control duplicates
-            foreach (string key in remoteParametersDef.AllKeys)
-            {
-                if (string.IsNullOrEmpty(key))
-                    continue;
-                int count = remoteParametersDef.GetValues(key).Count();
-                if (count > 1)
-                {
-                    var value = remoteParametersDef.GetValues(key)[0];
-                    remoteParametersDef.Remove(key);
-                    remoteParametersDef.Add(key, value);
-                }
-            }
-
-            // For each parameter id set for search
-            foreach (string parameter_id in searchParameters.AllKeys)
-            {
-                // skip if parameter is not in the template unless it is forced
-                if (requestUrlTemplateDef[parameter_id] == null)
-                {
-                    // if forced, set the param
-                    if (querySettings.ForceUnspecifiedParameters)
-                    {
-                        if (!(querySettings.SkipNullOrEmptyQueryStringParameters && string.IsNullOrEmpty(searchParameters[parameter_id])))
-                            finalQueryParameters.Set(parameter_id, searchParameters[parameter_id]);
-                    }
-                    continue;
-                }
-                // first find the defintion of the parameter in the url template
-                foreach (var key in requestUrlTemplateDef.GetValues(parameter_id))
-                {
-                    Match matchParamDef = Regex.Match(key, @"^{([^?]+)\??}$");
-                    // If parameter is not respecting OpenSearch template spec, skip
-                    if (!matchParamDef.Success)
-                        continue;
-                    // We have the parameter defintion
-                    string paramDef = matchParamDef.Groups[1].Value;
-                    string paramValue = searchParameters[parameter_id];
-
-
-
-                    // Find the paramdef in the remote URL template
-                    foreach (string keyDef in remoteParametersDef.AllKeys)
-                    {
-                        foreach (var key2 in remoteParametersDef.GetValues(keyDef))
-                        {
-                            Match remoteMatchParamDef = Regex.Match(key2, @"^{(" + paramDef + @")\??}$");
-                            // if match is successful
-                            if (remoteMatchParamDef.Success)
-                            {
-                                // then add the parameter with the right key
-                                if (!(querySettings.SkipNullOrEmptyQueryStringParameters && string.IsNullOrEmpty(paramValue)))
-                                    finalQueryParameters.Set(keyDef, paramValue);
-                            }
-                        }
-                    }
-                }
-
-            }
-
-            // All other remote query parameters
-            foreach (string parameter in remoteParametersDef.AllKeys)
-            {
-                Match matchParamDef = Regex.Match(remoteParametersDef[parameter], @"^{([^?]+)\??}$");
-                // If parameter does not exist, continue
-                if (!matchParamDef.Success && !string.IsNullOrEmpty(parameter))
-                {
-                    if (!(querySettings.SkipNullOrEmptyQueryStringParameters && string.IsNullOrEmpty(remoteParametersDef[parameter])))
-                        finalQueryParameters.Set(parameter, remoteParametersDef[parameter]);
-                }
-            }
-
-            //finalQueryParameters.Set("enableSourceproduct", "true");
-            string[] queryString = Array.ConvertAll(finalQueryParameters.AllKeys, key => string.Format("{0}={1}", key, HttpUtility.UrlEncode(finalQueryParameters[key])));
-            finalUrl.Query = string.Join("&", queryString);
-
-            return new OpenSearchUrl(finalUrl.Uri);
-        }
-
-        /// <summary>
-        /// Builds the request URL from template name parameters.
-        /// </summary>
-        /// <returns>The request URL from template name parameters.</returns>
-        /// <param name="remoteUrlTemplate">Remote URL template.</param>
-        /// <param name="templateSearchParameters">Template search parameters.</param>
-        public static string BuildRequestUrlFromTemplateNameParameters(OpenSearchUrl remoteUrlTemplate, NameValueCollection templateSearchParameters)
-        {
-            // container for the final query url
-            UriBuilder finalUrl = new UriBuilder(remoteUrlTemplate);
-            // parameters for final query
-            NameValueCollection finalQueryParameters = new NameValueCollection();
-
-            // Parse the possible parametrs of the remote urls
-            NameValueCollection remoteParametersDef = HttpUtility.ParseQueryString(remoteUrlTemplate.Query);
-
-            // For each parameter requested
-            foreach (string parameter in templateSearchParameters.AllKeys)
-            {
-
-                string value = templateSearchParameters[parameter];
-
-                // Find the paramdef in the remote URl template
-                foreach (string keyDef in remoteParametersDef.AllKeys)
-                {
-                    foreach (string key2 in remoteParametersDef.GetValues(keyDef))
-                    {
-                        Match remoteMatchParamDef = Regex.Match(key2, @"^{(" + parameter + @")\??}$");
-                        // if martch is successful
-                        if (remoteMatchParamDef.Success)
-                        {
-                            // then add the parameter with the right key
-                            finalQueryParameters.Add(keyDef, value);
-                        }
-                    }
-                }
-
-            }
-
-            string[] queryString = Array.ConvertAll(finalQueryParameters.AllKeys, key => string.Format("{0}={1}", key, HttpUtility.UrlEncode(finalQueryParameters[key])));
-            finalUrl.Query = string.Join("&", queryString);
-
-            return finalUrl.ToString();
+            Dictionary<string, string> table = new Dictionary<string, string>();
+            table.Add("count", "{http://a9.com/-/spec/opensearch/1.1/}count");
+            table.Add("startPage", "{http://a9.com/-/spec/opensearch/1.1/}startPage");
+            table.Add("startIndex", "{http://a9.com/-/spec/opensearch/1.1/}startIndex");
+            table.Add("q", "{http://a9.com/-/spec/opensearch/1.1/}searchTerms");
+            table.Add("searchTerms", "{http://a9.com/-/spec/opensearch/1.1/}searchTerms");
+            table.Add("lang", "{http://a9.com/-/spec/opensearch/1.1/}language");
+            return table;
         }
 
         /// <summary>
@@ -473,7 +357,7 @@ namespace Terradue.OpenSearch
             {
                 openSearchDescription = settings.OpenSearchEngine.AutoDiscoverFromQueryUrl(new OpenSearchUrl(baseUrl), settings);
             }
-            catch (ImpossibleSearchException e)
+            catch (ImpossibleSearchException)
             {
                 try
                 {
@@ -588,6 +472,38 @@ namespace Terradue.OpenSearch
             }
         }
 
+        public static Type ResolveTypeFromRequest(NameValueCollection query, NameValueCollection headers, OpenSearchEngine ose){
+            Type type = ose.Extensions.First().Value.GetTransformType();
+
+            if (query != null && query["format"] != null)
+            {
+                var osee = ose.GetExtensionByExtensionName(query["format"]);
+                if (osee != null)
+                {
+                    type = osee.GetTransformType();
+                }
+            }
+            else
+            {
+                if (headers != null && !string.IsNullOrEmpty(headers["Accept"]))
+                {
+                    foreach (string contentType in headers["Accept"].Split(','))
+                    {
+                        var osee = ose.GetExtensionByContentTypeAbility(contentType.Trim());
+                        if (osee != null)
+                        {
+                            type = osee.GetTransformType();
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return type;
+        }
+
+#if NETFRAMEWORK 
+        [Obsolete("This method is not compatible with .Net Standard. Use ResolveTypeFromRequest(NameValueCollection query, NameValueCollection headers, OpenSearchEngine ose)")]
         public static Type ResolveTypeFromRequest(HttpRequest request, OpenSearchEngine ose)
         {
 
@@ -620,19 +536,7 @@ namespace Terradue.OpenSearch
             return type;
         }
 
-        /*public static void ReplaceId(ref IOpenSearchResultCollection osr) {
-            IOpenSearchResultCollection feed = osr;
-
-            var matchLinks = feed.Links.Where(l => l.RelationshipType == "self").ToArray();
-            if (matchLinks.Count() > 0)
-                feed.Id = matchLinks[0].Uri.ToString();
-
-            foreach (IOpenSearchResultItem item in feed.Items) {
-                matchLinks = item.Links.Where(l => l.RelationshipType == "self").ToArray();
-                if (matchLinks.Count() > 0)
-                    item.Id = matchLinks[0].Uri.ToString();
-            }
-        }*/
+#endif
 
         public static void ReplaceSelfLinks(IOpenSearchable entity, OpenSearchRequest request, IOpenSearchResultCollection osr, Func<IOpenSearchResultItem, OpenSearchDescription, string, string> entryTemplate)
         {
@@ -732,26 +636,6 @@ namespace Terradue.OpenSearch
 
         }
 
-        public static OpenSearchDescriptionUrl GetOpenSearchUrlByTypeAndMaxParam(OpenSearchDescription osd, List<string> mimeTypes, NameValueCollection osParameters)
-        {
-
-            OpenSearchDescriptionUrl url = null;
-            int maxParam = -1;
-
-            foreach (var urlC in osd.Url)
-            {
-                UriBuilder tempU = new UriBuilder(BuildRequestUrlFromTemplateNameParameters(new OpenSearchUrl(urlC.Template), osParameters));
-                int numParam = HttpUtility.ParseQueryString(tempU.Query).Count;
-                if (maxParam < numParam)
-                {
-                    maxParam = numParam;
-                    url = urlC;
-                }
-            }
-
-            return url;
-
-        }
 
         public static SyndicationLink[] GetEnclosures(IOpenSearchResultCollection result)
         {
@@ -824,7 +708,7 @@ namespace Terradue.OpenSearch
             {
                 return int.Parse(parameters["count"]);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return OpenSearchEngine.DEFAULT_COUNT;
             }

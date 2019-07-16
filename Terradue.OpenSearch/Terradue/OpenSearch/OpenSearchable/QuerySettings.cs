@@ -24,6 +24,8 @@ Combined with the OpenSearch extensions, the search interface offers many format
 
 */
 
+using System.Collections.Generic;
+
 namespace Terradue.OpenSearch
 {
     /// <summary>Helper class that encapsulates the settings for an OpenSearch query and its result generation.</summary>
@@ -66,6 +68,8 @@ namespace Terradue.OpenSearch
 
         public bool SkipCertificateVerification { get; set; }
 
+        public Dictionary<string, string> ParametersKeywordsTable { get; set; }
+
         /// <summary>Creates a new instance of QuerySettings with the specified parameters.</summary>
         /// <param name="preferredContentType">The preferred content type.</param>
         /// <param name="readNative">The function to be called to obtain the formatted OpenSearch result.</param>
@@ -77,6 +81,7 @@ namespace Terradue.OpenSearch
             this.SkipNullOrEmptyQueryStringParameters = false;
             this.ReportMetrics = false;
             this.SkipCertificateVerification = false;
+            this.ParametersKeywordsTable = OpenSearchFactory.GetBaseOpenSearchParametersKeywordsTable();
         }
 
         /// <summary>Creates a new instance of QuerySettings with the specified parameters.</summary>
@@ -90,6 +95,7 @@ namespace Terradue.OpenSearch
                 this.MaxRetries = settings.MaxRetries;
                 this.ReportMetrics = settings.ReportMetrics;
                 this.SkipCertificateVerification = settings.SkipCertificateVerification;
+                this.ParametersKeywordsTable = settings.ParametersKeywordsTable;
             }
         }
 

@@ -375,7 +375,7 @@ namespace Terradue.OpenSearch.Request {
 
             }
 
-            public int GetHashCode() {
+            public override int GetHashCode() {
 
                 return IllimitedOpenSearchRequestState.GetHashCode(Entity, ose);
 

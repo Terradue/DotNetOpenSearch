@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using Terradue.OpenSearch.Engine;
 
@@ -10,6 +11,7 @@ namespace Terradue.OpenSearch
         public OpenSearchableFactorySettings(OpenSearchEngine ose){
             OpenSearchEngine = ose;
             Soft = false;
+            ParametersKeywordsTable = OpenSearchFactory.GetBaseOpenSearchParametersKeywordsTable();
         }
 
         public OpenSearchEngine OpenSearchEngine;
@@ -30,7 +32,8 @@ namespace Terradue.OpenSearch
                 MergeFilters = this.MergeFilters,
                 MaxRetries = this.MaxRetries,
                 ReportMetrics = this.ReportMetrics,
-                SkipCertificateVerification = this.SkipCertificateVerification
+                SkipCertificateVerification = this.SkipCertificateVerification,
+                ParametersKeywordsTable = this.ParametersKeywordsTable
             };
         }
 
@@ -39,5 +42,7 @@ namespace Terradue.OpenSearch
         public bool ReportMetrics;
 
         public bool SkipCertificateVerification;
+
+        public Dictionary<string, string> ParametersKeywordsTable;
     }
 }
