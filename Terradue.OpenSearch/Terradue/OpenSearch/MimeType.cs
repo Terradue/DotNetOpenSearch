@@ -44,7 +44,7 @@ namespace Terradue.OpenSearch
 			}
 		}
 
-		public static bool Equals(object x, object y)
+		public new static bool Equals(object x, object y)
 		{
 			return ((MimeType)x).contentType == ((MimeType)y).contentType && ((MimeType)x).parameters.DictionaryEqual(((MimeType)y).parameters);
 		}

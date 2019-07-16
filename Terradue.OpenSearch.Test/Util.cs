@@ -16,7 +16,7 @@ namespace Terradue.OpenSearch.Test
         public static void OneTimeSetUp()
         {
             var baseDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            TestBaseDir = Path.Combine(baseDir, "../..");
+            TestBaseDir = Path.Combine(baseDir, "../../..");
         }
 
     }
