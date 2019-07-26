@@ -40,4 +40,7 @@
     <PackageReference Include="System.Runtime.Caching" Version="4.5.0"/>
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0"/>
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="$(SolutionDir)\LICENSE" Pack="true" PackagePath=""/>
+  </ItemGroup>
 </Project>
