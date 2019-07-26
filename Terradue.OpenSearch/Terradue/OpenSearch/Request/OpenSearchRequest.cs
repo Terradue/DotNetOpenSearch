@@ -71,7 +71,7 @@ namespace Terradue.OpenSearch.Request
 
             OpenSearchDescription osd = entity.GetOpenSearchDescription();
 
-			OpenSearchDescriptionUrl templateUrl = OpenSearchFactory.GetOpenSearchUrlByType(osd, querySettings.PreferredContentType);
+            OpenSearchDescriptionUrl templateUrl = OpenSearchFactory.GetOpenSearchUrlByType(osd, querySettings.PreferredContentType);
 
             if (templateUrl == null) throw new InvalidOperationException(string.Format("Could not find a URL template for entity {0} with type {1}", entity.Identifier, querySettings.PreferredContentType));
 
@@ -94,7 +94,7 @@ namespace Terradue.OpenSearch.Request
             }
 
             request.OriginalParameters = parameters;
-			request.OpenSearchDescription = osd;
+            request.OpenSearchDescription = osd;
 
             return request;
 
@@ -118,8 +118,11 @@ namespace Terradue.OpenSearch.Request
                         ((HttpOpenSearchRequest)request).Credentials = querySettings.Credentials;
                         System.Net.NetworkCredential netcred = querySettings.Credentials as System.Net.NetworkCredential;
                         UriBuilder urib = new UriBuilder(request.url);
-                        urib.UserName = netcred.UserName;
-                        urib.Password = netcred.Password;
+                        if (!netcred.UserName.Contains("@"))
+                        {
+                            urib.UserName = netcred.UserName;
+                            urib.Password = netcred.Password;
+                        }
                         request.url = new OpenSearchUrl(urib.Uri);
                     }
                     break;
@@ -144,9 +147,9 @@ namespace Terradue.OpenSearch.Request
             }
         }
 
-		public OpenSearchDescription OpenSearchDescription
+        public OpenSearchDescription OpenSearchDescription
         {
-			get; protected set;
+            get; protected set;
         }
 
         public abstract IOpenSearchResponse GetResponse();
