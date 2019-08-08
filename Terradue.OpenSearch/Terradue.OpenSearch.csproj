@@ -10,7 +10,7 @@
     <Title>DotNetOpenSearch</Title>
     <Description>Terradue.OpenSearch is a library targeting .NET 4.5 and above that provides an easy way to perform OpenSearch query from a class or an URL to multiple and custom types of results (Atom, Rdf...)</Description>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <Version>1.17.0</Version>
+    <Version>1.17.1</Version>
     <Authors>Emmanuel Mathot</Authors>
     <Company>Terradue</Company>
     <RepositoryUrl>https://github.com/Terradue/DotNetOpenSearch</RepositoryUrl>
@@ -21,8 +21,6 @@
   </PropertyGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
     <Reference Include="mscorlib"/>
-    <Reference Include="System"/>
-    <Reference Include="System.Xml"/>
     <Reference Include="System.Net"/>
     <Reference Include="System.Net.Http"/>
     <Reference Include="System.Web"/>

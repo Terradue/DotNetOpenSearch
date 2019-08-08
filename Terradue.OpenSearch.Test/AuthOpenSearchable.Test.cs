@@ -46,6 +46,22 @@ namespace Terradue.OpenSearch.Test
             OpenSearchFactory.FindOpenSearchable(settings, new Uri("https://catalog.terradue.com/demo1/search"), null);
 
 
+        }
+
+        [Test]
+        public void SpecialCharCredentialHttp()
+        {
+
+            OpenSearchEngine ose = new OpenSearchEngine();
+            ose.LoadPlugins();
+
+            var settings = new OpenSearchableFactorySettings(ose);
+            settings.Credentials = new System.Net.NetworkCredential("eod.exp@gmail.com", "fred1960");
+            UrlBasedOpenSearchableFactory factory = new UrlBasedOpenSearchableFactory(settings);
+
+            OpenSearchFactory.FindOpenSearchable(settings, new Uri("https://finder.creodias.eu/resto/api/collections/describe.xml"), null);
+
+
 
         }
 
@@ -71,8 +87,6 @@ namespace Terradue.OpenSearch.Test
             osr = ose.Query(entity1, nvc, "atom");
 
             OpenSearchFactory.FindOpenSearchable(settings, new Uri("https://catalog.terradue.com/demo1/search"), null);
-
-
 
         }
 
