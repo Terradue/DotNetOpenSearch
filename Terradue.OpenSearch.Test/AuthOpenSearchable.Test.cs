@@ -90,22 +90,6 @@ namespace Terradue.OpenSearch.Test
 
         }
 
-        [Test]
-        public void SpecialCharCredentialHttp()
-        {
-
-            OpenSearchEngine ose = new OpenSearchEngine();
-            ose.LoadPlugins();
-
-            var settings = new OpenSearchableFactorySettings(ose);
-            settings.Credentials = new System.Net.NetworkCredential("eod.exp@gmail.com", "fred1960");
-            UrlBasedOpenSearchableFactory factory = new UrlBasedOpenSearchableFactory(settings);
-
-            OpenSearchFactory.FindOpenSearchable(settings, new Uri("https://finder.creodias.eu/resto/api/collections/describe.xml"), null);
-
-
-
-        }
 
 
     }
