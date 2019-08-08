@@ -73,7 +73,7 @@ namespace Terradue.OpenSearch.Test
 
             var settings = new OpenSearchableFactorySettings(ose);
             settings.Credentials = new System.Net.NetworkCredential("demo1", "Demo199++");
-			UrlBasedOpenSearchableFactory factory = new UrlBasedOpenSearchableFactory(settings);
+            UrlBasedOpenSearchableFactory factory = new UrlBasedOpenSearchableFactory(settings);
 
             IOpenSearchable entity1 = factory.Create(new OpenSearchUrl("https://catalog.terradue.com/demo1/search"));
 
@@ -89,6 +89,8 @@ namespace Terradue.OpenSearch.Test
             OpenSearchFactory.FindOpenSearchable(settings, new Uri("https://catalog.terradue.com/demo1/search"), null);
 
         }
+
+
 
     }
 }
