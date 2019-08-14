@@ -1,3 +1,8 @@
 {
-        "nxunitExplorer.nunit": "packages/nunit.consolerunner/3.10.0/tools/nunit3-console.exe"
-}
+        "nxunitExplorer.modules": [
+                "**Test/bin/**/**/*.{dll,exe}"
+        ],
+        "nxunitExplorer.xunit": "packages/xunit.runner.console/2.4.1/tools/net452/xunit.console.exe",
+        "omnisharp.useGlobalMono": "auto",
+        "dotnet-test-explorer.testProjectPath": "**/*Test.csproj"
+}       

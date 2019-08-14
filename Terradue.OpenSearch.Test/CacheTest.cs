@@ -1,5 +1,4 @@
-﻿using NUnit.Framework;
-using System;
+﻿using System;
 using log4net.Config;
 using System.IO;
 using Terradue.OpenSearch.Engine;
@@ -9,22 +8,22 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Linq;
+using log4net;
+using System.Reflection;
+using Xunit;
 
-namespace Terradue.OpenSearch.Test {
-    [TestFixture()]
-    public class CacheTest {
+namespace Terradue.OpenSearch.Test
+{
+    public class CacheTest : IClassFixture<TestFixture>
+    {
 
         OpenSearchEngine ose;
         OpenSearchableFactorySettings settings;
 
-        [SetUp]
-        public void RunBeforeTests()
+        public CacheTest()
         {
-            XmlConfigurator.Configure(new FileInfo("../Log4Net.config"));
-
             ose = new OpenSearchEngine();
             ose.LoadPlugins();
-
 
             settings = new OpenSearchableFactorySettings(ose);
             OpenSearchMemoryCache cache = new OpenSearchMemoryCache();
@@ -33,9 +32,11 @@ namespace Terradue.OpenSearch.Test {
             ose.RegisterPostSearchFilter(cache.CacheResponse);
         }
 
-        [Test()]
-        public void CacheTest1() {
-            
+        [Fact(DisplayName = "Cache Test #1")]
+        [Trait("Category", "unit")]
+        public void CacheTest1()
+        {
+
 
             TestOpenSearchable entity1 = TestOpenSearchable.GenerateNumberedItomFeed("A", 100, new TimeSpan(0));
 
@@ -52,9 +53,6 @@ namespace Terradue.OpenSearch.Test {
             Thread.Sleep(1000);
 
             ose.Query(entity1, new NameValueCollection());
-
-
-
 
             IOpenSearchable multiEntity = new MultiGenericOpenSearchable(entities, settings, true);
 

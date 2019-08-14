@@ -1,6 +1,4 @@
-﻿using System;
-using NUnit.Framework;
-using Terradue.OpenSearch.Engine;
+﻿using Terradue.OpenSearch.Engine;
 using System.Collections.Specialized;
 using Terradue.OpenSearch.Schema;
 using System.IO;
@@ -9,20 +7,21 @@ using System.Web;
 using System.Linq;
 using Terradue.OpenSearch.Request;
 using System.Xml;
+using Xunit;
 
 namespace Terradue.OpenSearch.Test
 {
 
-    [TestFixture]
-    public class TestOsddAttribute
+    public class TestOsddAttribute : IClassFixture<TestFixture>
     {
 
-        [Test]
+        [Fact(DisplayName = "Fedeo Test")]
+        [Trait("Category", "unit")]
         public void TestFedeo()
         {
 
             XmlSerializer ser = new XmlSerializer(typeof(OpenSearchDescription));
-            var osd = (OpenSearchDescription)ser.Deserialize(XmlReader.Create(new FileStream(Util.TestBaseDir + "/Samples/fedeo-osdd.xml", FileMode.Open, FileAccess.Read)));
+            var osd = (OpenSearchDescription)ser.Deserialize(XmlReader.Create(new FileStream(TestFixture.TestBaseDir + "/Samples/fedeo-osdd.xml", FileMode.Open, FileAccess.Read)));
 
             OpenSearchEngine ose = new OpenSearchEngine();
             ose.LoadPlugins();
@@ -48,8 +47,6 @@ namespace Terradue.OpenSearch.Test
             });
 
             var request = OpenSearchRequest.Create(os, os.GetQuerySettings(ose), nvc);
-
-
 
         }
     }

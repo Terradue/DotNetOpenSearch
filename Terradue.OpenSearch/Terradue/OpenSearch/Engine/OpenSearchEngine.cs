@@ -9,23 +9,21 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
-using System.Collections;
 using System.Collections.Specialized;
-using System.Net;
 using System.Web;
-using System.Diagnostics;
 using Terradue.ServiceModel.Syndication;
-using System.Xml.Serialization;
-using System.Xml;
 using Terradue.OpenSearch.Request;
 using Terradue.OpenSearch.Response;
 using Terradue.OpenSearch.Result;
 using Terradue.OpenSearch.Schema;
 using System.Xml.Linq;
 using System.IO;
-using log4net;
 using System.Reflection;
 using Terradue.OpenSearch.Benchmarking;
+#if NETSTANDARD2_0
+using System.Runtime.Loader;
+#endif
+
 
 namespace Terradue.OpenSearch.Engine
 {
@@ -167,7 +165,7 @@ namespace Terradue.OpenSearch.Engine
             ApplyOpenSearchElements(ref newResults, request, response);
 
             // 10) Metrics
-            if ( querySettings.ReportMetrics )
+            if (querySettings.ReportMetrics)
                 ApplyMetrics(ref newResults, request, response);
 
             return newResults;
@@ -326,21 +324,22 @@ namespace Terradue.OpenSearch.Engine
             if (parameters["format"] == "atomeop")
                 contentType += "; profile=http://earth.esa.int/eop/2.1";
 
-			if (contentType.StartsWith("application/opensearchdescription+xml"))
+            if (contentType.StartsWith("application/opensearchdescription+xml"))
             {
                 osd = OpenSearchFactory.ReadOpenSearchDescriptionDocument(response);
                 descriptionUrl = url;
             }
-			else if (contentType.StartsWith("application/xml"))
+            else if (contentType.StartsWith("application/xml"))
             {
-				try
-				{
-					osd = OpenSearchFactory.ReadOpenSearchDescriptionDocument(response);
-					descriptionUrl = url;
-				}
-				catch{}
+                try
+                {
+                    osd = OpenSearchFactory.ReadOpenSearchDescriptionDocument(response);
+                    descriptionUrl = url;
+                }
+                catch { }
             }
-			if ( osd == null ) {
+            if (osd == null)
+            {
                 IOpenSearchEngineExtension osee = GetExtensionByContentTypeAbility(contentType);
 
                 if (osee == null)
@@ -356,13 +355,13 @@ namespace Terradue.OpenSearch.Engine
 
             osd.Originator = descriptionUrl;
 
-			if (contentType.StartsWith("application/opensearchdescription+xml"))
+            if (contentType.StartsWith("application/opensearchdescription+xml"))
                 contentType = "application/atom+xml";
 
             var defaultUrl = osd.Url.FirstOrDefault(u => u.Type.Equals(contentType));
             osd.DefaultUrl = defaultUrl ?? osd.Url.FirstOrDefault(u => u.Type.StartsWith(contentType));
 
-           
+
 
             return osd;
         }
@@ -524,13 +523,13 @@ namespace Terradue.OpenSearch.Engine
             XElement query = new XElement(XName.Get("Query", "http://a9.com/-/spec/opensearch/1.1/"));
             query.Add(new XAttribute("role", "request"));
             OpenSearchDescription osd = request.OpenSearchDescription;
-			if (osd == null)
-			{
-				if (response.Entity is IProxiedOpenSearchable)
-					osd = ((IProxiedOpenSearchable)response.Entity).GetProxyOpenSearchDescription();
-				else
-					osd = response.Entity.GetOpenSearchDescription();
-			}
+            if (osd == null)
+            {
+                if (response.Entity is IProxiedOpenSearchable)
+                    osd = ((IProxiedOpenSearchable)response.Entity).GetProxyOpenSearchDescription();
+                else
+                    osd = response.Entity.GetOpenSearchDescription();
+            }
             foreach (var ns in osd.ExtraNamespace.ToArray())
             {
                 if (string.IsNullOrEmpty(ns.Name) || ns.Namespace == "http://www.w3.org/2001/XMLSchema" || ns.Namespace == "http://www.w3.org/2001/XMLSchema-instance" || ns.Namespace == XNamespace.Xmlns.NamespaceName)
@@ -591,7 +590,14 @@ namespace Terradue.OpenSearch.Engine
             {
                 try
                 {
-                    allAssemblies.Add(Assembly.LoadFile(dll));
+#if NETSTANDARD2_0
+                    var assemblyName = AssemblyLoadContext.GetAssemblyName(dll);
+                    var assembly = Assembly.Load(assemblyName);
+#endif
+#if NET45
+                    var assembly = Assembly.LoadFile(dll);
+#endif
+                    allAssemblies.Add(assembly);
                 }
                 catch (Exception)
                 {
@@ -603,7 +609,9 @@ namespace Terradue.OpenSearch.Engine
             {
                 foreach (var cl in assembly.GetTypes())
                 {
-                    var dnAttributes = cl.GetCustomAttributes(typeof(OpenSearchEngineExtensionAttribute), true);
+                    var name = cl.Name;
+
+                    var dnAttributes = cl.GetTypeInfo().GetCustomAttributes<OpenSearchEngineExtensionAttribute>();
                     foreach (OpenSearchEngineExtensionAttribute dnAttribute in dnAttributes)
                     {
                         log.Debug(String.Format("Found {0} [{1}] in class {2}", dnAttribute.NodeName, dnAttribute.Description, cl.Name));

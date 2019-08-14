@@ -1,24 +1,17 @@
 ﻿using System;
-using NUnit.Framework;
 using Terradue.OpenSearch.Engine;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
-using log4net.Config;
-using System.IO;
+using Xunit;
 
-namespace Terradue.OpenSearch.Test {
+namespace Terradue.OpenSearch.Test
+{
 
-    [TestFixture]
     public class MultiGenericOpenSearchableTest {
 
-        [SetUp]
-        public void RunBeforeTests()
-        {
-            XmlConfigurator.Configure(new FileInfo("../Log4Net.config"));
-        }
-
-        [Test()]
+        [Fact(DisplayName = "Generic Proxied OpenSearchable Test")]
+        [Trait("Category", "unit")]
         public void GenericProxiedOpenSearchableTest() {
 
             OpenSearchEngine ose = new OpenSearchEngine();
@@ -37,39 +30,39 @@ namespace Terradue.OpenSearch.Test {
 
             var osr = ose.Query(multiEntity, nvc, "atom");
 
-            Assert.AreEqual(100, osr.TotalResults);
-            Assert.AreEqual(OpenSearchEngine.DEFAULT_COUNT, osr.Count);
+            Assert.Equal(100, osr.TotalResults);
+            Assert.Equal(OpenSearchEngine.DEFAULT_COUNT, osr.Count);
             string totalResults = osr.ElementExtensions.ReadElementExtensions<string>("totalResults", "http://a9.com/-/spec/opensearch/1.1/")[0];
-            Assert.AreEqual("100", totalResults);
+            Assert.Equal("100", totalResults);
 
             nvc.Set("count", "100");
 
             osr = ose.Query(multiEntity, nvc, "atom");
 
-            Assert.AreEqual(100, osr.TotalResults);
-            Assert.AreEqual(100, osr.Count);
-            Assert.AreEqual("A1", osr.Items.First().Identifier);
-            Assert.AreEqual("A100", osr.Items.Last().Identifier);
+            Assert.Equal(100, osr.TotalResults);
+            Assert.Equal(100, osr.Count);
+            Assert.Equal("A1", osr.Items.First().Identifier);
+            Assert.Equal("A100", osr.Items.Last().Identifier);
 
             nvc.Set("count", "6");
             nvc.Set("startPage", "1");
 
             osr = ose.Query(multiEntity, nvc, "atom");
 
-            Assert.AreEqual(100, osr.TotalResults);
-            Assert.AreEqual(6, osr.Count);
-            Assert.AreEqual("A1", osr.Items.First().Identifier);
-            Assert.AreEqual("A6", osr.Items.Last().Identifier);
+            Assert.Equal(100, osr.TotalResults);
+            Assert.Equal(6, osr.Count);
+            Assert.Equal("A1", osr.Items.First().Identifier);
+            Assert.Equal("A6", osr.Items.Last().Identifier);
 
             nvc.Set("count", "3");
             nvc.Set("startPage", "2");
 
             osr = ose.Query(multiEntity, nvc, "atom");
 
-            Assert.AreEqual(100, osr.TotalResults);
-            Assert.AreEqual(3, osr.Count);
-            Assert.AreEqual("A4", osr.Items.First().Identifier);
-            Assert.AreEqual("A6", osr.Items.Last().Identifier);
+            Assert.Equal(100, osr.TotalResults);
+            Assert.Equal(3, osr.Count);
+            Assert.Equal("A4", osr.Items.First().Identifier);
+            Assert.Equal("A6", osr.Items.Last().Identifier);
 
             nvc.Set("startIndex", "16");
             nvc.Set("startPage", "1");
@@ -77,9 +70,9 @@ namespace Terradue.OpenSearch.Test {
 
             osr = ose.Query(multiEntity, nvc, "atom");
 
-            Assert.AreEqual(85, osr.Count);
-            Assert.AreEqual("A16", osr.Items.First().Identifier);
-            Assert.AreEqual("A100", osr.Items.Last().Identifier);
+            Assert.Equal(85, osr.Count);
+            Assert.Equal("A16", osr.Items.First().Identifier);
+            Assert.Equal("A100", osr.Items.Last().Identifier);
 
             nvc.Set("count", "5");
             nvc.Set("startIndex", "5");
@@ -87,9 +80,9 @@ namespace Terradue.OpenSearch.Test {
 
             osr = ose.Query(multiEntity, nvc, "atom");
 
-            Assert.AreEqual(5, osr.Count);
-            Assert.AreEqual("A5", osr.Items.First().Identifier);
-            Assert.AreEqual("A9", osr.Items.Last().Identifier);
+            Assert.Equal(5, osr.Count);
+            Assert.Equal("A5", osr.Items.First().Identifier);
+            Assert.Equal("A9", osr.Items.Last().Identifier);
 
             nvc.Set("count", "5");
             nvc.Set("startIndex", "5");
@@ -97,9 +90,9 @@ namespace Terradue.OpenSearch.Test {
 
             osr = ose.Query(multiEntity, nvc, "atom");
 
-            Assert.AreEqual(5, osr.Count);
-            Assert.AreEqual("A10", osr.Items.First().Identifier);
-            Assert.AreEqual("A14", osr.Items.Last().Identifier);
+            Assert.Equal(5, osr.Count);
+            Assert.Equal("A10", osr.Items.First().Identifier);
+            Assert.Equal("A14", osr.Items.Last().Identifier);
 
             nvc.Set("count", "5");
             nvc.Set("startIndex", "5");
@@ -107,9 +100,9 @@ namespace Terradue.OpenSearch.Test {
 
             osr = ose.Query(multiEntity, nvc, "atom");
 
-            Assert.AreEqual(5, osr.Count);
-            Assert.AreEqual("A20", osr.Items.First().Identifier);
-            Assert.AreEqual("A24", osr.Items.Last().Identifier);
+            Assert.Equal(5, osr.Count);
+            Assert.Equal("A20", osr.Items.First().Identifier);
+            Assert.Equal("A24", osr.Items.Last().Identifier);
 
             nvc.Set("count", "5");
             nvc.Set("startIndex", "5");
@@ -117,9 +110,9 @@ namespace Terradue.OpenSearch.Test {
 
             osr = ose.Query(multiEntity, nvc, "atom");
 
-            Assert.AreEqual(5, osr.Count);
-            Assert.AreEqual("A25", osr.Items.First().Identifier);
-            Assert.AreEqual("A29", osr.Items.Last().Identifier);
+            Assert.Equal(5, osr.Count);
+            Assert.Equal("A25", osr.Items.First().Identifier);
+            Assert.Equal("A29", osr.Items.Last().Identifier);
 
             nvc.Set("count", "5");
             nvc.Set("startIndex", "1");
@@ -127,9 +120,9 @@ namespace Terradue.OpenSearch.Test {
 
             osr = ose.Query(multiEntity, nvc, "atom");
 
-            Assert.AreEqual(5, osr.Count);
-            Assert.AreEqual("A1", osr.Items.First().Identifier);
-            Assert.AreEqual("A5", osr.Items.Last().Identifier);
+            Assert.Equal(5, osr.Count);
+            Assert.Equal("A1", osr.Items.First().Identifier);
+            Assert.Equal("A5", osr.Items.Last().Identifier);
 
             nvc.Set("count", "5");
             nvc.Set("startIndex", "1");
@@ -137,9 +130,9 @@ namespace Terradue.OpenSearch.Test {
 
             osr = ose.Query(multiEntity, nvc, "atom");
 
-            Assert.AreEqual(5, osr.Count);
-            Assert.AreEqual("A21", osr.Items.First().Identifier);
-            Assert.AreEqual("A25", osr.Items.Last().Identifier);
+            Assert.Equal(5, osr.Count);
+            Assert.Equal("A21", osr.Items.First().Identifier);
+            Assert.Equal("A25", osr.Items.Last().Identifier);
 
             IOpenSearchable entity2 = TestOpenSearchable.GenerateNumberedItomFeed("B", 100, TimeSpan.FromHours(-1));
 
@@ -151,17 +144,17 @@ namespace Terradue.OpenSearch.Test {
 
             osr = ose.Query(multiEntity, nvc, "atom");
 
-            Assert.AreEqual(200, osr.TotalResults);
-            Assert.AreEqual(10, osr.Count);
-            Assert.AreEqual("A1", osr.Items.First().Identifier);
-            Assert.AreEqual("B5", osr.Items.Last().Identifier);
+            Assert.Equal(200, osr.TotalResults);
+            Assert.Equal(10, osr.Count);
+            Assert.Equal("A1", osr.Items.First().Identifier);
+            Assert.Equal("B5", osr.Items.Last().Identifier);
 
             osr = ose.Query(multiEntity, nvc, "atom");
 
-            Assert.AreEqual(200, osr.TotalResults);
-            Assert.AreEqual(10, osr.Count);
-            Assert.AreEqual("A1", osr.Items.First().Identifier);
-            Assert.AreEqual("B5", osr.Items.Last().Identifier);
+            Assert.Equal(200, osr.TotalResults);
+            Assert.Equal(10, osr.Count);
+            Assert.Equal("A1", osr.Items.First().Identifier);
+            Assert.Equal("B5", osr.Items.Last().Identifier);
 
             nvc.Set("count", "4");
             nvc.Set("startIndex", "2");
@@ -169,9 +162,9 @@ namespace Terradue.OpenSearch.Test {
 
             osr = ose.Query(multiEntity, nvc, "atom");
 
-            Assert.AreEqual(4, osr.Count);
-            Assert.AreEqual("B1", osr.Items.First().Identifier);
-            Assert.AreEqual("A3", osr.Items.Last().Identifier);
+            Assert.Equal(4, osr.Count);
+            Assert.Equal("B1", osr.Items.First().Identifier);
+            Assert.Equal("A3", osr.Items.Last().Identifier);
 
             nvc.Set("count", "4");
             nvc.Set("startIndex", "4");
@@ -179,9 +172,9 @@ namespace Terradue.OpenSearch.Test {
 
             osr = ose.Query(multiEntity, nvc, "atom");
 
-            Assert.AreEqual(4, osr.Count);
-            Assert.AreEqual("B2", osr.Items.First().Identifier);
-            Assert.AreEqual("A4", osr.Items.Last().Identifier);
+            Assert.Equal(4, osr.Count);
+            Assert.Equal("B2", osr.Items.First().Identifier);
+            Assert.Equal("A4", osr.Items.Last().Identifier);
 
             nvc.Set("count", "4");
             nvc.Set("startIndex", "4");
@@ -189,13 +182,14 @@ namespace Terradue.OpenSearch.Test {
 
             osr = ose.Query(multiEntity, nvc, "atom");
 
-            Assert.AreEqual(4, osr.Count);
-            Assert.AreEqual("B4", osr.Items.First().Identifier);
-            Assert.AreEqual("A6", osr.Items.Last().Identifier);
+            Assert.Equal(4, osr.Count);
+            Assert.Equal("B4", osr.Items.First().Identifier);
+            Assert.Equal("A6", osr.Items.Last().Identifier);
 
         }
 
-        [Test()]
+        [Fact(DisplayName = "Multi OpenSearchable Limit 2 Test")]
+        [Trait("Category", "unit")]
         public void MultiLimitTwoTest() {
 
             OpenSearchEngine ose = new OpenSearchEngine();
@@ -216,10 +210,11 @@ namespace Terradue.OpenSearch.Test {
 
             var osr = ose.Query(multiEntity, nvc, "atom");
 
-            Assert.AreEqual(2, osr.Count);
+            Assert.Equal(2, osr.Count);
         }
 
-        [Test()]
+        [Fact(DisplayName = "Paginated Multi OpenSearchable Test")]
+        [Trait("Category", "unit")]
         public void PaginationMultiOpenSearchableTest() {
 
             OpenSearchEngine ose = new OpenSearchEngine();
@@ -245,29 +240,29 @@ namespace Terradue.OpenSearch.Test {
 
             osr = ose.Query(multiEntity, nvc, "atom");
 
-            Assert.AreEqual(15, osr.TotalResults);
-            Assert.AreEqual(10, osr.Count);
-            Assert.AreEqual("A1", osr.Items.First().Identifier);
-            Assert.AreEqual("B5", osr.Items.Last().Identifier);
+            Assert.Equal(15, osr.TotalResults);
+            Assert.Equal(10, osr.Count);
+            Assert.Equal("A1", osr.Items.First().Identifier);
+            Assert.Equal("B5", osr.Items.Last().Identifier);
 
             nvc.Set("count", "10");
             nvc.Set("startPage", "1");
 
             osr = ose.Query(multiEntity, nvc, "atom");
 
-            Assert.AreEqual(15, osr.TotalResults);
-            Assert.AreEqual(10, osr.Count);
-            Assert.AreEqual("A1", osr.Items.First().Identifier);
-            Assert.AreEqual("B5", osr.Items.Last().Identifier);
+            Assert.Equal(15, osr.TotalResults);
+            Assert.Equal(10, osr.Count);
+            Assert.Equal("A1", osr.Items.First().Identifier);
+            Assert.Equal("B5", osr.Items.Last().Identifier);
 
             nvc.Set("count", "1");
             nvc.Set("startPage", "2");
 
             osr = ose.Query(multiEntity, nvc, "atom");
 
-            Assert.AreEqual(15, osr.TotalResults);
-            Assert.AreEqual(1, osr.Count);
-            Assert.AreEqual("A2", osr.Items.First().Identifier);
+            Assert.Equal(15, osr.TotalResults);
+            Assert.Equal(1, osr.Count);
+            Assert.Equal("A2", osr.Items.First().Identifier);
 
             nvc.Set("count", "1");
             nvc.Set("startPage", "1");
@@ -275,12 +270,13 @@ namespace Terradue.OpenSearch.Test {
 
             osr = ose.Query(multiEntity, nvc, "atom");
 
-            Assert.AreEqual(15, osr.TotalResults);
-            Assert.AreEqual(0, osr.Count);
+            Assert.Equal(15, osr.TotalResults);
+            Assert.Equal(0, osr.Count);
 
         }
 
-        [Test()]
+        [Fact(DisplayName = "Same Multi OpenSearchable Test")]
+        [Trait("Category", "unit")]
         public void SameMultiOpenSearchableTest() {
 
             OpenSearchEngine ose = new OpenSearchEngine();
@@ -307,16 +303,15 @@ namespace Terradue.OpenSearch.Test {
 
             osr = ose.Query(multiEntity, nvc, "atom");
 
-            Assert.AreEqual(1, osr.TotalResults);
-            Assert.AreEqual(1, osr.Count);
-            Assert.AreEqual("A1", osr.Items.First().Identifier);
-            Assert.AreEqual("A1", osr.Items.Last().Identifier);
-
-
+            Assert.Equal(1, osr.TotalResults);
+            Assert.Equal(1, osr.Count);
+            Assert.Equal("A1", osr.Items.First().Identifier);
+            Assert.Equal("A1", osr.Items.Last().Identifier);
 
         }
 
-		[Test()]
+		[Fact(DisplayName = "Start Index Multi OpenSearchable Test")]
+        [Trait("Category", "unit")]
 		public void StartIndexMultiOpenSearchableTest()
 		{
 
@@ -340,8 +335,8 @@ namespace Terradue.OpenSearch.Test {
 
 			var osr = ose.Query(multiEntity, nvc, "atom");
 
-			Assert.AreEqual(4, osr.TotalResults);
-			Assert.AreEqual(0, osr.Count);
+			Assert.Equal(4, osr.TotalResults);
+			Assert.Equal(0, osr.Count);
 
 
 			nvc.Set("count", "2");
@@ -349,24 +344,25 @@ namespace Terradue.OpenSearch.Test {
 
 			osr = ose.Query(multiEntity, nvc, "atom");
 
-			Assert.AreEqual(4, osr.TotalResults);
-			Assert.AreEqual(1, osr.Count);
-			Assert.AreEqual("A4", osr.Items.First().Identifier);
-			Assert.AreEqual("A4", osr.Items.Last().Identifier);
+			Assert.Equal(4, osr.TotalResults);
+			Assert.Equal(1, osr.Count);
+			Assert.Equal("A4", osr.Items.First().Identifier);
+			Assert.Equal("A4", osr.Items.Last().Identifier);
 
 			nvc.Set("count", "2");
 			nvc.Set("startIndex", "3");
 
 			osr = ose.Query(multiEntity, nvc, "atom");
 
-			Assert.AreEqual(4, osr.TotalResults);
-			Assert.AreEqual(2, osr.Count);
-			Assert.AreEqual("A3", osr.Items.First().Identifier);
-			Assert.AreEqual("A4", osr.Items.Last().Identifier);
+			Assert.Equal(4, osr.TotalResults);
+			Assert.Equal(2, osr.Count);
+			Assert.Equal("A3", osr.Items.First().Identifier);
+			Assert.Equal("A4", osr.Items.Last().Identifier);
 
 		}
 
-        [Test()]
+        [Fact(DisplayName = "Catalogue Multi OpenSearchable Test #1")]
+        [Trait("Category", "unit")]
         public void CatalogueMultiOpenSearchableTest()
         {
 
@@ -398,15 +394,12 @@ namespace Terradue.OpenSearch.Test {
 
             osr = ose.Query(multiEntity, nvc, "atom");
 
-
-            Assert.AreEqual(2, osr.Count);
-            Assert.AreEqual(2, osr.TotalResults);
-
-
-
+            Assert.Equal(2, osr.Count);
+            Assert.Equal(2, osr.TotalResults);
         }
 
-        [Test()]
+        [Fact(DisplayName = "Catalogue Multi OpenSearchable Test #2")]
+        [Trait("Category", "unit")]
         public void CatalogueMultiOpenSearchableTest2()
         {
 
@@ -437,13 +430,9 @@ namespace Terradue.OpenSearch.Test {
 
             osr = ose.Query(multiEntity, nvc, "atom");
 
-            Assert.AreEqual(2, osr.TotalResults);
-            Assert.AreEqual(2, osr.Count);
-
-
+            Assert.Equal(2, osr.TotalResults);
+            Assert.Equal(2, osr.Count);
         }
-
-
     }
 }
 

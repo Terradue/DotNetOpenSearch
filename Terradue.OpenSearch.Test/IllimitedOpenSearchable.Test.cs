@@ -1,18 +1,15 @@
 ﻿using System;
-using NUnit.Framework;
 using Terradue.OpenSearch.Engine;
-using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
-using log4net.Config;
-using System.IO;
+using Xunit;
 
 namespace Terradue.OpenSearch.Test {
 
-    [TestFixture]
     public class IllimitedOpenSearchableTest {
 
-        [Test()]
+        [Fact(DisplayName = "Illimited OpenSearch Test #1")]
+        [Trait("Category", "unit")]
         public void IllimitedOpenSearchableTest1() {
 
             OpenSearchEngine ose = new OpenSearchEngine();
@@ -27,30 +24,30 @@ namespace Terradue.OpenSearch.Test {
 
             var osr = ose.Query(entity1, nvc, "atom");
 
-            Assert.AreEqual(21, osr.TotalResults);
-            Assert.AreEqual(OpenSearchEngine.DEFAULT_COUNT, osr.Count);
+            Assert.Equal(21, osr.TotalResults);
+            Assert.Equal(OpenSearchEngine.DEFAULT_COUNT, osr.Count);
             string totalResults = osr.ElementExtensions.ReadElementExtensions<string>("totalResults", "http://a9.com/-/spec/opensearch/1.1/")[0];
-            Assert.AreEqual("21", totalResults);
+            Assert.Equal("21", totalResults);
 
             nvc.Set("count", "10");
             nvc.Set("q", "11");
 
             osr = ose.Query(entity1, nvc, "atom");
 
-            Assert.AreEqual(1, osr.TotalResults);
-            Assert.AreEqual(1, osr.Count);
-            Assert.AreEqual("A11", osr.Items.First().Identifier);
-            Assert.AreEqual("A11", osr.Items.Last().Identifier);
+            Assert.Equal(1, osr.TotalResults);
+            Assert.Equal(1, osr.Count);
+            Assert.Equal("A11", osr.Items.First().Identifier);
+            Assert.Equal("A11", osr.Items.Last().Identifier);
 
             nvc.Set("count", "10");
             nvc.Set("q", "10");
 
             osr = ose.Query(entity1, nvc, "atom");
 
-            Assert.AreEqual(2, osr.TotalResults);
-            Assert.AreEqual(2, osr.Count);
-            Assert.AreEqual("A10", osr.Items.First().Identifier);
-            Assert.AreEqual("A100", osr.Items.Last().Identifier);
+            Assert.Equal(2, osr.TotalResults);
+            Assert.Equal(2, osr.Count);
+            Assert.Equal("A10", osr.Items.First().Identifier);
+            Assert.Equal("A100", osr.Items.Last().Identifier);
 
             nvc.Set("count", "3");
             nvc.Set("q", "3");
@@ -58,10 +55,10 @@ namespace Terradue.OpenSearch.Test {
 
             osr = ose.Query(entity1, nvc, "atom");
 
-            Assert.AreEqual(7, osr.TotalResults);
-            Assert.AreEqual(3, osr.Count);
-            Assert.AreEqual("A30", osr.Items.First().Identifier);
-            Assert.AreEqual("A32", osr.Items.Last().Identifier);
+            Assert.Equal(7, osr.TotalResults);
+            Assert.Equal(3, osr.Count);
+            Assert.Equal("A30", osr.Items.First().Identifier);
+            Assert.Equal("A32", osr.Items.Last().Identifier);
 
             nvc.Set("startIndex", "16");
             nvc.Set("startPage", "1");
@@ -69,9 +66,9 @@ namespace Terradue.OpenSearch.Test {
 
             osr = ose.Query(entity1, nvc, "atom");
 
-            Assert.AreEqual(3, osr.Count);
-            Assert.AreEqual("A63", osr.Items.First().Identifier);
-            Assert.AreEqual("A83", osr.Items.Last().Identifier);
+            Assert.Equal(3, osr.Count);
+            Assert.Equal("A63", osr.Items.First().Identifier);
+            Assert.Equal("A83", osr.Items.Last().Identifier);
 
             nvc.Set("count", "5");
             nvc.Set("startIndex", "101");
@@ -79,7 +76,7 @@ namespace Terradue.OpenSearch.Test {
 
             osr = ose.Query(entity1, nvc, "atom");
 
-            Assert.AreEqual(0, osr.Count);
+            Assert.Equal(0, osr.Count);
 
             /*nvc.Set("count", "5");
             nvc.Set("startIndex", "5");

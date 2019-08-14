@@ -112,7 +112,10 @@ namespace Terradue.OpenSearch
                         qPrefix = osUrlTemplate.OsdExtraNamespace.ToArray().LastOrDefault(n => n.Namespace == ns);
                     // Namespace not found? Parameter is then skipped!
                     if (qPrefix == null)
+                    {
+                        log.WarnFormat("Parameter '{0}' has a namespace '{1}' not declared in OSD. Skipping parameter.", name, ns);
                         continue;
+                    }
                     // Replacement Regular Expression using the prefix
                     findParam = new Regex(string.Format("{{{0}{1}\\??}}", string.IsNullOrEmpty(qPrefix.Name) ? "" : qPrefix.Name + ":", name));
                     replacement = HttpUtility.UrlEncode(value);
@@ -130,7 +133,10 @@ namespace Terradue.OpenSearch
 
                     // check that prefix exist in the OS declaration
                     if (!osUrlTemplate.ExtraNamespace.ToArray().Any(n => n.Name == prefix) && !querySettings.ForceUnspecifiedParameters)
+                    {
+                        log.WarnFormat("Parameter '{0}' prefixed '{1}' not declared in OSD. Skipping parameter.", name, prefix);
                         continue;
+                    }
                     // Replacement Regular Expression using the prefix
                     findParam = new Regex(string.Format("{{{0}:{1}\\??}}", prefix, name));
                     replacement = HttpUtility.UrlEncode(value);
@@ -144,6 +150,7 @@ namespace Terradue.OpenSearch
                 // force parameter anyway if forcing is specified
                 else if (querySettings.ForceUnspecifiedParameters)
                 {
+                    log.DebugFormat("Forcing parameter '{0}'.", parameter_key);
                     additionalParameters.Set(parameter_key, searchParameters[parameter_key]);
                 }
 
@@ -165,6 +172,100 @@ namespace Terradue.OpenSearch
             }
 
             return new OpenSearchUrl(finalUri.Uri);
+
+        }
+
+        public static NameValueCollection BuildFqdnParameterFromTemplate(OpenSearchDescriptionUrl osUrlTemplate, NameValueCollection searchParameters, QuerySettings querySettings)
+        {
+
+            NameValueCollection fqdnParameters = new NameValueCollection();
+
+            // For each parameter defined
+            foreach (string parameter_key in searchParameters.AllKeys)
+            {
+                // skip if null or empty
+                if (string.IsNullOrEmpty(parameter_key))
+                    continue;
+
+                string key = parameter_key;
+                string value = searchParameters[parameter_key];
+                Regex findParam = null;
+                string ns = null;
+                string name = null;
+
+                // CASE #1 Keyword parameter name (e.g. 'count')
+                // Is the parameter a reserved keyword?
+                if (querySettings.ParametersKeywordsTable.ContainsKey(parameter_key))
+                {
+                    // YES!
+                    // Then substitue the key with the FQDN
+                    key = querySettings.ParametersKeywordsTable[parameter_key];
+                }
+
+                // CASE #2 : Fully Qualified Parameter Name (e.g. '{http://a9.com/-/opensearch/extensions/geo/1.0/}box' )
+                // Regular expression finder
+                // Is it a FQDN ?
+                Match matchFQDN = Regex.Match(key, @"^{(?'namespace'[^}]+)}(?'name'.+)$");
+                // YES!
+                if (matchFQDN.Success)
+                {
+                    ns = matchFQDN.Groups["namespace"].Value;
+                    name = matchFQDN.Groups["name"].Value;
+                    // Find the prefix declaration for the namespace in the OSD namespaces declaration
+                    XmlQualifiedName qPrefix = osUrlTemplate.ExtraNamespace.ToArray().LastOrDefault(n => n.Namespace == ns);
+                    if (qPrefix == null)
+                        qPrefix = osUrlTemplate.OsdExtraNamespace.ToArray().LastOrDefault(n => n.Namespace == ns);
+                    // Namespace not found? Parameter is then skipped!
+                    if (qPrefix == null)
+                    {
+                        log.WarnFormat("Parameter '{0}' has a namespace '{1}' not declared in OSD. Skipping parameter.", name, ns);
+                        continue;
+                    }
+                    // Replacement Regular Expression using the prefix
+                    findParam = new Regex(string.Format("{{{0}{1}\\??}}", string.IsNullOrEmpty(qPrefix.Name) ? "" : qPrefix.Name + ":", name));
+                }
+
+                // CASE #3 Prefixed Parameter Name (e.g. 'geo:box' )
+                // Regular expression finder
+                // Is it a prefixed param ?
+                Match matchPrefixed = Regex.Match(key, @"^(?'prefix'[a-zA-Z0-9_\-]+):(?'name'[^&]+)$");
+                // YES!
+                if (matchPrefixed.Success)
+                {
+                    string prefix = matchPrefixed.Groups["prefix"].Value;
+                    name = matchPrefixed.Groups["name"].Value;
+
+                    var xmlns = osUrlTemplate.ExtraNamespace.ToArray().FirstOrDefault(n => n.Name == prefix);
+
+                    // check that prefix exist in the OS declaration
+                    if (ns == null && !querySettings.ForceUnspecifiedParameters)
+                    {
+                        log.WarnFormat("Parameter '{0}' prefixed '{1}' not declared in OSD. Skipping parameter.", name, prefix);
+                        continue;
+                    }
+                    else
+                    {
+                        ns = xmlns.Namespace;
+                    }
+                    // Replacement Regular Expression using the prefix
+                    findParam = new Regex(string.Format("{{{0}:{1}\\??}}", prefix, name));
+                }
+
+                // Let's replace the non ambiguous if found
+                if (findParam != null && findParam.IsMatch(osUrlTemplate.Template))
+                {
+                    fqdnParameters.Set(string.Format("{{{0}}}{1}", ns, name), value);
+                }
+                // force parameter anyway if forcing is specified
+                else if (querySettings.ForceUnspecifiedParameters)
+                {
+                    log.DebugFormat("Forcing parameter '{0}'.", key);
+                    fqdnParameters.Set(parameter_key, value);
+                }
+
+            }
+
+            return fqdnParameters;
 
         }
 
@@ -472,7 +573,8 @@ namespace Terradue.OpenSearch
             }
         }
 
-        public static Type ResolveTypeFromRequest(NameValueCollection query, NameValueCollection headers, OpenSearchEngine ose){
+        public static Type ResolveTypeFromRequest(NameValueCollection query, NameValueCollection headers, OpenSearchEngine ose)
+        {
             Type type = ose.Extensions.First().Value.GetTransformType();
 
             if (query != null && query["format"] != null)

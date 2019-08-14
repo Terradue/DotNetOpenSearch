@@ -1,14 +1,14 @@
-﻿using NUnit.Framework;
-using System;
+﻿using System;
 using System.Collections.Specialized;
 using Terradue.OpenSearch.Engine;
+using Xunit;
 
 namespace Terradue.OpenSearch.Test
 {
-    [TestFixture()]
     public class DiscoveryTests
     {
-		[Test()]
+		[Fact(DisplayName = "EOCLOUD finder")]
+        [Trait("Category", "unit")]
         public void FinderEoCloud()
         {
 

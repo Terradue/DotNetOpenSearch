@@ -20,6 +20,7 @@ using System.Threading.Tasks;
 using Terradue.OpenSearch.Benchmarking;
 using System.Linq;
 using System.Collections.Generic;
+using System.Text;
 
 namespace Terradue.OpenSearch.Request
 {
@@ -102,6 +103,7 @@ namespace Terradue.OpenSearch.Request
                     httpWebRequest.Credentials = Credentials;
                     httpWebRequest.PreAuthenticate = true;
                     httpWebRequest.AllowAutoRedirect = true;
+                    SetBasicAuthHeader(httpWebRequest, (NetworkCredential)Credentials);
 
                     log.DebugFormat("Querying {0}", this.OpenSearchUrl);
 
@@ -145,6 +147,14 @@ namespace Terradue.OpenSearch.Request
             }
 
             throw new Exception("Unknown error during query at " + this.OpenSearchUrl);
+        }
+
+        public void SetBasicAuthHeader(WebRequest request, NetworkCredential creds)
+        {
+            if (creds == null) return;
+            string authInfo = creds.UserName + ":" + creds.Password;
+            authInfo = Convert.ToBase64String(Encoding.Default.GetBytes(authInfo));
+            request.Headers["Authorization"] = "Basic " + authInfo;
         }
 
         NameValueCollection originalParameters = new NameValueCollection();
