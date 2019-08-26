@@ -6,7 +6,7 @@
     <RootNamespace>Terradue.OpenSearch.Test</RootNamespace>
     <AssemblyName>Terradue.OpenSearch.Test</AssemblyName>
     <_ExtraTargetFrameworks Condition="'$(OS)' == 'Windows_NT' or '$(MSBuildRuntimeType)' == 'Mono'">net452</_ExtraTargetFrameworks>
-    <TargetFrameworks>netcoreapp2.2;$(RoslynPortableTargetFrameworks);$(_ExtraTargetFrameworks)</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.1;$(RoslynPortableTargetFrameworks);$(_ExtraTargetFrameworks)</TargetFrameworks>
     <RuntimeIdentifiers>win;linux</RuntimeIdentifiers>
     <IsPackable>false</IsPackable>
     <PackageOutputPath>$(SolutionDir)\build</PackageOutputPath>
