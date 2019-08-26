@@ -1,26 +1,38 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
-using System.Xml;
+using log4net;
 using log4net.Config;
-using NUnit.Framework;
 
 namespace Terradue.OpenSearch.Test
 {
 
-    [SetUpFixture()]
-    public class Util
+    public class TestFixture
     {
-        public static string TestBaseDir;
+        private static string testBaseDir;
 
-        [OneTimeSetUp]
-        public static void OneTimeSetUp()
+        public TestFixture()
         {
-            BasicConfigurator.Configure();
-            var baseDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            TestBaseDir = Path.Combine(baseDir, "../../..");
+            var logRepository = LogManager.GetRepository(Assembly.GetExecutingAssembly());
+            XmlConfigurator.Configure(logRepository, new FileInfo(TestFixture.TestBaseDir + "/log4net.config"));
+        }
+
+        public static string TestBaseDir
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(testBaseDir))
+                {
+                    var codeBaseUrl = new Uri(Assembly.GetExecutingAssembly().CodeBase);
+                    var codeBasePath = Uri.UnescapeDataString(codeBaseUrl.AbsolutePath);
+                    var dirPath = Path.GetDirectoryName(codeBasePath);
+                    testBaseDir = Path.Combine(dirPath, "../../..");
+                }
+                return testBaseDir;
+            }
         }
 
     }
+
 }
 

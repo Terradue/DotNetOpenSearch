@@ -118,11 +118,11 @@ namespace Terradue.OpenSearch.Request
                         ((HttpOpenSearchRequest)request).Credentials = querySettings.Credentials;
                         System.Net.NetworkCredential netcred = querySettings.Credentials as System.Net.NetworkCredential;
                         UriBuilder urib = new UriBuilder(request.url);
-                        if (!netcred.UserName.Contains("@"))
-                        {
-                            urib.UserName = netcred.UserName;
-                            urib.Password = netcred.Password;
-                        }
+                        // if (!netcred.UserName.Contains("@"))
+                        // {
+                        //     urib.UserName = netcred.UserName;
+                        //     urib.Password = netcred.Password;
+                        // }
                         request.url = new OpenSearchUrl(urib.Uri);
                     }
                     break;

@@ -1,27 +1,15 @@
 ﻿using System;
-using NUnit.Framework;
 using Terradue.OpenSearch.Engine;
-using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Linq;
-using log4net.Config;
-using System.IO;
+using Xunit;
 
 namespace Terradue.OpenSearch.Test
 {
-
-    [TestFixture]
-    public class AuthOpenSearchableTest
+    public class AuthOpenSearchableTest : IClassFixture<TestFixture>
     {
 
-        [SetUp]
-        public void RunBeforeTests()
-        {
-            XmlConfigurator.Configure(new FileInfo("../Log4Net.config"));
-        }
-
-
-        [Test()]
+        [Fact(DisplayName = "HTTP Network Credentials test")]
+        [Trait("Category", "unit")]
         public void NetworkCredentialHttp()
         {
 
@@ -48,7 +36,7 @@ namespace Terradue.OpenSearch.Test
 
         }
 
-        [Test]
+        [Fact(DisplayName = "HTTP Network Credentials with special character test")]
         public void SpecialCharCredentialHttp()
         {
 
@@ -60,8 +48,6 @@ namespace Terradue.OpenSearch.Test
             UrlBasedOpenSearchableFactory factory = new UrlBasedOpenSearchableFactory(settings);
 
             OpenSearchFactory.FindOpenSearchable(settings, new Uri("https://finder.creodias.eu/resto/api/collections/describe.xml"), null);
-
-
 
         }
 

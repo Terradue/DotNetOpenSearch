@@ -5,11 +5,13 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Terradue.OpenSearch.Test</RootNamespace>
     <AssemblyName>Terradue.OpenSearch.Test</AssemblyName>
-    <TargetFramework>net45</TargetFramework>
+    <_ExtraTargetFrameworks Condition="'$(OS)' == 'Windows_NT' or '$(MSBuildRuntimeType)' == 'Mono'">net452</_ExtraTargetFrameworks>
+    <TargetFrameworks>netcoreapp2.1;$(RoslynPortableTargetFrameworks);$(_ExtraTargetFrameworks)</TargetFrameworks>
     <RuntimeIdentifiers>win;linux</RuntimeIdentifiers>
     <IsPackable>false</IsPackable>
     <PackageOutputPath>$(SolutionDir)\build</PackageOutputPath>
     <RestorePackagesPath>$(SolutionDir)\packages</RestorePackagesPath>
+    <NoWarn>$(NoWarn);NU1605</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System"/>
@@ -20,7 +22,7 @@
     <Reference Include="System.Core"/>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Terradue.OpenSearch\Terradue.OpenSearch.csproj" />
+    <ProjectReference Include="..\Terradue.OpenSearch\Terradue.OpenSearch.csproj"/>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="bin\"/>
@@ -28,10 +30,12 @@
     <Folder Include="out\"/>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="NUnit.Runners" Version="3.10.0"/>
-    <PackageReference Include="NUnit.ConsoleRunner" Version="3.10.0"/>
     <PackageReference Include="log4net" Version="2.0.8"/>
-    <PackageReference Include="NUnit" Version="3.10.1"/>
     <PackageReference Include="FluentAssertions" Version="4.0.0"/>
+    <PackageReference Include="xunit" Version="2.4.1"/>
+    <PackageReference Include="xunit.runner.console" Version="2.4.1"/>
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.2' ">
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1"/>
   </ItemGroup>
 </Project>

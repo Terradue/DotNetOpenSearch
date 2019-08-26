@@ -10,20 +10,19 @@ using System;
 using System.Linq;
 using System.Runtime.Caching;
 using System.Collections.Specialized;
-using System.IO;
-using System.Diagnostics;
 using Terradue.OpenSearch.Request;
 using Terradue.OpenSearch.Response;
 using System.Text.RegularExpressions;
 using Terradue.OpenSearch.Schema;
+using System.Diagnostics;
 
 namespace Terradue.OpenSearch.Filters
 {
 
-	/// <summary>
-	/// Class that implements a cache for OpenSearch Request and Response.
-	/// </summary>
-	public class OpenSearchMemoryCache {
+    /// <summary>
+    /// Class that implements a cache for OpenSearch Request and Response.
+    /// </summary>
+    public class OpenSearchMemoryCache {
 
         private log4net.ILog log = log4net.LogManager.GetLogger
             (System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -137,97 +136,6 @@ namespace Terradue.OpenSearch.Filters
 			}
 		}
 
-    }
-
-    /// <summary>
-    /// Open search response cache item.
-    /// </summary>
-    public class OpenSearchResponseCacheItem : CacheItem {
-  
-        private DateTime created;
-
-		public OpenSearchResponseCacheItem(OpenSearchUrl url, IOpenSearchResponse clonedResponse, OpenSearchDescription osd) : base(url.ToString(),clonedResponse) {
-            created = DateTime.UtcNow;
-			this.OpenSearchDescription = osd;
-        }
-
-        internal OpenSearchResponseCacheItem(CacheItem item) : base(item.Key, item.Value) {
-            created = DateTime.UtcNow;
-        }
-
-        public OpenSearchUrl OpenSearchUrl {
-            get {
-                return new OpenSearchUrl(base.Key);
-            }
-        }
-
-        public IOpenSearchResponse OpenSearchResponse {
-            get {
-                return (IOpenSearchResponse)base.Value;
-            }
-        }
-
-        public DateTime Created
-        {
-            get
-            {
-                return Created;
-            }
-        }
-
-		public OpenSearchDescription OpenSearchDescription
-        {
-            get; protected set;
-        }
-    }
-
-    public class OpenSearchableChangeMonitor : ChangeMonitor {
-
-        private String _uniqueId;
-        private IMonitoredOpenSearchable entity;
-
-        NameValueCollection parameters;
-
-        string contentType;
-
-        public OpenSearchableChangeMonitor(IMonitoredOpenSearchable entity, OpenSearchRequest request) {
-            this.contentType = request.ContentType;
-            this.parameters = request.OriginalParameters;
-            this.entity = entity;
-            InitDisposableMembers();
-        }
-
-        private void InitDisposableMembers() {
-            bool dispose = true;
-            try {
-                string uniqueId = null;
-                    
-                uniqueId = entity.GetOpenSearchDescription().Url.FirstOrDefault(u => u.Relation == "self").Template;
-                entity.OpenSearchableChange += new OpenSearchableChangeEventHandler(OnOpenSearchableChanged);
-
-                _uniqueId = uniqueId;
-                dispose = false;
-            } finally {
-                InitializationComplete();
-                if (dispose) {
-                    Dispose();
-                }
-            }
-        }
-
-        private void OnOpenSearchableChanged(Object sender, OnOpenSearchableChangeEventArgs e) {
-            OnChanged(e.State);
-        }
-
-        #region implemented abstract members of ChangeMonitor
-        protected override void Dispose(bool disposing) {}
-
-        public override string UniqueId {
-            get {
-                return _uniqueId;
-            }
-        }
-        #endregion
     }
 
     public delegate void OpenSearchableChangeEventHandler(object sender, OnOpenSearchableChangeEventArgs e);

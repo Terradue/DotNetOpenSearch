@@ -1,15 +1,15 @@
-﻿using NUnit.Framework;
-using System;
+﻿using System;
 using System.Collections.Specialized;
 using Terradue.OpenSearch.Engine;
+using Xunit;
 
 namespace Terradue.OpenSearch.Test
 {
-    [TestFixture()]
     public class DiscoveryTests
     {
-		[Test()]
-        public void FinderEoCloud()
+		[Fact(DisplayName = "CREODIAS finder")]
+        [Trait("Category", "unit")]
+        public void FinderCreodias()
         {
 
             OpenSearchEngine ose = new OpenSearchEngine();
@@ -18,11 +18,12 @@ namespace Terradue.OpenSearch.Test
             var settings = new OpenSearchableFactorySettings(ose);
             UrlBasedOpenSearchableFactory factory = new UrlBasedOpenSearchableFactory(settings);
 
-			var os = OpenSearchFactory.FindOpenSearchable(settings, new Uri("http://finder.eocloud.eu/resto/api/collections/describe.xml"));
+			var os = OpenSearchFactory.FindOpenSearchable(settings, new Uri("https://finder.creodias.eu/resto/api/collections/describe.xml"));
+            
 
-			//var results = ose.Query(os, new NameValueCollection());
+			// var results = ose.Query(os, new NameValueCollection());
 
-			//results.SerializeToString();
+			// results.SerializeToString();
 
         }
 

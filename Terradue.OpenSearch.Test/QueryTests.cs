@@ -1,17 +1,17 @@
-﻿using NUnit.Framework;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using Terradue.OpenSearch.Benchmarking;
 using Terradue.OpenSearch.Engine;
+using Xunit;
 
 namespace Terradue.OpenSearch.Test
 {
-    [TestFixture()]
-    public class QueryTests
+    public class QueryTests : IClassFixture<TestFixture>
     {
-		[Test()]
+        [Fact(DisplayName = "Count Test")]
+        [Trait("Category", "unit")]
         public void CountTest()
         {
 
@@ -29,11 +29,12 @@ namespace Terradue.OpenSearch.Test
 
 			var results = ose.Query(os, parameters);
 
-            Assert.AreEqual(2, results.Count);
+            Assert.Equal(2, results.Count);
 
         }
 
-        [Test()]
+        [Fact(DisplayName = "Uid Test #1")]
+        [Trait("Category", "unit")]
         public void UidTest()
         {
 
@@ -54,22 +55,23 @@ namespace Terradue.OpenSearch.Test
 
             var results = ose.Query(os, parameters);
 
-            Assert.AreEqual(1, results.Count);
+            Assert.Equal(1, results.Count);
 
-            Assert.AreEqual("S1A_IW_GRDH_1SDV_20160719T181151_20160719T181219_012221_012F93_3E0B", results.Items.First().Identifier);
+            Assert.Equal("S1A_IW_GRDH_1SDV_20160719T181151_20160719T181219_012221_012F93_3E0B", results.Items.First().Identifier);
 
             var test = results.SerializeToString();
 
-            Assert.IsTrue(results.SerializeToString().Contains("<t2m:Metrics xmlns:t2m=\"http://www.terradue.com/metrics\">"));
+            Assert.True(results.SerializeToString().Contains("<t2m:Metrics xmlns:t2m=\"http://www.terradue.com/metrics\">"));
 
             var metricsArray = results.ElementExtensions.ReadElementExtensions<Metrics>("Metrics", "http://www.terradue.com/metrics", MetricFactory.Serializer);
-            Assert.IsTrue(metricsArray.Count == 1);
+            Assert.True(metricsArray.Count == 1);
 
-            Assert.AreEqual(3, metricsArray.First().Metric.Count());
+            Assert.Equal(3, metricsArray.First().Metric.Count());
 
         }
 
-        [Test()]
+        [Fact(DisplayName = "Loop Test")]
+        [Trait("Category", "unit")]
         public void LoopTest()
         {
 
@@ -95,15 +97,16 @@ namespace Terradue.OpenSearch.Test
 
             var results = ose.Query(os, parameters);
 
-            Assert.AreEqual(20, results.Count);
-            Assert.Greater(results.TotalResults, 2000);
+            Assert.Equal(20, results.Count);
+            Assert.True(results.TotalResults > 2000);
 
             //parameters.Set("startIndex", "21");
             //results = ose.Query(os, parameters);
             //Assert.AreEqual(20, results.Count);
         }
 
-        [Test()]
+        [Fact(DisplayName = "Uid Test #2")]
+        [Trait("Category", "unit")]
         public void Uid2Test()
         {
 
@@ -126,8 +129,8 @@ namespace Terradue.OpenSearch.Test
 
             var results = ose.Query(os, parameters);
 
-            Assert.AreEqual(1, results.Count);
-            Assert.AreEqual(results.TotalResults, 1);
+            Assert.Equal(1, results.Count);
+            Assert.Equal(results.TotalResults, 1);
 
         }
 
