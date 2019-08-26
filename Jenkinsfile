@@ -27,7 +27,7 @@ pipeline {
     }
     stage('Test') {
       steps {
-        sh "mono packages/xunit.runner.console/2.4.1/tools/net452/xunit.console.exe Terradue.OpenSearch.Test/bin/Debug/net4*/*.Test.dll -nunit TestResult.xml"
+        sh "mono packages/xunit.runner.console/2.4.1/tools/net452/xunit.console.exe Terradue.OpenSearch.Test/bin/*/net4*/*.Test.dll -nunit TestResult.xml"
       }
     }
     stage('Publish') {
