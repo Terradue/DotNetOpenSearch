@@ -5,7 +5,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Terradue.OpenSearch</RootNamespace>
     <AssemblyName>Terradue.OpenSearch</AssemblyName>
-    <_ExtraTargetFrameworks Condition="'$(OS)' == 'Windows_NT' or '$(MSBuildRuntimeType)' == 'Mono'">net45</_ExtraTargetFrameworks>
+    <_ExtraTargetFrameworks Condition="'$(OS)' == 'Windows_NT' or '$(MSBuildRuntimeType)' == 'Mono'">net452</_ExtraTargetFrameworks>
     <TargetFrameworks>netstandard2.0;$(RoslynPortableTargetFrameworks);$(_ExtraTargetFrameworks)</TargetFrameworks>
     <RuntimeIdentifiers>win;linux</RuntimeIdentifiers>
     <Title>DotNetOpenSearch</Title>
@@ -20,7 +20,7 @@
     <RestorePackagesPath>$(SolutionDir)\packages</RestorePackagesPath>
     <NoWarn>$(NoWarn);NU1605</NoWarn>
   </PropertyGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net452' ">
     <Reference Include="mscorlib"/>
     <Reference Include="netstandard"/>
     <Reference Include="System.Net"/>
