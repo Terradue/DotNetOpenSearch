@@ -86,7 +86,7 @@ namespace Terradue.OpenSearch.Request
 			Stopwatch sw = Stopwatch.StartNew();
 			RequestCurrentPage();
 			sw.Stop();
-			return new OpenSearchResponse<TFeed>(feed, type, new List<Metric>() { new DoubleMetric("requestTime", sw.ElapsedMilliseconds, "ms", "Request time for retrieveing the query") });
+			return new OpenSearchResponse<TFeed>(feed, type, new List<Metric>() { new LongMetric("requestTime", sw.ElapsedMilliseconds, "ms", "Request time for retrieveing the query") });
 
 
 		}

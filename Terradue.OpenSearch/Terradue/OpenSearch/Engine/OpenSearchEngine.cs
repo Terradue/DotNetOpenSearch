@@ -594,7 +594,7 @@ namespace Terradue.OpenSearch.Engine
                     var assemblyName = AssemblyLoadContext.GetAssemblyName(dll);
                     var assembly = Assembly.Load(assemblyName);
 #endif
-#if NET45
+#if NET472
                     var assembly = Assembly.LoadFile(dll);
 #endif
                     allAssemblies.Add(assembly);

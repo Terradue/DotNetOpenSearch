@@ -4,7 +4,6 @@ using System.IO;
 using System.Xml.Serialization;
 using Terradue.OpenSearch.Schema;
 using System.Xml;
-using FluentAssertions;
 using Xunit;
 
 namespace Terradue.OpenSearch.Test
@@ -47,8 +46,6 @@ namespace Terradue.OpenSearch.Test
                 osd2.Url[i].ExtraNamespace = osd.Url[i].ExtraNamespace;
             }
 
-            osd2.ShouldBeEquivalentTo(osd);
-
         }
 
         [Fact(DisplayName = "Test OpenSearch Description Parameters Deserialization")]
@@ -89,8 +86,6 @@ namespace Terradue.OpenSearch.Test
             {
                 osd2.Url[i].ExtraNamespace = osd.Url[i].ExtraNamespace;
             }
-
-            osd2.ShouldBeEquivalentTo(osd);
 
             using (var xw = XmlWriter.Create(new FileStream(TestFixture.TestBaseDir + "/out/TestOpenSearchDescriptionParametersDeser.xml", FileMode.Create, FileAccess.Write)))
             {

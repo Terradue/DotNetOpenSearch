@@ -1,41 +1,38 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="Current" Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <ProjectGuid>{10E8EBF3-FD2C-4CFF-843C-6781BA1DE573}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>Terradue.OpenSearch.Test</RootNamespace>
     <AssemblyName>Terradue.OpenSearch.Test</AssemblyName>
-    <_ExtraTargetFrameworks Condition="'$(OS)' == 'Windows_NT' or '$(MSBuildRuntimeType)' == 'Mono'">net452</_ExtraTargetFrameworks>
+    <_ExtraTargetFrameworks Condition="'$(OS)' == 'Windows_NT' or '$(MSBuildRuntimeType)' == 'Mono'">net472</_ExtraTargetFrameworks>
     <TargetFrameworks>netcoreapp2.1;$(RoslynPortableTargetFrameworks);$(_ExtraTargetFrameworks)</TargetFrameworks>
     <RuntimeIdentifiers>win;linux</RuntimeIdentifiers>
     <IsPackable>false</IsPackable>
-    <PackageOutputPath>$(SolutionDir)\build</PackageOutputPath>
     <RestorePackagesPath>$(SolutionDir)\packages</RestorePackagesPath>
     <NoWarn>$(NoWarn);NU1605</NoWarn>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System"/>
-    <Reference Include="System.Xml"/>
-    <Reference Include="System.Net"/>
-    <Reference Include="System.Web"/>
-    <Reference Include="System.Xml.Linq"/>
-    <Reference Include="System.Core"/>
+    <Reference Include="System" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Net" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Terradue.OpenSearch\Terradue.OpenSearch.csproj"/>
+    <ProjectReference Include="..\Terradue.OpenSearch\Terradue.OpenSearch.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="bin\"/>
-    <Folder Include="Samples\"/>
-    <Folder Include="out\"/>
+    <Folder Include="Samples\" />
+    <Folder Include="out\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="log4net" Version="2.0.8"/>
-    <PackageReference Include="FluentAssertions" Version="4.0.0"/>
-    <PackageReference Include="xunit" Version="2.4.1"/>
-    <PackageReference Include="xunit.runner.console" Version="2.4.1"/>
+    <PackageReference Include="log4net" Version="2.0.8" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.4.0" />
+    <PackageReference Include="xunit" Version="2.2.0" />
+    <PackageReference Include="xunit.runner.console" Version="2.2.0" />
   </ItemGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.2' ">
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1"/>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1' ">
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
   </ItemGroup>
 </Project>
