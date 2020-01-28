@@ -77,7 +77,7 @@ namespace Terradue.OpenSearch.Request
         public override IOpenSearchResponse GetResponse()
         {
 
-            int retry = 2;
+            int retry = RetryNumber;
 
             while (retry >= 0)
             {
@@ -105,44 +105,68 @@ namespace Terradue.OpenSearch.Request
                     httpWebRequest.AllowAutoRedirect = true;
                     SetBasicAuthHeader(httpWebRequest, (NetworkCredential)Credentials);
 
-                    log.DebugFormat("Querying {0}", this.OpenSearchUrl);
+                    log.DebugFormat("Querying (Try={1}) {0}", this.OpenSearchUrl, retry);
 
+                    Stopwatch sw2 = new Stopwatch();
                     Stopwatch sw = Stopwatch.StartNew();
-                    using (HttpWebResponse webResponse = (HttpWebResponse)httpWebRequest.GetResponse())
+                    DateTime beginGetResponseTime = DateTime.UtcNow;
+                    DateTime endGetResponseTime = DateTime.UtcNow;
+
+                    return Task.Factory.FromAsync((asyncCallback, state) => {
+                         var asyncResult = httpWebRequest.BeginGetResponse(asyncCallback, state);
+                         log.DebugFormat("Connected to {0}", this.OpenSearchUrl.Host);
+                         beginGetResponseTime = DateTime.UtcNow;
+                         sw2.Start();
+                         return asyncResult;
+                        }, httpWebRequest.EndGetResponse, null)
+                    .ContinueWith(resp =>
                     {
+                        sw2.Stop();
+                        endGetResponseTime = DateTime.UtcNow;
+                        log.DebugFormat("Reply from {0}", this.OpenSearchUrl.Host);
+                        Metric responseTime = new LongMetric("responseTime", sw.ElapsedMilliseconds, "ms", "Response time of the remote server to answer the query");
+                        Metric beginGetResponseTimeMetric = new LongMetric("beginGetResponseTime", beginGetResponseTime.Ticks, "ticks", "Begin time of the get response from remote server to answer the query");
+                        Metric endGetResponseTimeMetric = new LongMetric("endGetResponseTime", endGetResponseTime.Ticks, "ticks", "End time of the get response from remote server to answer the query");
 
-                        using (var ms = new MemoryStream())
+                        using (HttpWebResponse webResponse = (HttpWebResponse)resp.Result)
                         {
-                            webResponse.GetResponseStream().CopyTo(ms);
-                            ms.Flush();
-                            data = ms.ToArray();
+                            using (var ms = new MemoryStream())
+                            {
+                                webResponse.GetResponseStream().CopyTo(ms);
+                                ms.Flush();
+                                data = ms.ToArray();
+                            }
+                            sw.Stop();
+                            Metric requestTime = new LongMetric("requestTime", sw.ElapsedMilliseconds, "ms", "Request time for retrieveing the query");
+                            Metric retryNumber = new LongMetric("retryNumber", RetryNumber - retry, "#", "Number of retry to have the query completed");
+                            response = new MemoryOpenSearchResponse(data, webResponse.ContentType, new List<Metric>() { responseTime, requestTime, retryNumber });
                         }
-                        sw.Stop();
-                        Metric requestTime = new DoubleMetric("requestTime", sw.ElapsedMilliseconds, "ms", "Request time for retrieveing the query");
 
-                        response = new MemoryOpenSearchResponse(data, webResponse.ContentType, new List<Metric>() { requestTime });
-                    }
-
-                    return response;
+                        return response;
+                    }).Result;
 
                 }
-                catch (WebException e)
+                catch (AggregateException ae)
                 {
-                    if (e.Status == WebExceptionStatus.Timeout)
-                        throw new TimeoutException(String.Format("Search Request {0} has timed out", this.OpenSearchUrl), e);
-                    if (e.Status == WebExceptionStatus.NameResolutionFailure)
-                        throw new WebException(String.Format("Search Request {0} has given a Name Resolution failure", this.OpenSearchUrl), e);
+                    log.DebugFormat("Error during query at {0} : {1}.", this.OpenSearchUrl, ae.InnerException.Message);
+                    if ( ae.InnerException is WebException && ((WebException)ae.InnerException).Response is HttpWebResponse ){
+                        var resp = ((WebException)ae.InnerException).Response as HttpWebResponse ;
+                        if ( resp.StatusCode == HttpStatusCode.BadRequest ||
+                            resp.StatusCode == HttpStatusCode.Unauthorized ||
+                            resp.StatusCode == HttpStatusCode.Forbidden ||
+                            resp.StatusCode == HttpStatusCode.NotFound ||
+                            resp.StatusCode == HttpStatusCode.MethodNotAllowed
+                        )
+                            throw ae.InnerException;
+                    }
                     retry--;
                     if (retry > 0)
                     {
-                        Thread.Sleep(1000);
+                        log.DebugFormat("Retrying in 3 seconds...");
+                        Thread.Sleep(3000);
                         continue;
                     }
-                    throw e;
-                }
-                catch (Exception e)
-                {
-                    throw new Exception("Unknown error during query at " + this.OpenSearchUrl, e);
+                    throw ae.InnerException;
                 }
             }
 
@@ -189,6 +213,8 @@ namespace Terradue.OpenSearch.Request
 
             }
         }
+
+        public int RetryNumber { get; internal set; }
     }
 }
 

@@ -87,6 +87,7 @@ namespace Terradue.OpenSearch.Request
                     ((HttpOpenSearchRequest)request).TimeOut = 600000;
                     ((HttpOpenSearchRequest)request).Credentials = querySettings.Credentials;
                     ((HttpOpenSearchRequest)request).SkipCertificateVerification = querySettings.SkipCertificateVerification;
+                    ((HttpOpenSearchRequest)request).RetryNumber = querySettings.MaxRetries;
                     break;
                 case "file":
                     request = new FileOpenSearchRequest(queryUrl, querySettings.PreferredContentType);

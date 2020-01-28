@@ -16,12 +16,9 @@
     <RepositoryUrl>https://github.com/Terradue/DotNetOpenSearch</RepositoryUrl>
     <PackageTags>OGC;Terradue;Opensearch</PackageTags>
     <PackageOutputPath>$(SolutionDir)\build</PackageOutputPath>
-    <RestorePackagesPath>$(SolutionDir)\packages</RestorePackagesPath>
     <NoWarn>$(NoWarn);NU1605</NoWarn>
   </PropertyGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
-    <!--<Reference Include="mscorlib" />
-    <Reference Include="netstandard" />-->
     <Reference Include="System" />
     <Reference Include="System.Net" />
     <Reference Include="System.Net.Http" />
@@ -34,7 +31,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="log4net" Version="2.0.8" />
-    <PackageReference Include="Terradue.ServiceModel.Syndication" Version="1.0.7" />
+    <PackageReference Include="Terradue.ServiceModel.Syndication" Version="1.1.1" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
     <PackageReference Include="System.Runtime.Loader" Version="4.3.0" />
