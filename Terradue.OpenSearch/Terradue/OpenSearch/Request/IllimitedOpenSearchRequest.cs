@@ -438,8 +438,9 @@ namespace Terradue.OpenSearch.Request {
     public class NameValueCollectionEqualityComparer : IEqualityComparer<NameValueCollection> {
 
         public int GetHashCode(NameValueCollection obj) {
+            if (obj == null ) return 0;
             var qs = HttpUtility.ParseQueryString("");
-            var sortedList = new SortedList(obj.AllKeys.ToDictionary(k => k, k => obj[k]));
+            var sortedList = new SortedList(obj.AllKeys.Where(k => k != null).ToDictionary(k => k, k => obj[k]));
             for (int i = 0; i < sortedList.Count; i++) {
                 qs.Add(sortedList.GetKey(i).ToString(), sortedList.GetByIndex(i).ToString());
             }
