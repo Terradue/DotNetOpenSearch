@@ -88,7 +88,7 @@ namespace Terradue.OpenSearch
         /// <value>The page offset.</value>
 		public int PageOffset {
 			get {
-                return string.IsNullOrEmpty(SearchAttributes["startPage"]) ? osdPageOffset : int.Parse(SearchAttributes["startPage"]);
+                return string.IsNullOrEmpty(SearchAttributes["{http://a9.com/-/spec/opensearch/1.1/}startPage"]) ? osdPageOffset : int.Parse(SearchAttributes["{http://a9.com/-/spec/opensearch/1.1/}startPage"]);
 			}
 		}
 
@@ -98,7 +98,7 @@ namespace Terradue.OpenSearch
         /// <value>The index offset.</value>
 		public int IndexOffset {
 			get {
-                return string.IsNullOrEmpty(SearchAttributes["startIndex"]) ? osdIndexOffset : int.Parse(SearchAttributes["startIndex"]);
+                return string.IsNullOrEmpty(SearchAttributes["{http://a9.com/-/spec/opensearch/1.1/}startIndex"]) ? osdIndexOffset : int.Parse(SearchAttributes["{http://a9.com/-/spec/opensearch/1.1/}startIndex"]);
 			}
 		}
 
@@ -108,7 +108,7 @@ namespace Terradue.OpenSearch
         /// <value>The index offset.</value>
         public int Count {
             get {
-                return string.IsNullOrEmpty(SearchAttributes["count"]) ? OpenSearchEngine.DEFAULT_COUNT : int.Parse(SearchAttributes["count"]);
+                return string.IsNullOrEmpty(SearchAttributes["{http://a9.com/-/spec/opensearch/1.1/}count"]) ? OpenSearchEngine.DEFAULT_COUNT : int.Parse(SearchAttributes["{http://a9.com/-/spec/opensearch/1.1/}count"]);
             }
         }
 	}
