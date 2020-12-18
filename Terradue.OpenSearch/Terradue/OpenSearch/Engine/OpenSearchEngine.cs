@@ -20,6 +20,7 @@ using System.Xml.Linq;
 using System.IO;
 using System.Reflection;
 using Terradue.OpenSearch.Benchmarking;
+using System.Text.RegularExpressions;
 #if NETSTANDARD2_0
 using System.Runtime.Loader;
 #endif
@@ -550,6 +551,11 @@ namespace Terradue.OpenSearch.Engine
             foreach (var key in request.Parameters.AllKeys)
             {
                 string osparam = OpenSearchFactory.GetParamNameFromId(osparams, key);
+                if (string.IsNullOrEmpty(osparam) && Regex.IsMatch(key, @"^{[^}]*}.*$"))
+                {
+                    Match match = Regex.Match(key, @"^{(?'ns'[^}]*)}(?'name'.*)$");
+                    query.Add(new XAttribute(XName.Get(match.Groups["name"].Value, match.Groups["ns"].Value), request.Parameters[key]));
+                }
                 if (!string.IsNullOrEmpty(osparam))
                 {
                     try

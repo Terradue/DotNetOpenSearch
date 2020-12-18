@@ -49,23 +49,23 @@ namespace Terradue.OpenSearch.Result {
             }
         }
 
-        public string Identifier {
-            get {
-                var identifier = ElementExtensions.ReadElementExtensions<string>("identifier", "http://purl.org/dc/elements/1.1/");
-                return identifier.Count == 0 ? base.Id : identifier[0];
-            }
-            set {
-                foreach (var ext in this.ElementExtensions.ToArray()) {
-                    if (ext.OuterName == "identifier" && ext.OuterNamespace == "http://purl.org/dc/elements/1.1/") {
-                        this.ElementExtensions.Remove(ext);
-                        continue;
-                    }
+            public string Identifier {
+                get {
+                    var identifier = ElementExtensions.ReadElementExtensions<string>("identifier", "http://purl.org/dc/elements/1.1/");
+                    return identifier.Count == 0 ? base.Id : identifier[0];
                 }
-                if (string.IsNullOrEmpty(value))
-                    return;
-                this.ElementExtensions.Add("identifier", "http://purl.org/dc/elements/1.1/", value);
+                set {
+                    foreach (var ext in this.ElementExtensions.ToArray()) {
+                        if (ext.OuterName == "identifier" && ext.OuterNamespace == "http://purl.org/dc/elements/1.1/") {
+                            this.ElementExtensions.Remove(ext);
+                            continue;
+                        }
+                    }
+                    if (string.IsNullOrEmpty(value))
+                        return;
+                    this.ElementExtensions.Add("identifier", "http://purl.org/dc/elements/1.1/", value);
+                }
             }
-        }
 
         public bool ShowNamespaces {
             get {
