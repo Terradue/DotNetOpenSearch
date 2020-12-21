@@ -72,5 +72,4 @@ git clone git@github.com:Terradue/Terradue.OpenSearch.git Terradue.OpenSearch
 
 Copyright (c) 2014 Terradue
 
-Licensed under the [GPL v2 License](https://github.com/Terradue.GeoJson/Terradue.OpenSearch/blob/master/LICENSE.txt)
-
+Licensed under the [Affero GPL v3 License](https://www.gnu.org/licenses/agpl.html)
