@@ -1,38 +1,26 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="Current" Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <OutputType>Library</OutputType>
-    <RootNamespace>Terradue.OpenSearch.Test</RootNamespace>
-    <AssemblyName>Terradue.OpenSearch.Test</AssemblyName>
-    <_ExtraTargetFrameworks Condition="'$(OS)' == 'Windows_NT' or '$(MSBuildRuntimeType)' == 'Mono'">net472</_ExtraTargetFrameworks>
-    <TargetFrameworks>netcoreapp2.1;$(RoslynPortableTargetFrameworks);$(_ExtraTargetFrameworks)</TargetFrameworks>
-    <RuntimeIdentifiers>win;linux</RuntimeIdentifiers>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <IsPackable>false</IsPackable>
-    <RestorePackagesPath>$(SolutionDir)\packages</RestorePackagesPath>
-    <NoWarn>$(NoWarn);NU1605</NoWarn>
+    <!-- <GenerateProgramFile>false</GenerateProgramFile> -->
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Xml" />
-    <Reference Include="System.Net" />
-    <Reference Include="System.Web" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Core" />
+    <ProjectReference Include="..\Terradue.OpenSearch\Terradue.OpenSearch.csproj"/>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Terradue.OpenSearch\Terradue.OpenSearch.csproj" />
+    <Folder Include="Samples\"/>
+    <Folder Include="out\"/>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Samples\" />
-    <Folder Include="out\" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="log4net" Version="2.0.8" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.4.0" />
-    <PackageReference Include="xunit" Version="2.2.0" />
-    <PackageReference Include="xunit.runner.console" Version="2.2.0" />
-  </ItemGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1' ">
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.*"/>
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.1.*"/>
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.*"/>
+    <PackageReference Include="log4net" Version="2.0.8"/>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.11.0"/>
+    <PackageReference Include="xunit" Version="2.4.*"/>
+    <PackageReference Include="xunit.runner.console" Version="2.2.0"/>
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.*"/>
+    <PackageReference Include="Xunit.DependencyInjection" Version="7.1.0"/>
+    <PackageReference Include="Xunit.DependencyInjection.Logging" Version="2.1.0"/>
   </ItemGroup>
 </Project>
