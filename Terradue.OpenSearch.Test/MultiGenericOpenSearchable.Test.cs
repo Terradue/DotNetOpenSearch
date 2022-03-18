@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using Xunit;
+using Terradue.OpenSearch.Result;
 
 namespace Terradue.OpenSearch.Test
 {
@@ -24,7 +25,9 @@ namespace Terradue.OpenSearch.Test
             List<IOpenSearchable> entities = new List<IOpenSearchable>();
             entities.Add(entity1);
 
-            IOpenSearchable multiEntity = new MultiGenericOpenSearchable(entities, settings, true);
+            MultiGenericOpenSearchable multiEntity = new MultiGenericOpenSearchable(entities, settings, true);
+            multiEntity.SortingComparer = new MethodSortingItemComparer();
+            ((MethodSortingItemComparer)multiEntity.SortingComparer).SortMethods.Add((x,y) => x.PublishDate.CompareTo(y.PublishDate));
 
             NameValueCollection nvc = new NameValueCollection();
 
@@ -134,10 +137,12 @@ namespace Terradue.OpenSearch.Test
             Assert.Equal("A21", osr.Items.First().Identifier);
             Assert.Equal("A25", osr.Items.Last().Identifier);
 
-            IOpenSearchable entity2 = TestOpenSearchable.GenerateNumberedItomFeed("B", 100, TimeSpan.FromHours(-1));
+            IOpenSearchable entity2 = TestOpenSearchable.GenerateNumberedItomFeed("B", 100, TimeSpan.FromMinutes(0.5));
 
             entities.Add(entity2);
             multiEntity = new MultiGenericOpenSearchable(entities, settings, true);
+            multiEntity.SortingComparer = new MethodSortingItemComparer();
+            ((MethodSortingItemComparer)multiEntity.SortingComparer).SortMethods.Add((x,y) => x.PublishDate.CompareTo(y.PublishDate));
 
             nvc = new NameValueCollection();
             nvc.Set("count", "10");
@@ -204,7 +209,9 @@ namespace Terradue.OpenSearch.Test
             entities.Add(entity1);
             entities.Add(entity2);
 
-            IOpenSearchable multiEntity = new MultiGenericOpenSearchable(entities, settings, true);
+            MultiGenericOpenSearchable multiEntity = new MultiGenericOpenSearchable(entities, settings, true);
+            multiEntity.SortingComparer = new MethodSortingItemComparer();
+            ((MethodSortingItemComparer)multiEntity.SortingComparer).SortMethods.Add((x,y) => x.PublishDate.CompareTo(y.PublishDate));
 
             NameValueCollection nvc = new NameValueCollection();
 
@@ -223,13 +230,16 @@ namespace Terradue.OpenSearch.Test
             var settings = new OpenSearchableFactorySettings(ose);
 
             IOpenSearchable entity1 = TestOpenSearchable.GenerateNumberedItomFeed("A", 5, new TimeSpan(0));
-            IOpenSearchable entity2 = TestOpenSearchable.GenerateNumberedItomFeed("B", 10, TimeSpan.FromDays(-2000));
+            IOpenSearchable entity2 = TestOpenSearchable.GenerateNumberedItomFeed("B", 10, TimeSpan.FromDays(2000));
 
             List<IOpenSearchable> entities = new List<IOpenSearchable>();
             entities.Add(entity1);
             entities.Add(entity2);
 
-            IOpenSearchable multiEntity = new MultiGenericOpenSearchable(entities, settings, true);
+            MultiGenericOpenSearchable multiEntity = new MultiGenericOpenSearchable(entities, settings, true);
+            multiEntity.SortingComparer = new MethodSortingItemComparer();
+            ((MethodSortingItemComparer)multiEntity.SortingComparer).SortMethods.Add((x,y) => x.PublishDate.CompareTo(y.PublishDate));
+            
 
             NameValueCollection nvc = new NameValueCollection();
 
@@ -291,7 +301,9 @@ namespace Terradue.OpenSearch.Test
             entities.Add(entity1);
             entities.Add(entity2);
 
-            IOpenSearchable multiEntity = new MultiGenericOpenSearchable(entities, settings, true);
+            MultiGenericOpenSearchable multiEntity = new MultiGenericOpenSearchable(entities, settings, true);
+            multiEntity.SortingComparer = new MethodSortingItemComparer();
+            ((MethodSortingItemComparer)multiEntity.SortingComparer).SortMethods.Add((x,y) => x.PublishDate.CompareTo(y.PublishDate));
 
             NameValueCollection nvc = new NameValueCollection();
 
@@ -325,7 +337,9 @@ namespace Terradue.OpenSearch.Test
 			List<IOpenSearchable> entities = new List<IOpenSearchable>();
 			entities.Add(entity1);
 
-            IOpenSearchable multiEntity = new MultiGenericOpenSearchable(entities, settings, true);
+            MultiGenericOpenSearchable multiEntity = new MultiGenericOpenSearchable(entities, settings, true);
+            multiEntity.SortingComparer = new MethodSortingItemComparer();
+            ((MethodSortingItemComparer)multiEntity.SortingComparer).SortMethods.Add((x,y) => x.PublishDate.CompareTo(y.PublishDate));
 
 			NameValueCollection nvc = new NameValueCollection();
 
@@ -382,7 +396,9 @@ namespace Terradue.OpenSearch.Test
             entities.Add(entity2);
             entities.Add(entity3);
 
-            IOpenSearchable multiEntity = new MultiGenericOpenSearchable(entities, settings, true);
+            MultiGenericOpenSearchable multiEntity = new MultiGenericOpenSearchable(entities, settings, true);
+            multiEntity.SortingComparer = new MethodSortingItemComparer();
+            ((MethodSortingItemComparer)multiEntity.SortingComparer).SortMethods.Add((x,y) => x.PublishDate.CompareTo(y.PublishDate));
 
             NameValueCollection nvc = new NameValueCollection();
 
@@ -419,7 +435,9 @@ namespace Terradue.OpenSearch.Test
             entities.Add(entity2);
             //entities.Add(entity3);
 
-            IOpenSearchable multiEntity = new MultiGenericOpenSearchable(entities, settings, true);
+            MultiGenericOpenSearchable multiEntity = new MultiGenericOpenSearchable(entities, settings, true);
+            multiEntity.SortingComparer = new MethodSortingItemComparer();
+            ((MethodSortingItemComparer)multiEntity.SortingComparer).SortMethods.Add((x,y) => x.PublishDate.CompareTo(y.PublishDate));
 
             NameValueCollection nvc = new NameValueCollection();
 

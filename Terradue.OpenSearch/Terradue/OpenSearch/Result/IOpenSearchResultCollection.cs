@@ -64,7 +64,7 @@ namespace Terradue.OpenSearch.Result {
         NameValueCollection Parameters { get; set; }
 
         TimeSpan QueryTimeSpan { get; set; }
-
+        
     }
 
 

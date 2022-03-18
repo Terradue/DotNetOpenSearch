@@ -75,18 +75,6 @@ namespace Terradue.OpenSearch.Result {
             }
         }
 
-        string sortKey;
-        public string SortKey {
-            get {
-                if (sortKey == null)
-                    return LastUpdatedTime.ToUniversalTime().ToString("O");
-                return sortKey.ToString();
-            }
-            set {
-                sortKey = value;
-            }
-        }
-
         #endregion
 
         #region IEquatable implementation
@@ -142,8 +130,6 @@ namespace Terradue.OpenSearch.Result {
                 return false;
             });
             item.Copyright = result.Copyright;
-
-            item.sortKey = result.SortKey;
 
             return item;
         }

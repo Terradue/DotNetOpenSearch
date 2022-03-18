@@ -213,7 +213,7 @@ namespace Terradue.OpenSearch.Test {
                 item.Identifier = lid + i;
                 item.Name = "Item" + lid + i;
                 item.TextContent = "This is the text for item " + lid + i;
-                item.Shift = shift;
+                item.Shift = shift.Add(TimeSpan.FromMinutes(i));
                 items.Add(item);
 
             }

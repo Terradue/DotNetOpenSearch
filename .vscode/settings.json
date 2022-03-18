@@ -1,8 +1,7 @@
 {
-        "nxunitExplorer.modules": [
-                "**Test/bin/**/**/*.{dll,exe}"
-        ],
-        "nxunitExplorer.xunit": "packages/xunit.runner.console/2.2.0/tools/xunit.console.exe",
         "omnisharp.useGlobalMono": "auto",
-        "dotnet-test-explorer.testProjectPath": "**/*Test.csproj"
+        "dotnet-test-explorer.testProjectPath": "**/*Test.csproj",
+        "logViewer.watch": [
+                "Terradue.OpenSearch.Test/bin/Debug/netcoreapp3.1/test.log"
+        ]
 }       
