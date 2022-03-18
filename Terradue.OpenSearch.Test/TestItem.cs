@@ -51,7 +51,7 @@ namespace Terradue.OpenSearch.Test {
 
         public DateTimeOffset Date {
             get {
-                return new DateTime(1900, 01, 01, 01, 01, 01).AddYears(100 - i).Add(Shift);
+                return new DateTime(1900, 01, 01, 01, 01, 01).Add(Shift);
             }
         }
     }

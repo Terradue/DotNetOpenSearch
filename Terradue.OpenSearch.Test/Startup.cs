@@ -23,7 +23,8 @@ namespace Terradue.OpenSearch.Test
 
         public void Configure(ILoggerFactory loggerfactory, ITestOutputHelperAccessor accessor)
         {
-            loggerfactory.AddProvider(new XunitTestOutputLoggerProvider(accessor));
+            // loggerfactory.AddProvider(new XunitTestOutputLoggerProvider(accessor));
+            loggerfactory.AddLog4Net();
         }
 
         public IConfiguration GetApplicationConfiguration()

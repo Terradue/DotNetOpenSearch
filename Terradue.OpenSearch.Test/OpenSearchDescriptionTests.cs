@@ -86,13 +86,6 @@ namespace Terradue.OpenSearch.Test
             {
                 osd2.Url[i].ExtraNamespace = osd.Url[i].ExtraNamespace;
             }
-
-            using (var xw = XmlWriter.Create(new FileStream(TestFixture.TestBaseDir + "/out/TestOpenSearchDescriptionParametersDeser.xml", FileMode.Create, FileAccess.Write)))
-            {
-
-                serializer.Serialize(xw, osd);
-                xw.Flush();
-            }
         }
     }
 }

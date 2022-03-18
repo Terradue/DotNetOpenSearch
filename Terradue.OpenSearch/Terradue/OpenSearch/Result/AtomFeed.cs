@@ -256,6 +256,8 @@ namespace Terradue.OpenSearch.Result {
                 this.ElementExtensions.Add("queryTime", "http://purl.org/dc/elements/1.1/", value.TotalMilliseconds);
             }
         }
+
+        public IComparer<IOpenSearchResultItem> SortingComparer => new MethodSortingItemComparer();
         #endregion
 
         public static IOpenSearchResultCollection CreateFromOpenSearchResultCollection(IOpenSearchResultCollection results) {
