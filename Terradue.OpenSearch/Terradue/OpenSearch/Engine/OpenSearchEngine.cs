@@ -330,7 +330,7 @@ namespace Terradue.OpenSearch.Engine
                 osd = OpenSearchFactory.ReadOpenSearchDescriptionDocument(response);
                 descriptionUrl = url;
             }
-            else if (contentType.StartsWith("application/xml"))
+            else if (contentType.StartsWith("application/xml") || contentType.StartsWith("text/xml"))
             {
                 try
                 {
