@@ -85,9 +85,26 @@ namespace Terradue.OpenSearch.Request
                 case "https":
                     request = new HttpOpenSearchRequest(queryUrl, querySettings.PreferredContentType);
                     ((HttpOpenSearchRequest)request).TimeOut = 600000;
-                    ((HttpOpenSearchRequest)request).Credentials = querySettings.Credentials;
-                    ((HttpOpenSearchRequest)request).SkipCertificateVerification = querySettings.SkipCertificateVerification;
-                    ((HttpOpenSearchRequest)request).RetryNumber = querySettings.MaxRetries;
+                    if (querySettings != null)
+                    {
+                        ((HttpOpenSearchRequest)request).SkipCertificateVerification = querySettings.SkipCertificateVerification;
+                        ((HttpOpenSearchRequest)request).RetryNumber = querySettings.MaxRetries;
+                        ((HttpOpenSearchRequest)request).Credentials = querySettings.Credentials;
+
+                        if (querySettings.SkipNullOrEmptyQueryStringParameters)
+                        {
+                            UriBuilder urib = new UriBuilder(request.url);
+                            NameValueCollection nvc = HttpUtility.ParseQueryString(urib.Query);
+                            string queryString = String.Empty;
+                            foreach (string key in nvc.AllKeys)
+                            {
+                                if (!String.IsNullOrEmpty(nvc[key]))
+                                    queryString += String.Format("{0}{1}={2}", queryString == String.Empty ? String.Empty : "&", key, HttpUtility.UrlEncode(nvc[key]));
+                            }
+                            urib.Query = queryString;
+                            request.url = new OpenSearchUrl(urib.Uri);
+                        }
+                    }
                     break;
                 case "file":
                     request = new FileOpenSearchRequest(queryUrl, querySettings.PreferredContentType);
@@ -113,18 +130,32 @@ namespace Terradue.OpenSearch.Request
                 case "https":
                     request = new HttpOpenSearchRequest(queryUrl);
                     ((HttpOpenSearchRequest)request).TimeOut = 600000;
-                    ((HttpOpenSearchRequest)request).SkipCertificateVerification = querySettings.SkipCertificateVerification;
-                    if (querySettings != null && querySettings.Credentials != null && querySettings.Credentials is System.Net.NetworkCredential)
+                    if (querySettings != null)
                     {
-                        ((HttpOpenSearchRequest)request).Credentials = querySettings.Credentials;
-                        System.Net.NetworkCredential netcred = querySettings.Credentials as System.Net.NetworkCredential;
-                        UriBuilder urib = new UriBuilder(request.url);
-                        // if (!netcred.UserName.Contains("@"))
-                        // {
-                        //     urib.UserName = netcred.UserName;
-                        //     urib.Password = netcred.Password;
-                        // }
-                        request.url = new OpenSearchUrl(urib.Uri);
+                        ((HttpOpenSearchRequest)request).SkipCertificateVerification = querySettings.SkipCertificateVerification;
+                        if (querySettings.Credentials != null && querySettings.Credentials is System.Net.NetworkCredential)
+                        {
+                            ((HttpOpenSearchRequest)request).Credentials = querySettings.Credentials;
+                            // System.Net.NetworkCredential netcred = querySettings.Credentials as System.Net.NetworkCredential;
+                            // if (!netcred.UserName.Contains("@"))
+                            // {
+                            //     urib.UserName = netcred.UserName;
+                            //     urib.Password = netcred.Password;
+                            // }
+                        }
+                        if (querySettings.SkipNullOrEmptyQueryStringParameters)
+                        {
+                            UriBuilder urib = new UriBuilder(request.url);
+                            NameValueCollection nvc = HttpUtility.ParseQueryString(urib.Query);
+                            string queryString = String.Empty;
+                            foreach (string key in nvc.AllKeys)
+                            {
+                                if (!String.IsNullOrEmpty(nvc[key]))
+                                    queryString += String.Format("{0}{1}={2}", queryString == String.Empty ? String.Empty : "&", key, HttpUtility.UrlEncode(nvc[key]));
+                            }
+                            urib.Query = queryString;
+                            request.url = new OpenSearchUrl(urib.Uri);
+                        }
                     }
                     break;
                 case "file":
